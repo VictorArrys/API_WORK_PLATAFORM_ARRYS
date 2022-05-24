@@ -14,7 +14,8 @@ app.use(express.urlencoded({extended:true}));
 app.use(express.json());
 
 //routes
-app.use(require('./src/paths/paths_index'))
+app.use(require('./src/paths/paths_usuarios'))
+app.use(require('./src/paths/paths_categorias'))
 
 //starting server
 app.listen(app.get('port'), () => {
