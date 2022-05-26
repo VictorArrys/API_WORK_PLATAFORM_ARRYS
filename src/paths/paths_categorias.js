@@ -4,6 +4,36 @@ var mysqlConnection = require('../../utils/conexion');
 const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
 
+//Respuestas
+const errorInterno = {
+    "resBody" : {
+    "menssage" : "error interno del servidor"
+    }
+}
+
+const tokenInvalido = {
+    "resBody" : {
+    "menssage" : "token invalido"
+    }
+}
+
+const peticionIncorrecta = {
+    "resBody" : {
+    "menssage" : "peticion no encontrada"
+    }
+}
+
+const registroExitoso = {
+    "resBody" : {
+    "menssage" : "Registro exitoso"
+    }
+}
+
+const actualizacionExitosa = {
+    "resBody" : {
+    "menssage" : "Actualización exitosa"
+    }
+}
 
 //Función para verificar el token
 function verifyToken(token){
@@ -44,24 +74,13 @@ path.get('/v1/categoriasEmpleo', (req, res) => {
     
         pool.query('SELECT * FROM categoria_empleo;', (error, resultadoCategoria)=>{
             if(error){ 
-                res.json({
-                    "resBody" : {
-                    "menssage" : "error interno del servidor"
-                    }
-                });
+                res.json(errorInterno);
                 res.status(500)
-            }
-    
-            if(resultadoCategoria[0].length == 0){
+            }else if(resultadoCategoria[0].length == 0){
     
                 res.status(404)
-                res.json({
-                    "resBody" : {
-                    "menssage" : "peticion no encontrada"
-                    }
-                });
-    
-                
+                res.json(peticionIncorrecta);
+     
             }else{
                 var categoriasEmpleo = resultadoCategoria;
     
@@ -73,18 +92,10 @@ path.get('/v1/categoriasEmpleo', (req, res) => {
         });
     }else if(respuesta == 401){
         res.status(respuesta)
-        res.json({
-            "resBody" : {
-            "menssage" : "token invalido"
-            }
-            });
+        res.json(tokenInvalido);
 
     }else{
-        res.json({
-            "resBody" : {
-            "menssage" : "error interno del servidor"
-            }
-        });
+        res.json(errorInterno);
         res.status(500)
     }
 
@@ -105,19 +116,10 @@ path.post('/v1/categoriasEmpleo', (req, res) => {
         mysqlConnection.query(query, [string], (err, rows, fields) => {
             if (!err) {
             res.status(201);
-            res.json({
-                "resBody" : {
-                "menssage" : "Registro exitoso",
-                "categoria": [string]
-                }
-                });
+            res.json(registroExitoso);
             } else {
             console.log(err)
-            res.json({
-                "resBody" : {
-                "menssage" : "error interno del servidor"
-                }
-                });
+            res.json(errorInterno);
                 res.status(500)
             
             }
@@ -125,18 +127,10 @@ path.post('/v1/categoriasEmpleo', (req, res) => {
 
     }else if(respuesta == 401){
         res.status(respuesta)
-        res.json({
-            "resBody" : {
-            "menssage" : "token invalido"
-            }
-            });
+        res.json(tokenInvalido);
 
     }else{
-        res.json({
-            "resBody" : {
-            "menssage" : "error interno del servidor"
-            }
-        });
+        res.json(errorInterno);
         res.status(500)
     }
 
@@ -158,36 +152,20 @@ path.patch('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => {
         mysqlConnection.query(query, [string, req.params.idCategoriaEmpleo], (err, rows, fields) => {
             if (!err) {
             res.status(203);
-            res.json({
-                "resBody" : {
-                "menssage" : "Actualización exitosa xd"
-                }
-                });
+            res.json(actualizacionExitosa);
             } else {
                 console.log(err)
-                res.json({
-                    "resBody" : {
-                    "menssage" : "error interno del servidor"
-                }
-                });
+                res.json(errorInterno);
                 res.status(500)
             
             }
         })
     }else if(respuesta == 401){
         res.status(respuesta)
-        res.json({
-            "resBody" : {
-            "menssage" : "token invalido"
-            }
-            });
+        res.json(tokenInvalido);
 
     }else{
-        res.json({
-            "resBody" : {
-            "menssage" : "error interno del servidor"
-            }
-        });
+        res.json(errorInterno);
         res.status(500)
     }
 
@@ -209,11 +187,7 @@ path.delete('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => {
                 res.sendStatus(204)
             } else {
                 console.log(err)
-                res.json({
-                    "resBody" : {
-                    "menssage" : "error interno del servidor"
-                    }
-                });
+                res.json(errorInterno);
                 res.status(500)
             
             }
@@ -221,22 +195,12 @@ path.delete('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => {
 
     }else if(respuesta == 401){
         res.status(respuesta)
-        res.json({
-            "resBody" : {
-            "menssage" : "token invalido"
-            }
-            });
+        res.json(tokenInvalido);
 
     }else{
-        res.json({
-            "resBody" : {
-            "menssage" : "error interno del servidor"
-            }
-        });
+        res.json(errorInterno);
         res.status(500)
     }
 });
-
-
 
 module.exports = path;
