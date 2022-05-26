@@ -47,12 +47,79 @@ path.post('/v1/categoriasEmpleo', (req, res) => {
     var query = 'INSERT INTO categoria_empleo (nombre) VALUES(?);';
     mysqlConnection.query(query, [string], (err, rows, fields) => {
         if (!err) {
-          res.status(201).json(rows[0])
+          res.status(201);
+          res.json({
+            "resBody" : {
+            "menssage" : "Registro exitoso",
+            "categoria": [string]
+            }
+            });
         } else {
           console.log(err)
+          res.json({
+            "resBody" : {
+            "menssage" : "error interno del servidor"
+            }
+            });
+            res.status(500)
+          
         }
     })
 });
+
+
+path.patch('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => {
+
+    console.log('Entro a editar xd')
+
+    const { nombre } = req.body
+    var string = nombre;
+    console.log(string);
+    var query = 'UPDATE categoria_empleo SET nombre = ? WHERE id_categoria_empleo = ?;';
+    mysqlConnection.query(query, [string, req.params.idCategoriaEmpleo], (err, rows, fields) => {
+        if (!err) {
+          res.status(203);
+          res.json({
+            "resBody" : {
+            "menssage" : "Actualización exitosa xd"
+            }
+            });
+        } else {
+            console.log(err)
+            res.json({
+                "resBody" : {
+                "menssage" : "error interno del servidor"
+            }
+            });
+            res.status(500)
+          
+        }
+    })
+
+});
+
+path.delete('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => {
+
+    var query = 'DELETE FROM categoria_empleo WHERE id_categoria_empleo = ?;';
+    mysqlConnection.query(query, [req.params.idCategoriaEmpleo], (err, rows, fields) => {
+        if (!err) {
+            //res.status(204); 
+            //Para los que no se manda nada, se debe poner sendStatus(statusCode)
+            res.sendStatus(204)
+        } else {
+            console.log(err)
+            res.json({
+                "resBody" : {
+                "menssage" : "error interno del servidor"
+                }
+            });
+            res.status(500)
+          
+        }
+    })
+
+});
+
 
 
 module.exports = path;
