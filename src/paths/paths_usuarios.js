@@ -8,18 +8,6 @@ const { send, status } = require('express/lib/response');
 
 path.get('/v1/iniciarSesion/:nombreUsuario/:clave', (req, res) => {
     var pool = mysqlConnection;
-    /* Const token = req.headers['x-access-token'];
-    try{
-      const tokenData = jwt.verify(token, keys.key); 
-      console.log(tokenData);
-    } catch (error) {
-      reject({
-        "resBody" : {
-          "menssage" : "Token invalido", 
-        }, 
-        "statusCode" : 401
-      });
-    }*/
 
     pool.query('SELECT * FROM perfil_usuario WHERE nombre_usuario = ? AND clave = ?;', [req.params.nombreUsuario, req.params.clave], (error, rows)=>{
         if(error){ 

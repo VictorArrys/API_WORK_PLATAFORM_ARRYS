@@ -4,120 +4,237 @@ var mysqlConnection = require('../../utils/conexion');
 const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
 
-path.get('/v1/categoriasEmpleo', (req, res) => {
-    var pool = mysqlConnection;
 
-    pool.query('SELECT * FROM categoria_empleo;', (error, resultadoCategoria)=>{
-        if(error){ 
-            res.json({
-                "resBody" : {
-                "menssage" : "error interno del servidor"
-                }
-            });
-            res.status(500)
-        }
-
-        if(resultadoCategoria[0].length == 0){
-
-            res.status(404)
-            res.json({
-                "resBody" : {
-                "menssage" : "peticion no encontrada"
-                }
-            });
-
-            
+//Función para verificar el token
+function verifyToken(token){
+    var statusCode = 0;
+    try{
+        const tokenData = jwt.verify(token, keys.key); 
+        console.log(tokenData);
+  
+        if (tokenData["tipo"] == "Administrador") {
+            statusCode = 200
+            return statusCode
         }else{
-            var categoriasEmpleo = resultadoCategoria;
-
-            res.json(categoriasEmpleo);
-            res.status(200);
-
+            //Caso que un token exista pero no contenga los permisos para la petición
+            statusCode = 401
+            return statusCode
+          }
+    
+        } catch (error) { //Caso de un token invalido, es decir que no exista
+            statusCode = 401
+            return statusCode
+            
         }
 
-    });
+
+
+}
+
+path.get('/v1/categoriasEmpleo', (req, res) => {
+    //Creamos la constante del token que recibimos
+    const token = req.headers['x-access-token'];
+    var respuesta = verifyToken(token)
+ 
+    console.log(respuesta)
+    if(respuesta == 200){
+
+        var pool = mysqlConnection;
+
+    
+        pool.query('SELECT * FROM categoria_empleo;', (error, resultadoCategoria)=>{
+            if(error){ 
+                res.json({
+                    "resBody" : {
+                    "menssage" : "error interno del servidor"
+                    }
+                });
+                res.status(500)
+            }
+    
+            if(resultadoCategoria[0].length == 0){
+    
+                res.status(404)
+                res.json({
+                    "resBody" : {
+                    "menssage" : "peticion no encontrada"
+                    }
+                });
+    
+                
+            }else{
+                var categoriasEmpleo = resultadoCategoria;
+    
+                res.json(categoriasEmpleo);
+                res.status(200);
+    
+            }
+    
+        });
+    }else if(respuesta == 401){
+        res.status(respuesta)
+        res.json({
+            "resBody" : {
+            "menssage" : "token invalido"
+            }
+            });
+
+    }else{
+        res.json({
+            "resBody" : {
+            "menssage" : "error interno del servidor"
+            }
+        });
+        res.status(500)
+    }
 
 });
 
 
 path.post('/v1/categoriasEmpleo', (req, res) => {
-    const { nombre } = req.body
-    var string = nombre;
-    console.log(string);
-    var query = 'INSERT INTO categoria_empleo (nombre) VALUES(?);';
-    mysqlConnection.query(query, [string], (err, rows, fields) => {
-        if (!err) {
-          res.status(201);
-          res.json({
-            "resBody" : {
-            "menssage" : "Registro exitoso",
-            "categoria": [string]
-            }
-            });
-        } else {
-          console.log(err)
-          res.json({
-            "resBody" : {
-            "menssage" : "error interno del servidor"
-            }
-            });
-            res.status(500)
-          
-        }
-    })
-});
+    const token = req.headers['x-access-token'];
+    var respuesta = verifyToken(token)
 
+    console.log(respuesta)
+    if(respuesta == 200){
 
-path.patch('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => {
+        const { nombre } = req.body
+        var string = nombre;
 
-    console.log('Entro a editar xd')
-
-    const { nombre } = req.body
-    var string = nombre;
-    console.log(string);
-    var query = 'UPDATE categoria_empleo SET nombre = ? WHERE id_categoria_empleo = ?;';
-    mysqlConnection.query(query, [string, req.params.idCategoriaEmpleo], (err, rows, fields) => {
-        if (!err) {
-          res.status(203);
-          res.json({
-            "resBody" : {
-            "menssage" : "Actualización exitosa xd"
-            }
-            });
-        } else {
-            console.log(err)
+        var query = 'INSERT INTO categoria_empleo (nombre) VALUES(?);';
+        mysqlConnection.query(query, [string], (err, rows, fields) => {
+            if (!err) {
+            res.status(201);
             res.json({
                 "resBody" : {
-                "menssage" : "error interno del servidor"
-            }
-            });
-            res.status(500)
-          
-        }
-    })
-
-});
-
-path.delete('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => {
-
-    var query = 'DELETE FROM categoria_empleo WHERE id_categoria_empleo = ?;';
-    mysqlConnection.query(query, [req.params.idCategoriaEmpleo], (err, rows, fields) => {
-        if (!err) {
-            //res.status(204); 
-            //Para los que no se manda nada, se debe poner sendStatus(statusCode)
-            res.sendStatus(204)
-        } else {
+                "menssage" : "Registro exitoso",
+                "categoria": [string]
+                }
+                });
+            } else {
             console.log(err)
             res.json({
                 "resBody" : {
                 "menssage" : "error interno del servidor"
                 }
-            });
-            res.status(500)
-          
-        }
-    })
+                });
+                res.status(500)
+            
+            }
+        })
 
+    }else if(respuesta == 401){
+        res.status(respuesta)
+        res.json({
+            "resBody" : {
+            "menssage" : "token invalido"
+            }
+            });
+
+    }else{
+        res.json({
+            "resBody" : {
+            "menssage" : "error interno del servidor"
+            }
+        });
+        res.status(500)
+    }
+
+});
+
+
+path.patch('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => {
+    //Creamos la constante del token que recibimos
+    const token = req.headers['x-access-token'];
+    var respuesta = verifyToken(token)
+ 
+    console.log(respuesta)
+    if(respuesta == 200){
+   
+        const { nombre } = req.body
+        var string = nombre;
+        console.log(string);
+        var query = 'UPDATE categoria_empleo SET nombre = ? WHERE id_categoria_empleo = ?;';
+        mysqlConnection.query(query, [string, req.params.idCategoriaEmpleo], (err, rows, fields) => {
+            if (!err) {
+            res.status(203);
+            res.json({
+                "resBody" : {
+                "menssage" : "Actualización exitosa xd"
+                }
+                });
+            } else {
+                console.log(err)
+                res.json({
+                    "resBody" : {
+                    "menssage" : "error interno del servidor"
+                }
+                });
+                res.status(500)
+            
+            }
+        })
+    }else if(respuesta == 401){
+        res.status(respuesta)
+        res.json({
+            "resBody" : {
+            "menssage" : "token invalido"
+            }
+            });
+
+    }else{
+        res.json({
+            "resBody" : {
+            "menssage" : "error interno del servidor"
+            }
+        });
+        res.status(500)
+    }
+
+});
+
+path.delete('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => {
+    //Creamos la constante del token que recibimos
+    const token = req.headers['x-access-token'];
+    var respuesta = verifyToken(token)
+ 
+    console.log(respuesta)
+    if(respuesta == 200){
+
+        var query = 'DELETE FROM categoria_empleo WHERE id_categoria_empleo = ?;';
+        mysqlConnection.query(query, [req.params.idCategoriaEmpleo], (err, rows, fields) => {
+            if (!err) {
+                //res.status(204); 
+                //Para los que no se manda nada, se debe poner sendStatus(statusCode)
+                res.sendStatus(204)
+            } else {
+                console.log(err)
+                res.json({
+                    "resBody" : {
+                    "menssage" : "error interno del servidor"
+                    }
+                });
+                res.status(500)
+            
+            }
+        })
+
+    }else if(respuesta == 401){
+        res.status(respuesta)
+        res.json({
+            "resBody" : {
+            "menssage" : "token invalido"
+            }
+            });
+
+    }else{
+        res.json({
+            "resBody" : {
+            "menssage" : "error interno del servidor"
+            }
+        });
+        res.status(500)
+    }
 });
 
 

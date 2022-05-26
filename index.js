@@ -1,4 +1,5 @@
 const express = require('express');
+const req = require('express/lib/request');
 const app = express();
 const morgan = require('morgan');
 
@@ -16,6 +17,7 @@ app.use(express.json());
 //routes
 app.use(require('./src/paths/paths_usuarios'))
 app.use(require('./src/paths/paths_categorias'))
+app.use(require('./src/paths/paths_perfilDemandante'))
 
 //starting server
 app.listen(app.get('port'), () => {
