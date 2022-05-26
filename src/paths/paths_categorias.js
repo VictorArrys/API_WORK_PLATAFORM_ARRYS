@@ -56,9 +56,6 @@ function verifyToken(token){
             return statusCode
             
         }
-
-
-
 }
 
 path.get('/v1/categoriasEmpleo', (req, res) => {

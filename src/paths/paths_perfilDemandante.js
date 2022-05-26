@@ -5,7 +5,6 @@ const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
 const { send, status } = require('express/lib/response');
 
-
 path.put('/v1/perfilDemandantes/:idPerfilDemandante', (req, res) => {
     res.sendStatus(200)
 

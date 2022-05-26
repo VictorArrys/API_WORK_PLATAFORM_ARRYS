@@ -5,17 +5,54 @@ const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
 const { send, status } = require('express/lib/response');
 
+//Respuestas
+const errorInterno = {
+    "resBody" : {
+    "menssage" : "error interno del servidor"
+    }
+}
+
+const tokenInvalido = {
+    "resBody" : {
+    "menssage" : "token invalido"
+    }
+}
+
+const peticionIncorrecta = {
+    "resBody" : {
+    "menssage" : "peticion no encontrada"
+    }
+}
+
+//Función para verificar el token
+function verifyToken(token){
+    var statusCode = 0;
+    try{
+        const tokenData = jwt.verify(token, keys.key); 
+        console.log(tokenData);
+  
+        if (tokenData["tipo"] == "Administrador") {
+            statusCode = 200
+            return statusCode
+        }else{
+            //Caso que un token exista pero no contenga los permisos para la petición
+            statusCode = 401
+            return statusCode
+          }
+    
+        } catch (error) { //Caso de un token invalido, es decir que no exista
+            statusCode = 401
+            return statusCode
+            
+        }
+}
 
 path.get('/v1/iniciarSesion/:nombreUsuario/:clave', (req, res) => {
     var pool = mysqlConnection;
 
     pool.query('SELECT * FROM perfil_usuario WHERE nombre_usuario = ? AND clave = ?;', [req.params.nombreUsuario, req.params.clave], (error, rows)=>{
         if(error){ 
-            res.json({
-                "resBody" : {
-                  "menssage" : "error interno del servidor"
-                }
-            });
+            res.json(errorInterno);
             res.status(500)
 
         }
@@ -23,11 +60,7 @@ path.get('/v1/iniciarSesion/:nombreUsuario/:clave', (req, res) => {
         if(rows.length == 0){
 
             res.status(404)
-            res.json({
-                "resBody" : {
-                  "menssage" : "peticion no encontrada"
-                }
-            });
+            res.json(peticionIncorrecta);
 
             console.log("¡Metiste credenciales incorrectas subnormal!");
         }else{
