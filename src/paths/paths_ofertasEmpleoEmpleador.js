@@ -51,7 +51,7 @@ function verifyToken(token){
             return statusCode
           }
     
-        } catch (error) { //Caso de un token invalido, es decir que no exista
+        } catch (error) { //Caso ..de un token invalido, es decir que no exista
             statusCode = 401
             return statusCode
             
