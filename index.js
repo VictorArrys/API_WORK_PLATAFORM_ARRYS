@@ -18,6 +18,7 @@ app.use(express.json());
 app.use(require('./src/paths/paths_usuarios'))
 app.use(require('./src/paths/paths_categorias'))
 app.use(require('./src/paths/paths_perfilDemandante'))
+app.use(require('./src/paths/paths_ofertasEmpleoEmpleador'))
 
 //starting server
 app.listen(app.get('port'), () => {

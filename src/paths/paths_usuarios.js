@@ -47,10 +47,10 @@ function verifyToken(token){
         }
 }
 
-path.get('/v1/iniciarSesion/:nombreUsuario/:clave', (req, res) => {
+path.get('/v1/iniciarSesion', (req, res) => {
     var pool = mysqlConnection;
 
-    pool.query('SELECT * FROM perfil_usuario WHERE nombre_usuario = ? AND clave = ?;', [req.params.nombreUsuario, req.params.clave], (error, rows)=>{
+    pool.query('SELECT * FROM perfil_usuario WHERE nombre_usuario = ? AND clave = ?;', [req.query.nombreUsuario, req.query.clave], (error, rows)=>{
         if(error){ 
             res.json(errorInterno);
             res.status(500)
@@ -79,7 +79,6 @@ path.get('/v1/iniciarSesion/:nombreUsuario/:clave', (req, res) => {
 
             const resultadoJson = {};
             resultadoJson['application/json'] = {
-                "resBody" : {
                 "clave" : usuario['clave'],
                 "tipo" : usuario['tipo_usuario'],
                 "estatus" : usuario['estatus'],
@@ -88,11 +87,9 @@ path.get('/v1/iniciarSesion/:nombreUsuario/:clave', (req, res) => {
                 "fotografia" : usuario['fotografia'],
                 "tipoUsuario" : usuario['tipo_usuario'],
                 "token" : token
-                }
             };
             res.status(200)
-            res.send(resultadoJson);
-            //res.json({usuario, "token" : token, "statusCode" : 200});
+            res.send(resultadoJson['application/json']);
         }
 
     });
