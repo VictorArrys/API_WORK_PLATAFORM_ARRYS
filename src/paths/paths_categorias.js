@@ -29,12 +29,6 @@ const registroExitoso = {
     }
 }
 
-const actualizacionExitosa = {
-    "resBody" : {
-    "menssage" : "Actualización exitosa"
-    }
-}
-
 //Función para verificar el token
 function verifyToken(token){
     var statusCode = 0;
@@ -148,8 +142,7 @@ path.patch('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => {
         var query = 'UPDATE categoria_empleo SET nombre = ? WHERE id_categoria_empleo = ?;';
         mysqlConnection.query(query, [string, req.params.idCategoriaEmpleo], (err, rows, fields) => {
             if (!err) {
-            res.status(203);
-            res.json(actualizacionExitosa);
+                res.sendStatus(204)
             } else {
                 console.log(err)
                 res.json(errorInterno);

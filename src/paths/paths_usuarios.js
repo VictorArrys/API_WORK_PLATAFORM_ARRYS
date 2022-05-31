@@ -12,13 +12,22 @@ const errorInterno = {
     }
 }
 
+//
 const tokenInvalido = {
     "resBody" : {
     "menssage" : "token invalido"
     }
 }
 
+// 400
 const peticionIncorrecta = {
+    "resBody" : {
+    "menssage" : "peticion incorrecta"
+    }
+}
+
+// 400
+const peticionNoEncontrada = {
     "resBody" : {
     "menssage" : "peticion no encontrada"
     }
@@ -50,6 +59,8 @@ function verifyToken(token){
 path.get('/v1/iniciarSesion', (req, res) => {
     var pool = mysqlConnection;
 
+
+
     pool.query('SELECT * FROM perfil_usuario WHERE nombre_usuario = ? AND clave = ?;', [req.query.nombreUsuario, req.query.clave], (error, rows)=>{
         if(error){ 
             res.json(errorInterno);
@@ -60,11 +71,13 @@ path.get('/v1/iniciarSesion', (req, res) => {
         if(rows.length == 0){
 
             res.status(404)
-            res.json(peticionIncorrecta);
+            res.json(peticionNoEncontrada);
 
             console.log("¡Metiste credenciales incorrectas subnormal!");
         }else{
+
             var usuario = rows[0];
+            
 
             const payload = {
                 "idUsuario" : usuario['id_perfil_usuario'],
