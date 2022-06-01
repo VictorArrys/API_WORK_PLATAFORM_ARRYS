@@ -43,7 +43,7 @@ path.get('/v1/reportesEmpleo', (req, res) => {
             if(error){ 
                 res.json(mensajes.errorInterno);
                 res.status(500)
-            }else if(resultadoReportesEmpleo    .length == 0){
+            }else if(resultadoReportesEmpleo.length == 0){
     
                 res.status(404)
                 res.json(mensajes.peticionNoEncontrada);
