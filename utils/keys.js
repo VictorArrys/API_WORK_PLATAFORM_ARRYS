@@ -1,9 +1,9 @@
 module.exports = {
     database: {
-        host : 'localhost',
+        host : 'elcamelloapi.mysql.database.azure.com',
         database : 'deser_el_camello',
-        user : 'Camello',
-        password: "root",
+        user : 'elCamello_',
+        password: "red_1729.42_",
         port: 3306
     }
 }
