@@ -1,0 +1,18 @@
+name: Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  build:
+
+    runs-on: alpine-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Construyendo la imagen de docker de la API
+      run: docker-compose build
