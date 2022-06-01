@@ -44,6 +44,8 @@ function verifyTokenAspirante(token, idPerfilAspirante) {
     }
 }
 
+
+//Consulta de conversaciones
 path.get('/v1/perfilDemandantes/:idPerfilDemandante/conversaciones', (req, res) => {
     const token = req.headers['x-access-token'];
     const idPerfilDemandante = req.params['idPerfilDemandante']
@@ -60,5 +62,12 @@ path.get('/v1/perfilDemandantes/:idPerfilDemandante/conversaciones', (req, res) 
     res.status(200);
     res.send("{}");
 });
+
+//Consulta de una conversación
+path.get("/v1/perfilDemandantes/:idPerfilDemandante/conversaciones/:idConversacion",() => {
+    
+});
+
+//Registro de un mensaje
 
 module.exports = path;
