@@ -39,11 +39,9 @@ path.get('/v1/iniciarSesion', (req, res) => {
     pool.query('SELECT * FROM perfil_usuario WHERE nombre_usuario = ? AND clave = ?;', [req.query.nombreUsuario, req.query.clave], (error, rows)=>{
         if(error){ 
             res.status(500)
-            res.json(mensajes.errorInterno);
+            res.send(mensajes.errorInterno);
             
-        }
-
-        if(rows.length == 0){
+        } else if(rows.length == 0){
 
             res.status(404)
             res.json(mensajes.peticionNoEncontrada);
