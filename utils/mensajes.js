@@ -2,28 +2,28 @@
 //500
 exports.errorInterno = {
     "resBody" : {
-    "menssage" : "error interno del servidor"
+    "menssage" : "Error interno del servidor."
     }
 }
 
 // 401
 exports.tokenInvalido = {
     "resBody" : {
-    "menssage" : "token invalido"
+    "menssage" : "Token invalido."
     }
 }
 
 // 400
 exports.peticionIncorrecta = {
     "resBody" : {
-    "menssage" : "peticion incorrecta"
+    "menssage" : "Petición incorrecta"
     }
 }
 
 // 404
 exports.peticionNoEncontrada = {
     "resBody" : {
-    "menssage" : "peticion no encontrada"
+    "menssage" : "Petición no encontrada"
     }
 }
 
