@@ -5,29 +5,7 @@ const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
 
 //Respuestas
-const errorInterno = {
-    "resBody" : {
-    "menssage" : "error interno del servidor"
-    }
-}
-
-const tokenInvalido = {
-    "resBody" : {
-    "menssage" : "token invalido"
-    }
-}
-
-const peticionIncorrecta = {
-    "resBody" : {
-    "menssage" : "peticion no encontrada"
-    }
-}
-
-const registroExitoso = {
-    "resBody" : {
-    "menssage" : "Registro exitoso"
-    }
-}
+const mensajes = require('../../utils/mensajes')
 
 //Función para verificar el token
 function verifyToken(token){
@@ -65,29 +43,31 @@ path.get('/v1/categoriasEmpleo', (req, res) => {
     
         pool.query('SELECT * FROM categoria_empleo;', (error, resultadoCategoria)=>{
             if(error){ 
-                res.json(errorInterno);
                 res.status(500)
+                res.json(mensajes.errorInterno);
+                
             }else if(resultadoCategoria[0].length == 0){
     
                 res.status(404)
-                res.json(peticionIncorrecta);
+                res.json(mensajes.peticionIncorrecta);
      
             }else{
                 var categoriasEmpleo = resultadoCategoria;
-    
-                res.json(categoriasEmpleo);
                 res.status(200);
+                res.json(categoriasEmpleo);
+                
     
             }
     
         });
     }else if(respuesta == 401){
         res.status(respuesta)
-        res.json(tokenInvalido);
+        res.json(mensajes.tokenInvalido);
 
     }else{
-        res.json(errorInterno);
         res.status(500)
+        res.json(mensajes.errorInterno);
+        
     }
 
 });
@@ -107,21 +87,21 @@ path.post('/v1/categoriasEmpleo', (req, res) => {
         mysqlConnection.query(query, [string], (err, rows, fields) => {
             if (!err) {
             res.status(201);
-            res.json(registroExitoso);
+            res.json(mensajes.registroExitoso);
             } else {
             console.log(err)
-            res.json(errorInterno);
-                res.status(500)
+            res.status(500)
+            res.json(mensajes.errorInterno);                
             
             }
         })
 
     }else if(respuesta == 401){
         res.status(respuesta)
-        res.json(tokenInvalido);
+        res.json(mensajes.tokenInvalido);
 
     }else{
-        res.json(errorInterno);
+        res.json(mensajes.errorInterno);
         res.status(500)
     }
 
@@ -145,17 +125,17 @@ path.patch('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => {
                 res.sendStatus(204)
             } else {
                 console.log(err)
-                res.json(errorInterno);
                 res.status(500)
+                res.json(mensajes.errorInterno);                
             
             }
         })
     }else if(respuesta == 401){
         res.status(respuesta)
-        res.json(tokenInvalido);
+        res.json(mensajes.tokenInvalido);
 
     }else{
-        res.json(errorInterno);
+        res.json(mensajes.errorInterno);
         res.status(500)
     }
 
@@ -177,19 +157,20 @@ path.delete('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => {
                 res.sendStatus(204)
             } else {
                 console.log(err)
-                res.json(errorInterno);
                 res.status(500)
+                res.json(mensajes.errorInterno);                
             
             }
         })
 
     }else if(respuesta == 401){
         res.status(respuesta)
-        res.json(tokenInvalido);
+        res.json(mensajes.tokenInvalido);
 
     }else{
-        res.json(errorInterno);
         res.status(500)
+        res.json(mensajes.errorInterno);
+       
     }
 });
 

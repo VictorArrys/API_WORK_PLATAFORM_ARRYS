@@ -7,48 +7,7 @@ const { NULL } = require('mysql/lib/protocol/constants/types');
 const res = require('express/lib/response');
 
 //Respuestas
-//500
-const errorInterno = {
-    "resBody" : {
-    "menssage" : "error interno del servidor"
-    }
-}
-
-// 401
-const tokenInvalido = {
-    "resBody" : {
-    "menssage" : "token invalido"
-    }
-}
-
-// 400
-const peticionIncorrecta = {
-    "resBody" : {
-    "menssage" : "peticion incorrecta"
-    }
-}
-
-// 404
-const peticionNoEncontrada = {
-    "resBody" : {
-    "menssage" : "peticion no encontrada"
-    }
-}
-
-
-//201
-const registroExitoso = {
-    "resBody" : {
-    "menssage" : "Registro exitoso"
-    }
-}
-
-//204
-const actualizacionExitosa = {
-    "resBody" : {
-    "menssage" : "Actualización exitosa"
-    }
-}
+const mensajes = require('../../utils/mensajes')
 
 //Función para verificar el token
 function verifyToken(token){
@@ -83,12 +42,12 @@ path.get('/v1/ofertasEmpleo-E', (req, res) => {
 
         pool.query('SELECT * FROM oferta_empleo WHERE id_perfil_oe_empleador= ?;', [req.query.idPerfilEmpleador], (error, resultadoOfertasEmpleo)=>{
             if(error){ 
-                res.json(errorInterno);
+                res.json(mensajes.errorInterno);
                 res.status(500)
             }else if(resultadoOfertasEmpleo.length == 0){
     
                 res.status(404)
-                res.json(peticionNoEncontrada);
+                res.json(mensajes.peticionNoEncontrada);
      
             }else{
                 var ofertaEmpleo = resultadoOfertasEmpleo[0];
@@ -103,7 +62,7 @@ path.get('/v1/ofertasEmpleo-E', (req, res) => {
                 pool.query('SELECT id_perfil_usuario_empleador FROM perfil_empleador WHERE id_perfil_empleador = ?;', [idUserMatch], (error, result)=>{
                     if(error){ 
                         res.status(500)
-                    res.json(errorInterno);
+                    res.json(mensajes.errorInterno);
                     }else{
                         if(result.length > 0){
                             const usuario = result[0]
@@ -118,7 +77,7 @@ path.get('/v1/ofertasEmpleo-E', (req, res) => {
                             }else{
                                 //Es un token valido pero no le pertenece estos recursos
                                 res.status(401)
-                                res.json(tokenInvalido);
+                                res.json(mensajes.tokenInvalido);
                             }
                            
                         }
@@ -130,11 +89,12 @@ path.get('/v1/ofertasEmpleo-E', (req, res) => {
         });
     }else if(respuesta == 401){
         res.status(respuesta)
-        res.json(tokenInvalido);
+        res.json(mensajes.tokenInvalido);
 
     }else{
-        res.json(errorInterno);
         res.status(500)
+        res.json(mensajes.errorInterno);
+        
     }
 
 });
@@ -152,12 +112,12 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
             
             if(error){ 
                 res.status(500)
-                res.json(errorInterno);
+                res.json(mensajes.errorInterno);
                 
             }else if(resultadoOfertaEmpleo.length == 0){
     
                 res.status(404)
-                res.json(peticionNoEncontrada);
+                res.json(mensajes.peticionNoEncontrada);
      
             }else{
                 
@@ -172,7 +132,7 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
                 pool.query('SELECT id_perfil_usuario_empleador FROM perfil_empleador WHERE id_perfil_empleador = ?;', [idUserMatch], (error, result)=>{
                     if(error){ 
                         res.status(500)
-                    res.json(errorInterno);
+                    res.json(mensajes.errorInterno);
                     }else{
                         if(result.length > 0){
                             const usuario = result[0]
@@ -187,12 +147,12 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
                             }else{
                                 //Es un token valido pero no le pertenece ese recurso
                                 res.status(401)
-                                res.json(tokenInvalido);
+                                res.json(mensajes.tokenInvalido);
                             }
                            
                         }else{
                             res.status(404)
-                            res.json(peticionNoEncontrada);
+                            res.json(mensajes.peticionNoEncontrada);
                         }
                     }
                     
@@ -204,11 +164,11 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
 
     }else if(respuesta == 401){
         res.status(respuesta)
-        res.json(tokenInvalido);
+        res.json(mensajes.tokenInvalido);
 
     }else{
         res.status(500)
-        res.json(errorInterno);
+        res.json(mensajes.errorInterno);
        
     }
 
@@ -230,10 +190,10 @@ path.post('/v1/ofertasEmpleo-E', (req, res) => {
             req.body.horaInicio, req.body.horaFin, req.body.fechaDeIinicio, req.body.fechaDeFinalizacion], (err, rows, fields) => {
             if (!err) {
             res.status(201);
-            res.json(registroExitoso);
+            res.json(mensajes.registroExitoso);
             } else {
             console.log(err)
-            res.json(errorInterno);
+            res.json(mensajes.errorInterno);
                 res.status(500)
             
             }
@@ -241,10 +201,10 @@ path.post('/v1/ofertasEmpleo-E', (req, res) => {
 
     }else if(respuesta == 401){
         res.status(respuesta)
-        res.json(tokenInvalido);
+        res.json(mensajes.tokenInvalido);
 
     }else{
-        res.json(errorInterno);
+        res.json(mensajes.errorInterno);
         res.status(500)
     }
 
@@ -260,25 +220,27 @@ path.put('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
 
         console.log(req.body)
 
-        var updateQuery = `UPDATE oferta_empleo SET id_categoria_oe = ?, nombre = ?, descripcion = ?, vacantes = ?, dias_laborales = ?, tipo_pago = ?, cantidad_pago = ?, direccion = ?, hora_inicio = ?, hora_fin = ?, fecha_inicio = ?, fecha_finalizacion = ? WHERE id_oferta_empleo`; 
+        var updateQuery = `UPDATE oferta_empleo SET id_categoria_oe = ?, nombre = ?, descripcion = ?, vacantes = ?, dias_laborales = ?, tipo_pago = ?, cantidad_pago = ?, direccion = ?, hora_inicio = ?, hora_fin = ?, fecha_inicio = ?, fecha_finalizacion = ? WHERE id_oferta_empleo = ?`; 
 
         const tokenData = jwt.verify(token, keys.key); 
         
         // IdUsuario del token
         var idUserToken = tokenData['idUsuario']
         var idUserMatch = req.body.idPerfilEmpleador
+        console.log(idUserMatch)
 
         //Verificación de autorización de token respecto al recurso solicitado
         mysqlConnection.query('SELECT id_perfil_usuario_empleador FROM perfil_empleador WHERE id_perfil_empleador = ?;', [idUserMatch], (error, result)=>{
             if(error){ 
                 res.status(500)
-            res.json(errorInterno);
+                res.json(mensajes.errorInterno);
             }else{
                 if(result.length > 0){
                     const usuario = result[0]
                     const idUsuario = usuario['id_perfil_usuario_empleador']
                     
                     //Id usuario es el mismo que el del token
+                    console.log(idUserToken + ' = ' + idUsuario)
                     if(idUserToken == idUsuario){
                         
                         mysqlConnection.query(updateQuery, [req.body.idCategoriaEmpleo, req.body.nombre, req.body.descripcion, 
@@ -286,11 +248,10 @@ path.put('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
                             req.body.horaInicio, req.body.horaFin, req.body.fechaDeIinicio, req.body.fechaDeFinalizacion, req.params.idOfertaEmpleo], (err, rows, fields) => {
                             if (!err) {
                                 res.sendStatus(204);
-                                res.json(actualizacionExitosa);
                             } else {
                                 console.log(err)
                                 res.status(500)
-                                res.json(errorInterno)
+                                res.json(mensajes.errorInterno)
                             
                             }
                         }); 
@@ -298,13 +259,13 @@ path.put('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
                     }else{
                         //Es un token valido pero no le pertenece ese recurso
                         res.status(401)
-                        res.json(tokenInvalido);
+                        res.json(mensajes.tokenInvalido);
                     }
                    
                 }else{
-                    console.log('F por tí')
+                    
                     res.status(404)
-                    res.json(peticionNoEncontrada);
+                    res.json(mensajes.peticionNoEncontrada);
                 }
             }
             
@@ -313,11 +274,11 @@ path.put('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
 
     }else if(respuesta == 401){
         res.status(respuesta)
-        res.json(tokenInvalido);
+        res.json(mensajes.tokenInvalido);
 
     }else{
         res.status(500)
-        res.json(errorInterno);
+        res.json(mensajes.errorInterno);
     
     }
 
