@@ -33,24 +33,17 @@ function verifyToken(token){
 
 path.get('/v1/iniciarSesion', (req, res) => {
     var pool = mysqlConnection;
-
-
-
     pool.query('SELECT * FROM perfil_usuario WHERE nombre_usuario = ? AND clave = ?;', [req.query.nombreUsuario, req.query.clave], (error, rows)=>{
         if(error){ 
             res.status(500)
             res.send(mensajes.errorInterno);
-            
         } else if(rows.length == 0){
-
             res.status(404)
             res.json(mensajes.peticionNoEncontrada);
 
             console.log("¡Metiste credenciales incorrectas subnormal!");
         }else{
-
             var usuario = rows[0];
-            
 
             const payload = {
                 "idUsuario" : usuario['id_perfil_usuario'],
@@ -77,7 +70,6 @@ path.get('/v1/iniciarSesion', (req, res) => {
             res.status(200)
             res.send(resultadoJson['application/json']);
         }
-
     });
 });
 
