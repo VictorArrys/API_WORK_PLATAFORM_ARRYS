@@ -6,23 +6,7 @@ const jwt = require('jsonwebtoken');
 const { send, status } = require('express/lib/response');
 
 //Respuestas
-const errorInterno = {
-    "resBody" : {
-    "menssage" : "error interno del servidor"
-    }
-}
-
-const tokenInvalido = {
-    "resBody" : {
-    "menssage" : "token invalido"
-    }
-}
-
-const peticionIncorrecta = {
-    "resBody" : {
-    "menssage" : "peticion no encontrada"
-    }
-}
+const mensajes = require('../../utils/mensajes')
 
 //Función para verificar el token
 function verifyToken(token){
@@ -50,21 +34,25 @@ function verifyToken(token){
 path.get('/v1/iniciarSesion', (req, res) => {
     var pool = mysqlConnection;
 
+
+
     pool.query('SELECT * FROM perfil_usuario WHERE nombre_usuario = ? AND clave = ?;', [req.query.nombreUsuario, req.query.clave], (error, rows)=>{
         if(error){ 
-            res.json(errorInterno);
             res.status(500)
-
+            res.json(mensajes.errorInterno);
+            
         }
 
         if(rows.length == 0){
 
             res.status(404)
-            res.json(peticionIncorrecta);
+            res.json(mensajes.peticionNoEncontrada);
 
             console.log("¡Metiste credenciales incorrectas subnormal!");
         }else{
+
             var usuario = rows[0];
+            
 
             const payload = {
                 "idUsuario" : usuario['id_perfil_usuario'],
