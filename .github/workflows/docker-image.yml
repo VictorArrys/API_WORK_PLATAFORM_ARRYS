@@ -27,19 +27,15 @@ jobs:
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
     - run: |
-        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/elcamello:latest
-        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/elcamello:latest
+        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/elcamello:${{ github.sha }}
+        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/elcamello:${{ github.sha }}
         
-    - name: 'Deploy to Azure Container Instances'
-      uses: 'azure/aci-deploy@v1'
+    - name: Depluyment to Azure App Service
+      uses: azure/webapps-deploy@v2
       with:
-        resource-group: ${{ secrets.RESOURCE_GROUP }}
-        dns-name-label: ${{ secrets.RESOURCE_GROUP }}${{ github.run_number }}
-        image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/elcamello:latest
-        registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-        registry-username: ${{ secrets.REGISTRY_USERNAME }}
-        registry-password: ${{ secrets.REGISTRY_PASSWORD }}
-        name: elcamello
-        location: 'South Central US'
+        app-name: 'elcamello'
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        images: '${{ secrets.REGISTRY_LOGIN_SERVER }}/elcamello:${{ github.sha }}'    
+
     
     
