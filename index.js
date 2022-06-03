@@ -20,6 +20,7 @@ app.use(require('./src/paths/paths_categorias'))
 app.use(require('./src/paths/paths_perfilDemandante'))
 app.use(require('./src/paths/paths_ofertasEmpleoEmpleador'))
 app.use(require('./src/paths/paths_reportesEmpleo'))
+app.use(require('./src/paths/paths_estadisticas'))
 
 //starting server
 app.listen(app.get('port'), () => {
