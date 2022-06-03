@@ -9,6 +9,7 @@ const res = require('express/lib/response');
 //Respuestas
 const mensajes = require('../../utils/mensajes')
 
+
 //Función para verificar el token
 function verifyToken(token){
     var statusCode = 0;
@@ -42,8 +43,9 @@ path.get('/v1/ofertasEmpleo-E', (req, res) => {
 
         pool.query('SELECT * FROM oferta_empleo WHERE id_perfil_oe_empleador= ?;', [req.query.idPerfilEmpleador], (error, resultadoOfertasEmpleo)=>{
             if(error){ 
-                res.json(mensajes.errorInterno);
                 res.status(500)
+                res.json(mensajes.errorInterno);
+                
             }else if(resultadoOfertasEmpleo.length == 0){
     
                 res.status(404)
