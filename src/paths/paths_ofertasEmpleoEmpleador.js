@@ -15,7 +15,6 @@ function verifyToken(token){
     var statusCode = 0;
     try{
         const tokenData = jwt.verify(token, keys.key); 
-        console.log(tokenData);
   
         if (tokenData["tipo"] == "Empleador") {
             statusCode = 200
@@ -34,6 +33,14 @@ function verifyToken(token){
 }
 
 path.get('/v1/ofertasEmpleo-E', (req, res) => {
+
+    if(req.query.idPerfilEmpleador == null){
+        
+        console.log('No se agrego la query')
+        res.status(403)
+        res.json(mensajes.prohibido)
+    }
+
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
     var respuesta = verifyToken(token)
@@ -47,7 +54,6 @@ path.get('/v1/ofertasEmpleo-E', (req, res) => {
                 res.json(mensajes.errorInterno);
                 
             }else if(resultadoOfertasEmpleo.length == 0){
-    
                 res.status(404)
                 res.json(mensajes.peticionNoEncontrada);
      
@@ -102,7 +108,7 @@ path.get('/v1/ofertasEmpleo-E', (req, res) => {
 });
 
 path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
-    
+
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
     var respuesta = verifyToken(token)
@@ -117,7 +123,7 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
                 res.json(mensajes.errorInterno);
                 
             }else if(resultadoOfertaEmpleo.length == 0){
-    
+                
                 res.status(404)
                 res.json(mensajes.peticionNoEncontrada);
      
@@ -174,6 +180,7 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
        
     }
 
+
 });
 
 path.post('/v1/ofertasEmpleo-E', validarOfertaEmpleo, (req, res) => {
@@ -193,12 +200,12 @@ path.post('/v1/ofertasEmpleo-E', validarOfertaEmpleo, (req, res) => {
                     req.body.horaInicio, req.body.horaFin, req.body.fechaDeIinicio, req.body.fechaDeFinalizacion], (err, rows, fields) => {
                 if (!err) {
                     res.status(201);
-                res.json(mensajes.registroExitoso);
+                    res.json(mensajes.registroExitoso);
                 } else {
-                    console.log(err)
+                    console.log(err.message)
                     res.status(500)
                     res.json(mensajes.errorInterno);
-                
+
                 }
             }) 
            
