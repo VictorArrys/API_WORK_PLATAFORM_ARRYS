@@ -49,7 +49,7 @@ path.get('/v1/iniciarSesion', (req, res) => {
     if(!vefificarQuery(req.query.nombreUsuario) && !vefificarQuery(req.query.clave)){
 
     var pool = mysqlConnection;
-    pool.query('SELECT * FROM perfil_usuario WHERE nombre_usuario = ? AND clave = ?;', [req.query.nombreUsuario, req.query.clave], (error, rows)=>{
+    pool.query('SELECT * FROM perfil_usuario WHERE nombre_usuario = ? AND clave = ?', [req.query.nombreUsuario, req.query.clave], (error, rows)=>{
         if(error){ 
             res.status(500)
             res.send({msg: error.message});

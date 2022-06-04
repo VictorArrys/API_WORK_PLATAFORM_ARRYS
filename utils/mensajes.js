@@ -14,11 +14,16 @@ exports.tokenInvalido = {
 }
 
 // 400
-exports.peticionIncorrecta = {
-    "resBody" : {
-    "menssage" : "Petición incorrecta"
+function peticionIncorrecta(error){
+    const message = {
+        "resBody" : {
+            "menssage" : "Petición incorrecta:" + error
+        }
     }
+    return message
 }
+
+exports.peticionIncorrecta
 
 // 404
 exports.peticionNoEncontrada = {

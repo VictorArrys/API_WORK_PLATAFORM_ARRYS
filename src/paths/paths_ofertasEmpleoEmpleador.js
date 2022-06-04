@@ -5,40 +5,10 @@ const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
 const { NULL } = require('mysql/lib/protocol/constants/types');
 const res = require('express/lib/response');
+const { validarOfertaEmpleo } = require('../../utils/validarDatos')
 
 //Respuestas
 const mensajes = require('../../utils/mensajes')
-
-//Función para verficar si una propiedad del reques body esta vacia
-function verificarProperty(properties){
-
-    for (let i = 0; i < 10; i++) {
-        console.log(`properties: ${i}`);
-        if(valorRequesBody.hasOwnProperty(`properties: ${i}`)){
-            console.log('Algunos campos del request body estan vacios')
-            return true
-        }else{
-            false
-        }
-    
-    }
-
-
-}
-
-//Función para verficar que reciba datos y no esten vacios
-function verificarRequestBody(valorRequesBody){
-
-    //Verifica que no esta compuesto por nada
-    if(Object.keys(valorRequesBody).length === 0){
-        console.log('El request body se encuentra totalmente vacio')
-        return true
-    }else if(verificarProperty()){
-        console.log('Algunos campos del request body estan vacios')
-        return true
-    }
-
-}
 
 //Función para verificar el token
 function verifyToken(token){
@@ -206,16 +176,12 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
 
 });
 
-path.post('/v1/ofertasEmpleo-E', (req, res) => {
-    
-    if(verificarRequestBody(req.body)){
-        res.status(400)
-        res.json(mensajes.peticionIncorrecta)
-    }else{
-        const token = req.headers['x-access-token'];
-        var respuesta = verifyToken(token)
+path.post('/v1/ofertasEmpleo-E', validarOfertaEmpleo, (req, res) => {
 
-        console.log(respuesta)
+    const token = req.headers['x-access-token'];
+    var respuesta = verifyToken(token)
+
+    console.log(respuesta)
         if(respuesta == 200){
 
             console.log(req.body)
@@ -223,18 +189,19 @@ path.post('/v1/ofertasEmpleo-E', (req, res) => {
             var query = `INSERT INTO oferta_empleo(id_perfil_oe_empleador, id_categoria_oe, nombre, descripcion, vacantes, dias_laborales, tipo_pago, cantidad_pago, direccion, hora_inicio, hora_fin, fecha_inicio, fecha_finalizacion)  VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         
             mysqlConnection.query(query, [req.body.idPerfilEmpleador, req.body.idCategoriaEmpleo, req.body.nombre, req.body.descripcion, 
-                req.body.vacantes, req.body.diasLaborales, req.body.tipoPago, req.body.cantidadPago, req.body.direccion,
-                req.body.horaInicio, req.body.horaFin, req.body.fechaDeIinicio, req.body.fechaDeFinalizacion], (err, rows, fields) => {
+                    req.body.vacantes, req.body.diasLaborales, req.body.tipoPago, req.body.cantidadPago, req.body.direccion,
+                    req.body.horaInicio, req.body.horaFin, req.body.fechaDeIinicio, req.body.fechaDeFinalizacion], (err, rows, fields) => {
                 if (!err) {
-                res.status(201);
+                    res.status(201);
                 res.json(mensajes.registroExitoso);
                 } else {
-                console.log(err)
-                res.status(500)
-                res.json(mensajes.errorInterno);
+                    console.log(err)
+                    res.status(500)
+                    res.json(mensajes.errorInterno);
                 
                 }
             }) 
+           
 
         }else if(respuesta == 401){
             res.status(respuesta)
@@ -245,7 +212,6 @@ path.post('/v1/ofertasEmpleo-E', (req, res) => {
             res.status(500)
         }
 
-    }
 });
 
 
