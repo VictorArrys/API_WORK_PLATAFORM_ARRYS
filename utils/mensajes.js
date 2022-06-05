@@ -6,6 +6,13 @@ exports.errorInterno = {
     }
 }
 
+// 400
+exports.peticionIncorrecta = {
+    "type error" : {
+    "message" : "Petición incorrecta."
+    }
+}
+
 // 401
 exports.tokenInvalido = {
     "type error" : {

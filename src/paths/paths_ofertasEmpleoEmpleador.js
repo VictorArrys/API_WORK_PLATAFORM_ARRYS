@@ -3,9 +3,10 @@ const path = Router();
 var mysqlConnection = require('../../utils/conexion');
 const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
-const { NULL } = require('mysql/lib/protocol/constants/types');
-const res = require('express/lib/response');
-const { validarOfertaEmpleo } = require('../../utils/validarDatos')
+//Validaciones
+const { validarOfertaEmpleo } = require('../../utils/validaciones/validarBody')
+const { validarParamIdEmpleador } = require('../../utils/validaciones/validarParam')
+const { validarQuery } = require('../../utils/validaciones/validarQuery')
 
 //Respuestas
 const mensajes = require('../../utils/mensajes')
@@ -32,14 +33,7 @@ function verifyToken(token){
         }
 }
 
-path.get('/v1/ofertasEmpleo-E', (req, res) => {
-
-    if(req.query.idPerfilEmpleador == null){
-        
-        console.log('No se agrego la query')
-        res.status(403)
-        res.json(mensajes.prohibido)
-    }
+path.get('/v1/ofertasEmpleo-E',validarQuery, (req, res) => {
 
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
@@ -65,7 +59,7 @@ path.get('/v1/ofertasEmpleo-E', (req, res) => {
                 // IdUsuario del token
                 var idUserToken = tokenData['idUsuario']
                 var idUserMatch = ofertaEmpleo["id_perfil_oe_empleador"]
-
+ 
                 //Verificación de autorización de token respecto al recurso solicitado
                 pool.query('SELECT id_perfil_usuario_empleador FROM perfil_empleador WHERE id_perfil_empleador = ?;', [idUserMatch], (error, result)=>{
                     if(error){ 
