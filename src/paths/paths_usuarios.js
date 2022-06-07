@@ -103,6 +103,10 @@ path.get('/v1/iniciarSesion', (req, res) => {
 
             console.log("¡Inicio de sesión exitosa!")
 
+            //var arrByte= new Uint8Array.from(Buffer.from(data))
+            var array = Uint8ClampedArray.from(Buffer.from(usuario.fotografia, 'base64'))
+            console.log(array.toString('base64'))
+
             const resultadoJson = {};
             resultadoJson['application/json'] = {
                 "clave" : usuario['clave'],
@@ -110,7 +114,7 @@ path.get('/v1/iniciarSesion', (req, res) => {
                 "estatus" : usuario['estatus'],
                 "idPerfilusuario" : usuario['id_perfil_usuario'],
                 "correoElectronico" : usuario['correo_electronico'],
-                "fotografia" : usuario['fotografia'],
+                "fotografia" : array,
                 "tipoUsuario" : usuario['tipo_usuario'],
                 "token" : token
             };

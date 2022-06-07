@@ -19,7 +19,7 @@ var almacenFotoPerfil = multer.diskStorage({
     }
 })
 
-const multerUpload = multer({storage:almacenFotoPerfil})
+const multerUpload = multer({storage:multer.memoryStorage(), limits:{fileSize:8*1024*1024*10}})
 
 
 //Respuestas
@@ -34,26 +34,9 @@ path.post('/v1/perfilAspirantes/:idPerfilAspirante/fotografia', multerUpload.sin
     const { idPerfilAspirante } = req.params
     const { fotografia } = req.body
 
-    console.log('fotografia1')
-    console.log(fotografia)
-    //console.log(req)
+    //console.log(req.file)
 
-
-
-    /*console.log('formidable')
-    var formulario = new formidable.IncomingForm()
-    formulario.parse(req, function (error, fields, files) {
-        if (error){
-            console.log(error)
-        }
-    })
-
-    //console.log(formulario)
-    formulario.on('fileBegin', function(name, file) {
-        console.log(file.name)
-    })*/
-
-    /*mysqlConnection.query(query, [fotografia, idPerfilAspirante], (error, resultadoFotografia) => {
+    mysqlConnection.query(query, [req.file.buffer, idPerfilAspirante], (error, resultadoFotografia) => {
         if (error){
             res.status(500)
             res.json(mensajes.errorInterno)
@@ -61,13 +44,13 @@ path.post('/v1/perfilAspirantes/:idPerfilAspirante/fotografia', multerUpload.sin
             res.status(404)
             res.json(mensajes.peticionNoEncontrada)
         }else{
-            console.log('exi')
+            console.log('exio')
         }
-    })*/
+    })
 });
 
 path.post('/v1/perfilAspirantes/:idPerfilAspirante/curriculum', (req, res) => {// path opcional
-
+  // comvertir array de bytes a documento y a video de lado de c#
 });
 
 path.post('/v1/perfilAspirantes/:idPerfilAspirante/video', (req, res) => {
