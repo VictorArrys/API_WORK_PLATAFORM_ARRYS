@@ -139,10 +139,8 @@ path.get('/v1/perfilUsuarios', (req, res) => {
                 res.status(500)
                 res.json(mensajes.errorInterno)
             }else if(resultadoUsuarios.length == 0){
-    
                 res.status(404)
                 res.json(mensajes.peticionNoEncontrada)
-     
             }else{
                 var usuarios = resultadoUsuarios;
     
