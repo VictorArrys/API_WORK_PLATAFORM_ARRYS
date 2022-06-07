@@ -22,6 +22,8 @@ const validacion = [
 ]
 */
 
+
+
 const validarOfertaEmpleo = [
 
     check('cantidadPago')
