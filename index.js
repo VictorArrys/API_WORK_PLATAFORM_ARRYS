@@ -25,6 +25,7 @@ app.use(require('./src/paths/paths_perfilDemandante'))
 app.use(require('./src/paths/paths_ofertasEmpleoEmpleador'))
 app.use(require('./src/paths/paths_reportesEmpleo'))
 app.use(require('./src/paths/paths_estadisticas'))
+app.use(require('./src/paths/paths_perfilAspirante'))
 
 
 //starting server
