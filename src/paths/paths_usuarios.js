@@ -6,24 +6,13 @@ const jwt = require('jsonwebtoken');
 const { validarParamIdUsuario } = require('../../utils/validaciones/validarParam')
 const { send, status, json } = require('express/lib/response');
 
+const { validarQuery } = require('../../utils/validaciones/validarQuery')
+
 //Respuestas
 const mensajes = require('../../utils/mensajes');
 const req = require('express/lib/request');
 const res = require('express/lib/response');
 const pool = require('../../utils/conexion');
-
-//Función para verficar que reciba datos y no esten vacios
-function vefificarQuery(valorQuery){
-
-    if(valorQuery.length == 0){
-        console.log('Algunos campos del query estan vacios')
-        return true
-    }else{
-        return false
-    }
-
-}
-
 
 //Función para verificar el token
 function verifyToken(token){
@@ -125,10 +114,13 @@ path.get('/v1/iniciarSesion', (req, res) => {
         }
     });
 
+<<<<<<< HEAD
+=======
     }else{
         res.status(400)
         res.json(mensajes.peticionIncorrecta)
     }
+>>>>>>> 4fdeb2f5c433440650a920c8c0aad2a8ecdf9dbd
 
 });
 
