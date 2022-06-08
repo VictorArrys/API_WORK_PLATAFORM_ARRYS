@@ -5,17 +5,17 @@ const { param } = require('express-validator')
 Para verificar parametros se utiliza param
 */
 
-const validarParamIdEmpleador = [
+// Verificar que no esten vacios los parametros
+const validarParamId = [
 
-    param('idPerfilEmpleador')
+    param()
         .exists()
         .not()
-        .isEmpty()
-        .isInt(),
+        .isEmpty(),
     (req, res, next) => {
         validateResult(req, res, next)
     }
 
 ]
 
-module.exports = { validarParamIdEmpleador }
+module.exports = { validarParamId }

@@ -22,6 +22,17 @@ const validacion = [
 ]
 */
 
+const validarPropiedadesRB = [
+    check()
+        .exists()
+        .not()
+        .isEmpty(),
+    (req, res, next) => {
+        validateResult(req, res, next)
+    }
+
+]
+
 const validarOfertaEmpleo = [
 
     check('cantidadPago')

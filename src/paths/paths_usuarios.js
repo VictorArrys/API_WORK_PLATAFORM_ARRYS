@@ -5,21 +5,10 @@ const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
 const { send, status } = require('express/lib/response');
 
+const { validarQuery } = require('../../utils/validaciones/validarQuery')
+
 //Respuestas
 const mensajes = require('../../utils/mensajes')
-
-//Función para verficar que reciba datos y no esten vacios
-function vefificarQuery(valorQuery){
-
-    if(valorQuery.length == 0){
-        console.log('Algunos campos del query estan vacios')
-        return true
-    }else{
-        return false
-    }
-
-}
-
 
 //Función para verificar el token
 function verifyToken(token){
@@ -44,9 +33,7 @@ function verifyToken(token){
         }
 }
 
-path.get('/v1/iniciarSesion', (req, res) => {
-
-    if(!vefificarQuery(req.query.nombreUsuario) && !vefificarQuery(req.query.clave)){
+path.get('/v1/iniciarSesion', validarQuery, (req, res) => {
 
     var pool = mysqlConnection;
     pool.query('SELECT * FROM perfil_usuario WHERE nombre_usuario = ? AND clave = ?', [req.query.nombreUsuario, req.query.clave], (error, rows)=>{
@@ -89,10 +76,6 @@ path.get('/v1/iniciarSesion', (req, res) => {
         }
     });
 
-    }else{
-        res.status(400)
-        res.json(mensajes.peticionIncorrecta);
-    }
 
 });
 
