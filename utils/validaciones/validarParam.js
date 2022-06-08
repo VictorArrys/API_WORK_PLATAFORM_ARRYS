@@ -1,5 +1,7 @@
 const { validateResult } = require('./validatorHelper')
 const { param } = require('express-validator')
+const req = require('express/lib/request')
+const res = require('express/lib/response')
 
 /*
 Para verificar parametros se utiliza param
