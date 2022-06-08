@@ -33,7 +33,7 @@ function verifyToken(token){
         }
 }
 
-path.post('/v1/perfilAdministradores/:idPerfilAdministrador/fotografia', multerUpload.single("fotografia"), (req,res) => {
+/*path.post('/v1/perfilAdministradores/:idPerfilAdministrador/fotografia', multerUpload.single("fotografia"), (req,res) => {
 
     var query = "UPDATE perfil_usuario SET fotografia = ? WHERE id_perfil_usuario = ?;"
     const { idPerfilAdministrador } = req.params
@@ -125,7 +125,7 @@ path.get('/v1/perfilAdministradores', (req, res) => { //falta validaciones
     }
 });
 
-path.get('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {
+path.get('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => { // este id se obtendra de la tabla del usuario
     const token = req.headers['x-access-token']
     var respuesta = verifyToken(token)
 
@@ -164,7 +164,7 @@ path.get('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {
 });
 
 
-path.put('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {//probar
+path.put('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {//id de tabla perfil administrador
     const token = req.headers['x-access-token']
     var respuesta = verifyToken(token)
     const { idPerfilAdministrador } = req.params

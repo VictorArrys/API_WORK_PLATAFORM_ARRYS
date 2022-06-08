@@ -112,15 +112,14 @@ path.get('/v1/iniciarSesion', (req, res) => {
             const resultadoJson = {};
             resultadoJson['application/json'] = {
                 "clave" : usuario['clave'],
-                "tipo" : usuario['tipo_usuario'],
                 "estatus" : usuario['estatus'],
                 "idPerfilusuario" : usuario['id_perfil_usuario'],
                 "correoElectronico" : usuario['correo_electronico'],
                 "fotografia" : array,
                 "tipoUsuario" : usuario['tipo_usuario'],
-                //solo sirve para probar en postman y sacarlo a la brevedad pero esto no va aqui
-                "token" : token
             };
+            res.setHeader('x-access-token', token)
+
             res.status(200)
             res.send(resultadoJson['application/json'])
         }
