@@ -34,8 +34,6 @@ path.post('/v1/perfilAspirantes/:idPerfilAspirante/fotografia', multerUpload.sin
     const { idPerfilAspirante } = req.params
     const { fotografia } = req.body
 
-    //console.log(req.file)
-
     mysqlConnection.query(query, [req.file.buffer, idPerfilAspirante], (error, resultadoFotografia) => {
         if (error){
             res.status(500)

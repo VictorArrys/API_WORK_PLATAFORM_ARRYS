@@ -103,7 +103,6 @@ path.get('/v1/iniciarSesion', (req, res) => {
 
             console.log("¡Inicio de sesión exitosa!")
 
-            //var arrByte= new Uint8Array.from(Buffer.from(data))
             var array = Uint8ClampedArray.from(Buffer.from(usuario.fotografia, 'base64'))
             console.log(array.toString('base64'))
 
@@ -116,6 +115,7 @@ path.get('/v1/iniciarSesion', (req, res) => {
                 "correoElectronico" : usuario['correo_electronico'],
                 "fotografia" : array,
                 "tipoUsuario" : usuario['tipo_usuario'],
+                //solo sirve para probar en postman y sacarlo a la brevedad pero esto no va aqui
                 "token" : token
             };
             res.status(200)

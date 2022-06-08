@@ -33,6 +33,62 @@ function verifyToken(token){
         }
 }
 
+path.post('/v1/perfilAdministradores/:idPerfilAdministrador/fotografia', multerUpload.single("fotografia"), (req,res) => {
+
+    var query = "UPDATE perfil_usuario SET fotografia = ? WHERE id_perfil_usuario = ?;"
+    const { idPerfilAdministrador } = req.params
+    const { fotografia } = req.file.buffer
+
+    mysqlConnection.query(query, [fotografia, idPerfilAdministrador], (error, resultadoFotografia) => {
+        if (error){
+            res.status(500)
+            res.json(mensajes.errorInterno)
+        }else if(resultadoFotografia.length == 0){
+            res.status(404)
+            res.json(mensajes.peticionNoEncontrada)
+        }else{
+            console.log('exio al cargar fotografia')
+        }
+    })
+});
+
+path.post('/v1/perfilAdministradores/:idPerfilAdministrador/curriculum', (req, res) => {// path opcional
+  // comvertir array de bytes a documento y a video de lado de c#
+});
+
+path.post('/v1/perfilAdministradores/:idPerfilAdministrador/video', (req, res) => {
+
+});
+
+
+//preguntar si se necesitaran patch para actualizar los multimedia
+/*path.patch('/v1/perfilAdministradores/:idPerfilAdministrador/fotografia', multerUpload.single("fotografia"), (req,res) => {
+
+    var query = "UPDATE perfil_usuario SET fotografia = ? WHERE id_perfil_usuario = ?;"
+    const { idPerfilAdministrador } = req.params
+    const { fotografia } = req.file.buffer
+
+    mysqlConnection.query(query, [fotografia, idPerfilAdministrador], (error, resultadoFotografia) => {
+        if (error){
+            res.status(500)
+            res.json(mensajes.errorInterno)
+        }else if(resultadoFotografia.length == 0){
+            res.status(404)
+            res.json(mensajes.peticionNoEncontrada)
+        }else{
+            console.log('exio al cargar fotografia')
+        }
+    })
+});
+
+path.patch('/v1/perfilAdministradores/:idPerfilAdministrador/curriculum', (req, res) => {// path opcional
+  // comvertir array de bytes a documento y a video de lado de c#
+});
+
+path.patch('/v1/perfilAdministradores/:idPerfilAdministrador/video', (req, res) => {
+
+});*/
+
 path.get('/v1/perfilAdministradores', (req, res) => { //falta validaciones
     const token = req.headers['x-access-token']
     var respuesta = verifyToken(token)
@@ -82,13 +138,15 @@ path.get('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {
 
             pool.query(query, [idPerfilAdministrador], (error, resultadoAdministrador) => {
                 if(error){
-                    es.status(500)
+                    res.status(500)
                     res.json(mensajes.errorInterno)
                 }else if (resultadoAdministrador.length == 0){
                     res.status(404)
                     res.json(mensajes.peticionNoEncontrada)
                 }else{
                     var administrador = resultadoAdministrador
+                    var arrayFotografia = Uint8ClampedArray.from(Buffer.from(resultadoAdministrador.fotografia, 'base64'))
+                    administrador.fotografia = arrayFotografia /// probar si funciona asi
 
                     res.status(200);
                     res.json(administrador);
@@ -108,14 +166,54 @@ path.get('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {
 });
 
 
-path.put('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {//por completar
+path.put('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {//probar
     const token = req.headers['x-access-token']
     var respuesta = verifyToken(token)
-    const {nombre, telefono, clave, correoElectronico, estatus, fotografia, idPerfilUsuario, idPerfilAdministrador, nombreUsuario} = req.body
+    const {nombre, telefono, clave, correoElectronico, estatus, idPerfilUsuario, idPerfilAdministrador, nombreUsuario} = req.body
 
     try{
         if(respuesta == 200){
+            var queryOne = 'UPDATE perfil_usuario SET  nombre_usuario = ?, estatus = ?, clave = ?, correo_electronico = ?  WHERE id_perfil_usuario = ? ;'
+            var queryTwo = 'UPDATE perfil_administrador SET nombre = ?, telefono = ? WHERE id_perfil_administrador = ? ;'
 
+            mysqlConnection.query(queryOne, [nombreUsuario, estatus, clave, correoElectronico, idPerfilUsuario], (error, actualizarUsuarioAdministrador) => {
+                if(error){
+                    res.status(500)
+                    res.json(mensajes.errorInterno)
+                }else if (actualizarUsuarioAdministrador.length == 0){
+                    //por debatir
+                }else{
+                    console.log('exito al registrar cuanta del Administrador')
+                    mysqlConnection.query(queryTwo, [nombre, telefono, idPerfilAdministrador], (error, actualizarAdministrador) => {
+                        if(error){
+                            res.status(500)
+                            res.json(mensajes.errorInterno)
+                        }else if(actualizarAdministrador.length == 0){
+                            //
+                        }else{
+                            var perfilAdministrador = actualizarAdministrador
+                            var usuarioAdministrador = actualizarUsuarioAdministrador
+                            var arrayFotografia = Uint8ClampedArray.from(Buffer.from(usuarioAdministrador.fotografia, 'base64'))
+
+                            const modificarAdministrador = {};
+                            modificarAdministrador['application/json'] = {
+                                "clave" : usuarioAdministrador['clave'],
+                                "tipo" : usuarioAdministrador['tipo_usuario'],
+                                "estatus" : usuarioAdministrador['estatus'],
+                                "idPerfilusuario" : usuarioAdministrador['id_perfil_usuario'],
+                                "correoElectronico" : usuarioAdministrador['correo_electronico'],
+                                "fotografia" : arrayFotografia,
+                                "tipoUsuario" : actualizarUsuarioAdministrador['tipo_usuario'],
+                                "nombre": perfilAdministrador['nombre'],
+                                "telefono": perfilAdministrador['telefono'],
+                                "idPerfilAdministrador": perfilAdministrador['id_perfil_administrador']
+                            };
+                            res.status(200)
+                            res.send(modificarAdministrador['application/json'])
+                        }
+                    })
+                }
+            })
         }else if (respuesta == 401){
             res.status(respuesta)
             res.json(tokenInvalido)
