@@ -47,7 +47,7 @@ path.post('/v1/perfilAdministradores/:idPerfilAdministrador/fotografia', multerU
             res.status(404)
             res.json(mensajes.peticionNoEncontrada)
         }else{
-            console.log('exio al cargar fotografia')
+            console.log('exito al cargar fotografia')
         }
     })
 });
@@ -145,8 +145,6 @@ path.get('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {
                     res.json(mensajes.peticionNoEncontrada)
                 }else{
                     var administrador = resultadoAdministrador
-                    var arrayFotografia = Uint8ClampedArray.from(Buffer.from(resultadoAdministrador.fotografia, 'base64'))
-                    administrador.fotografia = arrayFotografia /// probar si funciona asi
 
                     res.status(200);
                     res.json(administrador);
@@ -169,7 +167,8 @@ path.get('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {
 path.put('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {//probar
     const token = req.headers['x-access-token']
     var respuesta = verifyToken(token)
-    const {nombre, telefono, clave, correoElectronico, estatus, idPerfilUsuario, idPerfilAdministrador, nombreUsuario} = req.body
+    const { idPerfilAdministrador } = req.params
+    const {nombre, telefono, clave, correoElectronico, estatus, idPerfilUsuario, nombreUsuario} = req.body
 
     try{
         if(respuesta == 200){
@@ -183,7 +182,7 @@ path.put('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {//pr
                 }else if (actualizarUsuarioAdministrador.length == 0){
                     //por debatir
                 }else{
-                    console.log('exito al registrar cuanta del Administrador')
+                    console.log('exito al registrar cuenta del Administrador')
                     mysqlConnection.query(queryTwo, [nombre, telefono, idPerfilAdministrador], (error, actualizarAdministrador) => {
                         if(error){
                             res.status(500)
@@ -195,7 +194,7 @@ path.put('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {//pr
                             var usuarioAdministrador = actualizarUsuarioAdministrador
                             var arrayFotografia = Uint8ClampedArray.from(Buffer.from(usuarioAdministrador.fotografia, 'base64'))
 
-                            const modificarAdministrador = {};
+                            const modificarAdministrador = {}
                             modificarAdministrador['application/json'] = {
                                 "clave" : usuarioAdministrador['clave'],
                                 "tipo" : usuarioAdministrador['tipo_usuario'],

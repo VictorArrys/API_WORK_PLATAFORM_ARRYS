@@ -89,6 +89,9 @@ path.get('/v1/iniciarSesion', (req, res) => {
             console.log("¡Credenciales incorrectas! Probablemente el usuario no exista o estan mal sus credenciales");
        
         }else{
+            //Comentar:
+            // mandar a llamar aqui todo el perfil completo del usuario para tener todos los datos ya del lado del cliente
+            // y solo los que inicien sesión podran acceder a todos los datos 
             var usuario = resultadoInicio[0];
 
             const payload = {
@@ -130,7 +133,7 @@ path.get('/v1/iniciarSesion', (req, res) => {
 
 });
 
-path.get('/v1/perfilUsuarios', (req, res) => {
+path.get('/v1/perfilUsuarios', (req, res) => { // ver lo de la foto
     const token = req.headers['x-access-token'];
     var respuesta = verifyToken(token)
 
