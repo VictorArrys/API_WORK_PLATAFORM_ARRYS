@@ -29,7 +29,6 @@ function verifyToken(token){
         }
 }
 
-
 path.get('/v1/perfilDemandantes', (req, res) => { // probar y validar
     const token = req.headers['x-access-token'];
     var respuesta = verifyToken(token)

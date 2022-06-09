@@ -126,11 +126,7 @@ path.get('/v1/iniciarSesion', (req, res) => {
                 expiresIn: 60 * 60 * 24
               });
 
-            console.log("¡Inicio de sesión exitosa!")
-
-            var array = Uint8ClampedArray.from(Buffer.from(usuario.fotografia, 'base64'))
-            //console.log(array.toString('base64'))
-
+            console.log("¡Inicio de sesión exitosa!");
             const resultadoJson = {};
             resultadoJson['application/json'] = {
                 "clave" : usuario['clave'],
