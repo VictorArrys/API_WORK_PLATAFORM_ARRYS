@@ -93,10 +93,6 @@ path.post('/v1/PerfilUsuarios/:idPerfilUsuario/fotografia', multerUpload.single(
 
 path.get('/v1/iniciarSesion', (req, res) => {
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 62efda42c9425800435a718534882c48c441bf8d
     var pool = mysqlConnection
 
     const {nombreUsuario, clave} = req.query
@@ -130,7 +126,10 @@ path.get('/v1/iniciarSesion', (req, res) => {
             console.log("¡Inicio de sesión exitosa!");
 
 
-            var arrayFotografia = Uint8ClampedArray.from(Buffer.from(usuario.fotografia.buffer, 'base64'))
+            var arrayFotografia = null
+            if (!usuario.fotografia === null){
+                arrayFotografia = Uint8ClampedArray.from(Buffer.from(usuario.fotografia.buffer, 'base64'))
+            }
 
             const resultadoJson = {};
             resultadoJson['application/json'] = {
