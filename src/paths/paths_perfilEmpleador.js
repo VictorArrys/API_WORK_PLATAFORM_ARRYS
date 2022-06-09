@@ -89,11 +89,10 @@ path.post('/v1/perfilEmpleadores', (req, res) => {
                         res.status(500)
                         res.json(mensajes.errorInterno)
                     }else if (registrarPerfilEmpleador.length == 0){
-                        //
+                        
                     }else{
                         var usuarioEmpleador = registrarUsuarioEmpleador
                         var perfilEmpleador = registrarPerfilEmpleador
-                        var arrayFotografia = Uint8ClampedArray.from(Buffer.from(usuarioEmpleador.fotografia, 'base64'))
 
                         const registroEmpleador = {}
                         registroEmpleador['application/json'] = {
@@ -107,7 +106,6 @@ path.post('/v1/perfilEmpleadores', (req, res) => {
                             "nombreOrganizacion": perfilEmpleador['nombre_organizacion'],
                             "telefono": perfilEmpleador['telefono'],
                             "idPerfilEmpleador": perfilEmpleador['id_perfil_empleador'],
-                            "fotografia": arrayFotografia,
                             "nombreusuario": usuarioEmpleador['nombre_usuario']
                         };
                         res.status(201)

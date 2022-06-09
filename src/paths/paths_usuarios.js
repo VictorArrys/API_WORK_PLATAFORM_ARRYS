@@ -127,13 +127,17 @@ path.get('/v1/iniciarSesion', (req, res) => {
               });
 
             console.log("¡Inicio de sesión exitosa!");
+
+
+            var arrayFotografia = Uint8ClampedArray.from(Buffer.from(usuario.fotografia.buffer, 'base64'))
+
             const resultadoJson = {};
             resultadoJson['application/json'] = {
                 "clave" : usuario['clave'],
                 "estatus" : usuario['estatus'],
                 "idPerfilusuario" : usuario['id_perfil_usuario'],
                 "correoElectronico" : usuario['correo_electronico'],
-                "fotografia" : array,
+                "fotografia" : arrayFotografia,
                 "tipoUsuario" : usuario['tipo_usuario'],
             };
             res.setHeader('x-access-token', token)

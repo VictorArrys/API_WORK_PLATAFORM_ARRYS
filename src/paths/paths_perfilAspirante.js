@@ -193,7 +193,7 @@ path.post('/v1/perfilAspirantes', (req, res) => {
 
                                     var perfilAspirante = registroPerfilAspirante[0]
                                     var usuarioAspirante = registroUsuarioAspirante[0]
-                                    var arrayFotografia = Uint8ClampedArray.from(Buffer.from(usuarioAspirante.fotografia, 'base64'))
+                                    //var arrayFotografia = Uint8ClampedArray.from(Buffer.from(usuarioAspirante.fotografia, 'base64'))
 
                                     const registroPerfilAspirante = {}
                                     registroPerfilAspirante['application/json'] = {
@@ -209,7 +209,7 @@ path.post('/v1/perfilAspirantes', (req, res) => {
                                         'telefono': perfilAspirante['telefono'],
                                         //'video': perfilAspirante['video'],
                                         'idPerfilAspirante': perfilAspirante['id_perfil_aspirante'],
-                                        'fotografia': arrayFotografia
+                                        //'fotografia': arrayFotografia
                                         //'curriculum': perfilAspirante['curriculum']
                                     }
 
