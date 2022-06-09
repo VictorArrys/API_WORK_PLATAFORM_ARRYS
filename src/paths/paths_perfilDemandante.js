@@ -29,6 +29,7 @@ function verifyToken(token){
         }
 }
 
+/*
 path.post('/v1/perfilDemandantes/:idPerfilDemandante/fotografia', multerUpload.single("fotografia"), (req,res) => {
 
     var query = "UPDATE perfil_usuario SET fotografia = ? WHERE id_perfil_usuario = ?;"
@@ -56,7 +57,7 @@ path.post('/v1/perfilDemandantes/:idPerfilDemandante/video', (req, res) => {
 
 });
 
-
+*/
 path.get('/v1/perfilDemandantes', (req, res) => { // probar y validar
     const token = req.headers['x-access-token'];
     var respuesta = verifyToken(token)

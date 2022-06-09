@@ -6,8 +6,6 @@ const jwt = require('jsonwebtoken');
 const { validarParamIdUsuario } = require('../../utils/validaciones/validarParam')
 const { send, status, json } = require('express/lib/response');
 
-const { validarQuery } = require('../../utils/validaciones/validarQuery')
-
 //Respuestas
 const mensajes = require('../../utils/mensajes');
 const req = require('express/lib/request');
@@ -61,8 +59,6 @@ function verifyTokenUser(token){
 
 path.get('/v1/iniciarSesion', (req, res) => {
 
-    if(!vefificarQuery(req.query.nombreUsuario) && !vefificarQuery(req.query.clave)){
-
     var pool = mysqlConnection
 
     const {nombreUsuario, clave} = req.query
@@ -114,14 +110,6 @@ path.get('/v1/iniciarSesion', (req, res) => {
             res.send(resultadoJson['application/json'])
         }
     });
-
-<<<<<<< HEAD
-=======
-    }else{
-        res.status(400)
-        res.json(mensajes.peticionIncorrecta)
-    }
->>>>>>> 4fdeb2f5c433440650a920c8c0aad2a8ecdf9dbd
 
 });
 

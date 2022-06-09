@@ -46,6 +46,7 @@ function obtenerFechaActual(){
 }
 
 function existeSolicitud(idSolicitudEmpleo, res){
+    var pool = mysqlConnection
 
     pool.query('SELECT * FROM solicitud_aspirante WHERE id_solicitud_aspirante = ?;',[idSolicitudEmpleo] , (error, resultadoSolicitudEmpleo)=>{
         if(error){ 
@@ -91,6 +92,7 @@ function existeSolicitud(idSolicitudEmpleo, res){
 }
 
 function aceptarSolicitud(idSolicitudEmpleo, res){
+    var pool = mysqlConnection
 
     pool.query('UPDATE solitud_aspirante SET estatus = 0 WHERE id_solicitud_aspirante = ?;',[idSolicitudEmpleo] , (error, resultadoSolicitudEmpleo)=>{
         if(error){ 
@@ -113,6 +115,7 @@ function aceptarSolicitud(idSolicitudEmpleo, res){
 }
 
 function existeContratacion(solicitudEmpleo, res){
+    var pool = mysqlConnection
 
     pool.query('SELECT * contratacion_empleo WHERE id_oferta_empleo_coe = ?;',[solicitudEmpleo['id_oferta_empleo_sa']] , (error, existeContratacion)=>{
         if(error){
@@ -135,6 +138,7 @@ function existeContratacion(solicitudEmpleo, res){
 }
 
 function crearConversacion(solicitudEmpleo, res){
+    var pool = mysqlConnection
     // Si aun no existe obtenemos los datos de la oferta para luego crear la contratacion_empleo
 
     pool.query('SELECT * FROM oferta_empleo WHERE id_oferta_empleo= ?;',[solicitudEmpleo['id_oferta_empleo_sa']] , (error, resultadoOfertaEmpleo)=>{
@@ -155,7 +159,7 @@ function crearConversacion(solicitudEmpleo, res){
             const nombreEmpleo = ofertaEmpleo['nombre']
             
             //Creamos la conversacion
-            pool.query('INSERT INTO conversacion(nombre_empleo, fecha_contratacion) VALUES(?, ?);',[nombreEmpleo, fechaContratacion] , (error, resultadoConversacion)=>{
+            mysqlConnection.query('INSERT INTO conversacion(nombre_empleo, fecha_contratacion) VALUES(?, ?);',[nombreEmpleo, fechaContratacion] , (error, resultadoConversacion)=>{
                 if(error){ 
                     res.json(mensajes.errorInterno);
                     res.status(500)
@@ -178,44 +182,44 @@ function crearConversacion(solicitudEmpleo, res){
 }
 
 function crearContratacion(solicitudEmpleo, idConversacion, res){
+    var pool = mysqlConnection
+    // Si aun no existe obtenemos los datos de la oferta para luego crear la contratacion_empleo
 
-// Si aun no existe obtenemos los datos de la oferta para luego crear la contratacion_empleo
-
-pool.query('SELECT * FROM oferta_empleo WHERE id_oferta_empleo= ?;',[solicitudEmpleo['id_oferta_empleo_sa']] , (error, resultadoOfertaEmpleo)=>{
-    if(error){ 
-        res.json(mensajes.errorInterno);
-        res.status(500)
-    }else if(resultadoOfertaEmpleo.length == 0){
-        
-        console.log('No se encontro la oferta de empleo')
-        res.status(404)
-        res.json(mensajes.peticionNoEncontrada);
-
-    }else{
-        const ofertaEmpleo = resultadoOfertaEmpleo[0]
-        const fechaContratacion = obtenerFechaActual()
-        const fechaFinalizacion = ofertaEmpleo['fecha_finalizacion']
-        
-        //Creamos la contratacion
-        //Estatus de la contratación {1: En curso, 0: Terminada}
-        pool.query('INSERT INTO contratacion_empleo(id_oferta_empleo_coe, fecha_contratacion, fecha_finalizacion, estatus, id_conversacion_coe) VALUES(?, ? ,? , ?, ?);',[solicitudEmpleo['id_oferta_empleo_sa'], fechaContratacion, fechaFinalizacion, 1, idConversacion] , (error, resultadoContratacion)=>{
-            if(error){ 
-                res.json(mensajes.errorInterno);
-                res.status(500)
-            }else if(resultadoContratacion.length == 0){  
-                console.log('No se creo la contratación')
-                res.status(404)
-                res.json(mensajes.peticionNoEncontrada);                                              
-    
-            }else{
-                
-                const contratacionNueva = resultadoContratacion
-                return contratacionNueva
+    pool.query('SELECT * FROM oferta_empleo WHERE id_oferta_empleo= ?;',[solicitudEmpleo['id_oferta_empleo_sa']] , (error, resultadoOfertaEmpleo)=>{
+        if(error){ 
+            res.json(mensajes.errorInterno);
+            res.status(500)
+        }else if(resultadoOfertaEmpleo.length == 0){
             
-            }
+            console.log('No se encontro la oferta de empleo')
+            res.status(404)
+            res.json(mensajes.peticionNoEncontrada);
 
-        });    
-    }
+        }else{
+            const ofertaEmpleo = resultadoOfertaEmpleo[0]
+            const fechaContratacion = obtenerFechaActual()
+            const fechaFinalizacion = ofertaEmpleo['fecha_finalizacion']
+            
+            //Creamos la contratacion
+            //Estatus de la contratación {1: En curso, 0: Terminada}
+            mysqlConnection.query('INSERT INTO contratacion_empleo(id_oferta_empleo_coe, fecha_contratacion, fecha_finalizacion, estatus, id_conversacion_coe) VALUES(?, ? ,? , ?, ?);',[solicitudEmpleo['id_oferta_empleo_sa'], fechaContratacion, fechaFinalizacion, 1, idConversacion] , (error, resultadoContratacion)=>{
+                if(error){ 
+                    res.json(mensajes.errorInterno);
+                    res.status(500)
+                }else if(resultadoContratacion.length == 0){  
+                    console.log('No se creo la contratación')
+                    res.status(404)
+                    res.json(mensajes.peticionNoEncontrada);                                              
+        
+                }else{
+                    
+                    const contratacionNueva = resultadoContratacion
+                    return contratacionNueva
+                
+                }
+
+            });    
+        }
 
 });     
 
@@ -223,13 +227,15 @@ pool.query('SELECT * FROM oferta_empleo WHERE id_oferta_empleo= ?;',[solicitudEm
 
 function crearContratacionAspirante(solicitudEmpleo, idEmpleador, res){
 
-    pool.query('INSERT INTO contratacion_empleo_aspirante(id_perfil_aspirante_cea, id_perfil_empleador_cea) VALUES(?, ?)',[solicitudEmpleo['id_perfil_aspirante_sa'], idEmpleador] , (error, resultadoContratacionAspirante)=>{
+    mysqlConnection.query('INSERT INTO contratacion_empleo_aspirante(id_perfil_aspirante_cea, id_perfil_empleador_cea) VALUES(?, ?)',[solicitudEmpleo['id_perfil_aspirante_sa'], idEmpleador] , (error, resultadoContratacionAspirante)=>{
         if(error){ 
             res.json(mensajes.errorInterno);
             res.status(500)
         }else if(resultadoContratacionAspirante.length == 0){
 
-
+            console.log('No se creo la contratación aspirante')
+            res.status(404)
+            res.json(mensajes.peticionNoEncontrada);     
         }else{
             const contratacionEmpleoAspirante = resultadoContratacionAspirante[0]
             console.log('Se ha creado correctamente la solicitud: ' + `${contratacionEmpleoAspirante}`)
@@ -240,7 +246,7 @@ function crearContratacionAspirante(solicitudEmpleo, idEmpleador, res){
 }
 
 function obtenerIdEmpleador(solicitudEmpleo, res){
-
+    var pool = mysqlConnection
     pool.query('SELECT * FROM oferta_empleo WHERE id_oferta_empleo= ?;',[solicitudEmpleo['id_oferta_empleo_sa']] , (error, resultadoOfertaEmpleo)=>{
         if(error){ 
             res.status(500)
@@ -263,15 +269,13 @@ function obtenerIdEmpleador(solicitudEmpleo, res){
     });   
 }
 
-const pool = mysqlConnection;
-
 path.get('/v1/solicitudesEmpleo', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
     var respuesta = verifyToken(token)
 
     if(respuesta == 200){
-
+        var pool = mysqlConnection
         // estatus de la solicitud de empleo {1: pendiente, 0: aprobada, -1: rechazada }
         pool.query('SELECT * FROM solicitud_aspirante WHERE id_oferta_empleo_sa = ? AND estatus = 1 ;', [req.query.idOfertaEmpleo], (error, resultadoSolicitudesEmpleo)=>{
             if(error){ 
@@ -308,7 +312,7 @@ path.get('/v1/solicitudesEmpleo/:idSolicitudEmpleo', (req, res) => {
     var respuesta = verifyToken(token)
 
     if(respuesta == 200){
-
+        var pool = mysqlConnection
         pool.query('SELECT * FROM solicitud_aspirante WHERE id_solicitud_aspirante = ?;',[req.params.idSolicitudEmpleo] , (error, resultadoSolicitudEmpleo)=>{
             if(error){ 
                 res.json(mensajes.errorInterno);
@@ -434,7 +438,7 @@ path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/rechazada', (req, res) => {
     var respuesta = verifyToken(token)
 
     if(respuesta == 200){
-
+        var pool = mysqlConnection
         pool.query('SELECT * FROM solicitud_aspirante WHERE id_solicitud_aspirante = ?;',[req.params.idSolicitudEmpleo] , (error, resultadoSolicitudEmpleo)=>{
             if(error){ 
                 res.json(mensajes.errorInterno);
