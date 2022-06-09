@@ -7,29 +7,17 @@ const res = require('express/lib/response')
 Para verificar parametros se utiliza param
 */
 
-const validarParamIdUsuario = [
-    param('idPerfilUsuario')
+// Verificar que no esten vacios los parametros
+const validarParamId = [
+
+    param()
         .exists()
         .not()
-        .isEmpty()
-        .isInt(),
-    (req, res, next) => {
-        validateResult(req, res, next)
-    }
-]
-
-const validarParamIdEmpleador = [
-
-    param('idPerfilEmpleador')
-        .exists()
-        .not()
-        .isEmpty()
-        .isInt(),
+        .isEmpty(),
     (req, res, next) => {
         validateResult(req, res, next)
     }
 
 ]
 
-module.exports = { validarParamIdEmpleador }
-module.exports = { validarParamIdUsuario }
+module.exports = { validarParamId }

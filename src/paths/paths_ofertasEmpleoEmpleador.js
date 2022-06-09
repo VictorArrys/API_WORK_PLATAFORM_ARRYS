@@ -3,10 +3,11 @@ const path = Router();
 var mysqlConnection = require('../../utils/conexion');
 const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
+
 //Validaciones
 const { validarOfertaEmpleo } = require('../../utils/validaciones/validarBody')
-const { validarParamIdEmpleador } = require('../../utils/validaciones/validarParam')
 const { validarQuery } = require('../../utils/validaciones/validarQuery')
+const { validarParamId } = require('../../utils/validaciones/validarParam')
 
 //Respuestas
 const mensajes = require('../../utils/mensajes')
@@ -33,7 +34,7 @@ function verifyToken(token){
         }
 }
 
-path.get('/v1/ofertasEmpleo-E',validarQuery, (req, res) => {
+path.get('/v1/ofertasEmpleo-E', validarQuery, (req, res) => {
 
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
@@ -101,7 +102,7 @@ path.get('/v1/ofertasEmpleo-E',validarQuery, (req, res) => {
 
 });
 
-path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
+path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', validarParamId, (req, res) => {
 
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];

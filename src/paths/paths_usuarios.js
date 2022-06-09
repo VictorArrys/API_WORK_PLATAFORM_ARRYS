@@ -3,27 +3,17 @@ const path = Router();
 var mysqlConnection = require('../../utils/conexion');
 const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
 const { validarParamIdUsuario } = require('../../utils/validaciones/validarParam')
 const { send, status, json } = require('express/lib/response');
+
+const { validarQuery } = require('../../utils/validaciones/validarQuery')
 
 //Respuestas
 const mensajes = require('../../utils/mensajes');
 const req = require('express/lib/request');
 const res = require('express/lib/response');
 const pool = require('../../utils/conexion');
-
-//Función para verficar que reciba datos y no esten vacios
-function vefificarQuery(valorQuery){
-
-    if(valorQuery.length == 0){
-        console.log('Algunos campos del query estan vacios')
-        return true
-    }else{
-        return false
-    }
-
-}
-
 
 //Función para verificar el token
 function verifyToken(token){
@@ -70,9 +60,41 @@ function verifyTokenUser(token){
     }
 }
 
+var almacenFotoPerfil = multer.diskStorage({
+    destination: function(request,file, callback){
+        callback(null, __dirname+'./../../utils/almacenFotografias')
+
+    },
+    filename:function(request, file, callback){
+        console.log(file)
+        callback(null, file.fieldname+'-'+Date.now()+ruta.extname(file.originalname))
+
+    }
+})
+
+const multerUpload = multer({storage:multer.memoryStorage(), limits:{fileSize:8*1024*1024*10}})
+
+path.post('/v1/PerfilUsuarios/:idPerfilUsuario/fotografia', multerUpload.single("fotografia"), (req,res) => {
+
+    var query = "UPDATE perfil_usuario SET fotografia = ? WHERE id_perfil_usuario = ?;"
+    const { idPerfilUsuario } = req.params
+
+    mysqlConnection.query(query, [req.file.buffer, idPerfilUsuario], (error, resultadoFotografia) => {
+        if (error){
+            res.status(500)
+            res.json(mensajes.errorInterno)
+        }else if(resultadoFotografia.length == 0){
+            res.status(404)
+            res.json(mensajes.peticionNoEncontrada)
+        }else{
+            res.status(200)
+            res.json(mensajes.actualizacionExitosa)
+        }
+    })
+});
+
 path.get('/v1/iniciarSesion', (req, res) => {
 
-    if(!vefificarQuery(req.query.nombreUsuario) && !vefificarQuery(req.query.clave)){
 
     var pool = mysqlConnection
 
@@ -104,32 +126,24 @@ path.get('/v1/iniciarSesion', (req, res) => {
                 expiresIn: 60 * 60 * 24
               });
 
-            console.log("¡Inicio de sesión exitosa!")
-
-            var array = null;//Uint8ClampedArray.from(Buffer.from(usuario.fotografia, 'base64'))
-            //console.log(array.toString('base64'))
-
+            console.log("¡Inicio de sesión exitosa!");
             const resultadoJson = {};
             resultadoJson['application/json'] = {
                 "clave" : usuario['clave'],
-                "tipo" : usuario['tipo_usuario'],
                 "estatus" : usuario['estatus'],
                 "idPerfilusuario" : usuario['id_perfil_usuario'],
                 "correoElectronico" : usuario['correo_electronico'],
                 "fotografia" : array,
                 "tipoUsuario" : usuario['tipo_usuario'],
-                //solo sirve para probar en postman y sacarlo a la brevedad pero esto no va aqui
-                "token" : token
             };
+            res.setHeader('x-access-token', token)
+
             res.status(200)
             res.send(resultadoJson['application/json'])
         }
     });
 
-    }else{
-        res.status(400)
-        res.json(mensajes.peticionIncorrecta)
-    }
+
 
 });
 
@@ -165,7 +179,7 @@ path.get('/v1/perfilUsuarios', (req, res) => { // ver lo de la foto
     }
 });
 
-path.get('/v1/PerfilUsuarios/:idPerfilUsuario',(req, res) => { //implementar validacion del idPerfilInexistente
+path.get('/v1/PerfilUsuarios/:idPerfilUsuario',(req, res) => { 
     const token = req.headers['x-access-token']
     var respuesta = verifyToken(token)
 

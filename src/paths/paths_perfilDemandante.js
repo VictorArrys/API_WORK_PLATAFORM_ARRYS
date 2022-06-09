@@ -29,34 +29,6 @@ function verifyToken(token){
         }
 }
 
-/*path.post('/v1/perfilDemandantes/:idPerfilDemandante/fotografia', multerUpload.single("fotografia"), (req,res) => {
-
-    var query = "UPDATE perfil_usuario SET fotografia = ? WHERE id_perfil_usuario = ?;"
-    const { idPerfilDemandante } = req.params
-    const { fotografia } = req.file.buffer
-
-    mysqlConnection.query(query, [fotografia, idPerfilDemandante], (error, resultadoFotografia) => {
-        if (error){
-            res.status(500)
-            res.json(mensajes.errorInterno)
-        }else if(resultadoFotografia.length == 0){
-            res.status(404)
-            res.json(mensajes.peticionNoEncontrada)
-        }else{
-            console.log('exito al cargar fotografia')
-        }
-    })
-});
-
-path.post('/v1/perfilDemandantes/:idPerfilDemandante/curriculum', (req, res) => {// path opcional
-  // comvertir array de bytes a documento y a video de lado de c#
-});
-
-path.post('/v1/perfilDemandantes/:idPerfilDemandante/video', (req, res) => {
-
-});
-*/
-
 path.get('/v1/perfilDemandantes', (req, res) => { // probar y validar
     const token = req.headers['x-access-token'];
     var respuesta = verifyToken(token)
@@ -93,14 +65,14 @@ path.get('/v1/perfilDemandantes', (req, res) => { // probar y validar
     }
 });
 
-path.get('/v1/perfilDemandantes/:idPerfilDemandante', (req, res) => {
+path.get('/v1/perfilDemandantes/:idPerfilUsuarioDemandante', (req, res) => { 
     const token = req.headers['x-access-token'];
     var respuesta = verifyToken(token)
-    const { idPerfilDemandante } = req.params
+    const { idPerfilUsuarioDemandante } = req.params
 
     try {
         if (respuesta == 200){
-            var query = 'SELECT * FROM perfil_demandante WHERE id_perfil_demandante = ?;'
+            var query = 'SELECT * FROM perfil_demandante WHERE id_perfil_usuario_demandante = ?;'
             pool = mysqlConnection
 
             pool.query(query, [idPerfilDemandante], (error, resultadoDemandante) => {
