@@ -33,7 +33,7 @@ function verifyToken(token){
         }
 }
 
-path.post('/v1/perfilAdministradores/:idPerfilAdministrador/fotografia', multerUpload.single("fotografia"), (req,res) => {
+/*path.post('/v1/perfilAdministradores/:idPerfilAdministrador/fotografia', multerUpload.single("fotografia"), (req,res) => {
 
     var query = "UPDATE perfil_usuario SET fotografia = ? WHERE id_perfil_usuario = ?;"
     const { idPerfilAdministrador } = req.params
@@ -125,18 +125,18 @@ path.get('/v1/perfilAdministradores', (req, res) => { //falta validaciones
     }
 });
 
-path.get('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {
+path.get('/v1/perfilAdministradores/:idPerfilUsuarioAdmin', (req, res) => { // este id se obtendra de la tabla del usuario
     const token = req.headers['x-access-token']
     var respuesta = verifyToken(token)
 
-    const { idPerfilAdministrador } = req.params
+    const { idPerfilUsuarioAdmin } = req.params
 
     try {
         if(respuesta == 200){
-            var query = 'SELECT * FROM perfil_administrador WHERE id_perfil_administrador = ?;'
+            var query = 'SELECT * FROM perfil_administrador WHERE id_perfil_usuario_admin = ?;'
             pool = mysqlConnection
 
-            pool.query(query, [idPerfilAdministrador], (error, resultadoAdministrador) => {
+            pool.query(query, [idPerfilUsuarioAdmin], (error, resultadoAdministrador) => {
                 if(error){
                     res.status(500)
                     res.json(mensajes.errorInterno)
@@ -164,7 +164,7 @@ path.get('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {
 });
 
 
-path.put('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {//probar
+path.put('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {//id de tabla perfil administrador
     const token = req.headers['x-access-token']
     var respuesta = verifyToken(token)
     const { idPerfilAdministrador } = req.params
