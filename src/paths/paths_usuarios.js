@@ -7,8 +7,6 @@ const multer = require('multer');
 const { validarParamIdUsuario } = require('../../utils/validaciones/validarParam')
 const { send, status, json } = require('express/lib/response');
 
-const { validarQuery } = require('../../utils/validaciones/validarQuery')
-
 //Respuestas
 const mensajes = require('../../utils/mensajes');
 const req = require('express/lib/request');
@@ -95,7 +93,10 @@ path.post('/v1/PerfilUsuarios/:idPerfilUsuario/fotografia', multerUpload.single(
 
 path.get('/v1/iniciarSesion', (req, res) => {
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> 62efda42c9425800435a718534882c48c441bf8d
     var pool = mysqlConnection
 
     const {nombreUsuario, clave} = req.query
