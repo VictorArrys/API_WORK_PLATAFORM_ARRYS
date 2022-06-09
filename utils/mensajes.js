@@ -1,43 +1,50 @@
 //Respuestas
 //500
 exports.errorInterno = {
-    "resBody" : {
-    "menssage" : "error interno del servidor"
-    }
-}
-
-// 401
-exports.tokenInvalido = {
-    "resBody" : {
-    "menssage" : "token invalido"
+    "type error" : {
+    "message" : "Error interno del servidor."
     }
 }
 
 // 400
 exports.peticionIncorrecta = {
-    "resBody" : {
-    "menssage" : "peticion incorrecta"
+    "type error" : {
+    "message" : "Petición incorrecta."
+    }
+}
+
+// 401
+exports.tokenInvalido = {
+    "type error" : {
+    "message" : "Token invalido."
+    }
+}
+
+// 403
+exports.prohibido = {
+    "type error" : {
+    "message" : "Acceso prohibido a esta ruta"
     }
 }
 
 // 404
 exports.peticionNoEncontrada = {
-    "resBody" : {
-    "menssage" : "peticion no encontrada"
+    "type error" : {
+    "message" : "Petición no encontrada"
     }
 }
 
 
 //201
 exports.registroExitoso = {
-    "resBody" : {
-    "menssage" : "Registro exitoso"
+    "result action" : {
+    "message" : "Registro exitoso"
     }
 }
 
 //204
 exports.actualizacionExitosa = {
-    "resBody" : {
-    "menssage" : "Actualización exitosa"
+    "result action" : {
+    "message" : "Actualización exitosa"
     }
 }

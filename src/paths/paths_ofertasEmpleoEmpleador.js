@@ -3,8 +3,10 @@ const path = Router();
 var mysqlConnection = require('../../utils/conexion');
 const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
-const { NULL } = require('mysql/lib/protocol/constants/types');
-const res = require('express/lib/response');
+//Validaciones
+const { validarOfertaEmpleo } = require('../../utils/validaciones/validarBody')
+const { validarParamIdEmpleador } = require('../../utils/validaciones/validarParam')
+const { validarQuery } = require('../../utils/validaciones/validarQuery')
 
 //Respuestas
 const mensajes = require('../../utils/mensajes')
@@ -14,7 +16,6 @@ function verifyToken(token){
     var statusCode = 0;
     try{
         const tokenData = jwt.verify(token, keys.key); 
-        console.log(tokenData);
   
         if (tokenData["tipo"] == "Empleador") {
             statusCode = 200
@@ -32,7 +33,8 @@ function verifyToken(token){
         }
 }
 
-path.get('/v1/ofertasEmpleo-E', (req, res) => {
+path.get('/v1/ofertasEmpleo-E',validarQuery, (req, res) => {
+
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
     var respuesta = verifyToken(token)
@@ -42,10 +44,10 @@ path.get('/v1/ofertasEmpleo-E', (req, res) => {
 
         pool.query('SELECT * FROM oferta_empleo WHERE id_perfil_oe_empleador= ?;', [req.query.idPerfilEmpleador], (error, resultadoOfertasEmpleo)=>{
             if(error){ 
-                res.json(mensajes.errorInterno);
                 res.status(500)
+                res.json(mensajes.errorInterno);
+                
             }else if(resultadoOfertasEmpleo.length == 0){
-    
                 res.status(404)
                 res.json(mensajes.peticionNoEncontrada);
      
@@ -57,7 +59,7 @@ path.get('/v1/ofertasEmpleo-E', (req, res) => {
                 // IdUsuario del token
                 var idUserToken = tokenData['idUsuario']
                 var idUserMatch = ofertaEmpleo["id_perfil_oe_empleador"]
-
+ 
                 //Verificación de autorización de token respecto al recurso solicitado
                 pool.query('SELECT id_perfil_usuario_empleador FROM perfil_empleador WHERE id_perfil_empleador = ?;', [idUserMatch], (error, result)=>{
                     if(error){ 
@@ -100,7 +102,7 @@ path.get('/v1/ofertasEmpleo-E', (req, res) => {
 });
 
 path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
-    
+
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
     var respuesta = verifyToken(token)
@@ -115,7 +117,7 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
                 res.json(mensajes.errorInterno);
                 
             }else if(resultadoOfertaEmpleo.length == 0){
-    
+                
                 res.status(404)
                 res.json(mensajes.peticionNoEncontrada);
      
@@ -172,41 +174,44 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
        
     }
 
+
 });
 
-path.post('/v1/ofertasEmpleo-E', (req, res) => {
+path.post('/v1/ofertasEmpleo-E', validarOfertaEmpleo, (req, res) => {
+
     const token = req.headers['x-access-token'];
     var respuesta = verifyToken(token)
 
     console.log(respuesta)
-    if(respuesta == 200){
+        if(respuesta == 200){
 
-        console.log(req.body)
+            console.log(req.body)
 
-        var query = `INSERT INTO oferta_empleo(id_perfil_oe_empleador, id_categoria_oe, nombre, descripcion, vacantes, dias_laborales, tipo_pago, cantidad_pago, direccion, hora_inicio, hora_fin, fecha_inicio, fecha_finalizacion)  VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-      
-        mysqlConnection.query(query, [req.body.idPerfilEmpleador, req.body.idCategoriaEmpleo, req.body.nombre, req.body.descripcion, 
-            req.body.vacantes, req.body.diasLaborales, req.body.tipoPago, req.body.cantidadPago, req.body.direccion,
-            req.body.horaInicio, req.body.horaFin, req.body.fechaDeIinicio, req.body.fechaDeFinalizacion], (err, rows, fields) => {
-            if (!err) {
-            res.status(201);
-            res.json(mensajes.registroExitoso);
-            } else {
-            console.log(err)
+            var query = `INSERT INTO oferta_empleo(id_perfil_oe_empleador, id_categoria_oe, nombre, descripcion, vacantes, dias_laborales, tipo_pago, cantidad_pago, direccion, hora_inicio, hora_fin, fecha_inicio, fecha_finalizacion)  VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        
+            mysqlConnection.query(query, [req.body.idPerfilEmpleador, req.body.idCategoriaEmpleo, req.body.nombre, req.body.descripcion, 
+                    req.body.vacantes, req.body.diasLaborales, req.body.tipoPago, req.body.cantidadPago, req.body.direccion,
+                    req.body.horaInicio, req.body.horaFin, req.body.fechaDeIinicio, req.body.fechaDeFinalizacion], (err, rows, fields) => {
+                if (!err) {
+                    res.status(201);
+                    res.json(mensajes.registroExitoso);
+                } else {
+                    console.log(err.message)
+                    res.status(500)
+                    res.json(mensajes.errorInterno);
+
+                }
+            }) 
+           
+
+        }else if(respuesta == 401){
+            res.status(respuesta)
+            res.json(mensajes.tokenInvalido);
+
+        }else{
             res.json(mensajes.errorInterno);
-                res.status(500)
-            
-            }
-        }) 
-
-    }else if(respuesta == 401){
-        res.status(respuesta)
-        res.json(mensajes.tokenInvalido);
-
-    }else{
-        res.json(mensajes.errorInterno);
-        res.status(500)
-    }
+            res.status(500)
+        }
 
 });
 
