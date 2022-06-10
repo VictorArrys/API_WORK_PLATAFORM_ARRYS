@@ -115,30 +115,46 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
     try {
         if (respuesta == 200){
             var query = 'SELECT * FROM perfil_aspirante WHERE id_perfil_usuario_aspirante = ?;'
-            pool = mysqlConnection
+            //pool = mysqlConnection
 
-            pool.query(query, [idPerfilUsuarioAspirante], (error, resultadoAspirante) => {
+            mysqlConnection.query(query, [idPerfilUsuarioAspirante], (error, resultadoAspirante) => {
                 if (error){
+                    console.log(error)
                     res.status(500)
                     res.json(mensajes.errorInterno)
                 }else if(resultadoAspirante.length == 0){
                     res.status(404)
-                    res.json(peticionIncorrecta)
+                    res.json(mensajes.peticionIncorrecta)
                 }else{
-                    var aspirante = resultadoAspirante;
+                    
+                    var getAspirante = resultadoAspirante[0]
+                    const aspirante = {}
 
-                    res.status(200);
-                    res.json(aspirante)
+                    aspirante['application/json'] = {
+                        'direccion': getAspirante['direccion'],
+                        'fechaNacimiento': getAspirante['fecha_nacimiento'],
+                        'idPerfilAspirante': getAspirante['id_perfil_aspirante'],
+                        'nombre': getAspirante['nombre'],
+                        'idPerfilusuario': getAspirante['id_perfil_usuario_aspirante'],
+                        //'oficios': arrayOficios hace falta
+                        'telefono': getAspirante['telefono']
+                        //'video': aspirante['video']
+                    }
+
+                    res.status(200)
+                    res.json(aspirante['application/json'])
                 }
             })
         }else if (respuesta == 401){
             res.status(respuesta)
-            res.json(tokenInvalido)
+            res.json(mensajes.tokenInvalido)
         }else{
             res.status(500)
             res.json(mensajes.errorInterno)
         }
     } catch (error) {
+        console.log("del catch")
+        console.log(error)
         res.status(500)
         res.json(mensajes.errorInterno)
     }
@@ -311,8 +327,9 @@ path.put('/v1/perfilAspirantes/:idPerfilAspirante', (req, res) => {
             })
         }else if (respuesta == 401){
             res.status(respuesta)
-            res.json(tokenInvalido)
+            res.json(mensajes.tokenInvalido)
         }else{
+            console.log(respuesta)
             res.status(500)
             res.json(mensajes.errorInterno)
         }
