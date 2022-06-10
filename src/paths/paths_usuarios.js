@@ -125,9 +125,10 @@ path.get('/v1/iniciarSesion', (req, res) => {
 
             console.log("¡Inicio de sesión exitosa!");
 
-
             var arrayFotografia = null
-            if (!usuario.fotografia === null){
+            if (usuario.fotografia == null){
+                console.log('Fotografia vacia, se procede a poner null')
+            }else{
                 arrayFotografia = Uint8ClampedArray.from(Buffer.from(usuario.fotografia.buffer, 'base64'))
             }
 

@@ -4,6 +4,7 @@ var mysqlConnection = require('../../utils/conexion');
 const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
 const ruta = require('path');
+const multer = require('multer');
 
 
 
@@ -35,13 +36,23 @@ function verifyToken(token){
         }
 }
 
-
-path.post('/v1/perfilAspirantes/:idPerfilAspirante/curriculum', (req, res) => {// path opcional
-  // comvertir array de bytes a documento y a video de lado de c#
-});
+const multerUpload = multer({storage:multer.memoryStorage(), limits:{fileSize:8*1024*1024*10}})
 
 path.post('/v1/perfilAspirantes/:idPerfilAspirante/video', (req, res) => {
+    var query = "UPDATE perfil_usuario SET video = ? WHERE id_perfil_usuario = ?;"
+    const { idPerfilUsuario } = req.params
 
+    mysqlConnection.query(query, [req.file.buffer, idPerfilUsuario], (error, resultadoVideo) => {
+        if (error){
+            res.status(500)
+            res.json(mensajes.errorInterno)
+        }else if(resultadoVideo.length == 0){
+            //
+        }else{
+            res.status(200)
+            res.json(mensajes.actualizacionExitosa)
+        }
+    })
 });
 
 /*function consulta(values){
