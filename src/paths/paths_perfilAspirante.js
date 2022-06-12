@@ -55,7 +55,7 @@ path.post('/v1/perfilAspirantes/:idPerfilAspirante/video', (req, res) => {
     })
 });
 
-/*function consulta(values){
+function consulta(values){
     var querythree = 'INSERT INTO categoria_aspirante (id_aspirante_ca, id_categoria_ca, experiencia) VALUES ? ;'
     mysqlConnection.query(query3, [values], (err, rows, fields) => {
         if(err){
@@ -67,7 +67,7 @@ path.post('/v1/perfilAspirantes/:idPerfilAspirante/video', (req, res) => {
             console.log('registro oficio exitoso')
         }
     })
-}*/
+}
 
 path.get('/v1/perfilAspirantes', (req, res) => {
     const token = req.headers['x-access-token']
@@ -115,7 +115,6 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
     try {
         if (respuesta == 200){
             var query = 'SELECT * FROM perfil_aspirante WHERE id_perfil_usuario_aspirante = ?;'
-            //pool = mysqlConnection
 
             mysqlConnection.query(query, [idPerfilUsuarioAspirante], (error, resultadoAspirante) => {
                 if (error){
@@ -137,8 +136,8 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
                         'nombre': getAspirante['nombre'],
                         'idPerfilusuario': getAspirante['id_perfil_usuario_aspirante'],
                         //'oficios': arrayOficios hace falta
-                        'telefono': getAspirante['telefono']
-                        //'video': aspirante['video']
+                        'telefono': getAspirante['telefono'],
+                        'video': aspirante['video']
                     }
 
                     res.status(200)
@@ -239,12 +238,12 @@ path.post('/v1/perfilAspirantes', (req, res) => {
                                     //'video': perfilAspirante['video'],
                                     'idPerfilAspirante': perfilAspirante['id_perfil_aspirante'],
                                     //'fotografia': arrayFotografia
-                                    //'curriculum': perfilAspirante['curriculum']
                                     }
 
-                                    res.status(201)
-                                    res.json(PerfilAspirante['application/json'])
                                 }
+
+                                res.status(201)
+                                res.json(PerfilAspirante['application/json'])
                              })
 
 
@@ -259,6 +258,43 @@ path.post('/v1/perfilAspirantes', (req, res) => {
 
 
 });
+
+/*path.get('/v1', (req, res) => {
+    console.log('jala')
+    var arraycategorias = []
+    arraycategorias.push(13)
+    arraycategorias.push(13)
+    arraycategorias.push(13)
+
+    
+    var arrayOficios = []
+
+    arrayOficios.push(1)
+    arrayOficios.push(10)
+    arrayOficios.push(13)
+
+    /*arrayOficios.push('fontaneria')
+    arrayOficios.push('albañileria')
+    arrayOficios.push('plomeria')
+    arrayOficios.push('kotlin')
+
+    for (var i = 0; i < 3; i++){
+        console.log(arraycategorias[i])
+        console.log(arrayOficios[i])
+        var query1 = 'UPDATE categoria_aspirante SET id_categoria_ca = ?, experiencia = ?  WHERE id_aspirante_ca = ? AND id_categoria_ca = ? ;'
+        mysqlConnection.query(query1, [arrayOficios[i], "1 a 6 meses", 60, arraycategorias[i]], (err, rows) => {
+            if (err){
+                console.log(err)
+            }else if (rows.length == 0){
+                
+            }else{
+                console.log(rows)
+            }
+        })
+
+    }
+
+});*/
 
 path.put('/v1/perfilAspirantes/:idPerfilAspirante', (req, res) => {
     const token = req.headers['x-access-token']

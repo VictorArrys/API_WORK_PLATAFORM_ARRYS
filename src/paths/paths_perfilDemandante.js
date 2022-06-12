@@ -1,4 +1,4 @@
-const { Router } = require('express');
+const { Router, query } = require('express');
 const path = Router();
 var mysqlConnection = require('../../utils/conexion');
 const keys = require('../../settings/keys');
@@ -7,6 +7,7 @@ const { send, status } = require('express/lib/response');
 const req = require('express/lib/request');
 const res = require('express/lib/response');
 const pool = require('../../utils/conexion');
+const mensajes = require('../../utils/mensajes');
 
 function verifyToken(token){
     var statusCode = 0;
@@ -27,6 +28,105 @@ function verifyToken(token){
             return statusCode
             
         }
+}
+
+function consoleError(error, ubicacion){
+    console.log('--------------------------------------------------------------------------------------')
+    console.log('Se ha presentado un problema en: ' + ubicacion)
+    console.log('Error(es): ' + error.message)
+    console.log('--------------------------------------------------------------------------------------')
+}
+ 
+
+function registrarUsuarioDemandante(datoDemandante, res, callback){
+    var queryTwo = 'INSERT INTO perfil_usuario (nombre_usuario, estatus,  clave, correo_electronico, tipo_usuario) VALUES (?, ?, ?, ?, ? ) ;'
+
+    var nombreU = datoDemandante['nombreUsuario']
+    var estatus = datoDemandante['estatus']
+    var clave = datoDemandante['clave']
+    var correoElectronico = datoDemandante['correoElectronico']
+    var tipo = 'Demandante'
+
+
+    mysqlConnection.query(queryTwo, [nombreU, estatus, clave, correoElectronico, tipo], (error, registro) => {
+        if (error){
+            res.status(500)
+            res.json(mensajes.errorInterno)
+        }else if (registro.length == 0){
+            res.status(404)
+            res.json(mensajes.peticionNoEncontrada)
+        }else{
+
+            if (registro['affectedRows'] == 1){
+                const registroUsuario = {}
+                var id = registro.insertId
+
+                registroUsuario['application/json'] = {
+                'clave': clave,
+                'correoElectronico': correoElectronico,
+                'estatus': estatus,
+                'idPerfilUsuario': id,
+                'nombreUsuario': nombreU
+                };
+
+                callback(registroUsuario)
+            }else{
+                res.status(500)
+                res.json(mensajes.errorInterno)
+            }
+
+        }
+    })
+}
+
+function actualizarUsuarioDemandante(registroDemandante, idusuarioDemandante, res, callback){
+    var queryTwo = 'UPDATE perfil_usuario SET nombre_usuario = ?, clave = ?, correo_electronico = ? WHERE id_perfil_usuario = ? ;'
+    
+    var idUsuario = idusuarioDemandante['idPerfilUsuario']
+    var nombreU = registroDemandante['nombreUsuario']
+    var clave = registroDemandante['clave']
+    var correoElectronico = registroDemandante['correoElectronico']
+
+    mysqlConnection.query(queryTwo, [nombreU, clave, correoElectronico, idUsuario] , (error, actualizacion) => {
+        if (error){
+            res.status(500)
+            res.json(mensajes.errorInterno)
+        }else if (actualizacion.length == 0){
+            res.status(404)
+            res.json(mensajes.peticionNoEncontrada)
+        }else{
+            if (actualizacion['affectedRows'] == 1){
+                const modificacionUsuario = {}
+                var id = actualizacion.insertId
+
+                modificacionUsuario['application/json'] = {
+                    'clave': clave,
+                    'correoElectronico': correoElectronico,
+                    'idPerfilUsuario': id,
+                    'nombreUsuario': nombreU
+                }
+
+                callback(modificacionUsuario['application/json'])
+            }else{
+                res.status(500)
+                res.json(mensajes.errorInterno)
+            }
+        }
+    })
+}
+
+function  comprobarRegistro(nombreUsuario, correoElectronico, res, resultado){
+    var queryOne = 'SELECT count(id_perfil_usuario) as Comprobacion FROM perfil_usuario WHERE nombre_usuario = ? OR  correo_electronico = ?';
+
+    mysqlConnection.query(queryOne, [nombreUsuario, correoElectronico], (error, comprobacion) => {
+        if(error){
+            consoleError(error, 'Funcion: contratacionesEmpleo Paso: Consultar contratacion2')
+            res.status(500)
+            res.json(mensajes.errorInterno)
+        }else{
+            resultado(comprobacion[0]['Comprobacion'])
+        }
+    })
 }
 
 path.get('/v1/perfilDemandantes', (req, res) => { // probar y validar
@@ -73,20 +173,29 @@ path.get('/v1/perfilDemandantes/:idPerfilUsuarioDemandante', (req, res) => {
     try {
         if (respuesta == 200){
             var query = 'SELECT * FROM perfil_demandante WHERE id_perfil_usuario_demandante = ?;'
-            pool = mysqlConnection
 
-            pool.query(query, [idPerfilDemandante], (error, resultadoDemandante) => {
+            mysqlConnection.query(query, [idPerfilUsuarioDemandante], (error, resultadoDemandante) => {
                 if (error){
+                    console.log(error)
                     res.status(500)
                     res.json(mensajes.errorInterno)
                 }else if (resultadoDemandante.length == 0){
                     res.status(404)
                     res.json(mensajes.peticionNoEncontrada)
                 }else{
-                    var demandante = resultadoDemandante
+                    var getdemandante = resultadoDemandante[0]
+
+                    const demandante = {}
+                    demandante['application/json'] = {
+                        'direccion': getdemandante['direccion'],
+                        "fechaNacimiento": getdemandante['fecha_nacimiento'],
+                        "nombre": getdemandante['nonbre'],
+                        "telefono": getdemandante['telefono'],
+                        "idperfilDemandante": getdemandante['id_perfil_demandante']
+                    };
 
                     res.status(200)
-                    res.json(demandante)
+                    res.json(demandante['application/json'])
                 }
             })
         }else if (respuesta == 401){
@@ -97,115 +206,116 @@ path.get('/v1/perfilDemandantes/:idPerfilUsuarioDemandante', (req, res) => {
             res.json(mensajes.errorInterno)
         }
     } catch (error) {
+        console.log(error)
         res.status(500)
         res.json(mensajes.errorInterno)
     }
 });
 
-path.post('/v1/perfilDemandantes', (req, res) => { // probar y validar 
-    var idDeUsuario = 0
-    const { direccion, fechaNacimiento, nombre, telefono, clave, correoElectronico, estatus,
-        nombreUsuario, tipo } = req.body
-    
-    try {
-        var queryOne = 'INSERT INTO perfil_usuario (nombre_usuario, estatus,  clave, correo_electronico, tipo_usuario) VALUES (?, ?, ?, ?, ? ) ;'
-        var queryTwo = 'INSERT INTO perfil_demandante (id_perfil_usuario_demandante, nonbre, fecha_nacimiento, telefono, direccion) VALUES ( ?, ?, ?, ?, ?);'
+path.post('/v1/perfilDemandantes', (req, res) => { 
+    var queryThree = 'INSERT INTO perfil_demandante (id_perfil_usuario_demandante, nonbre, fecha_nacimiento, telefono, direccion) VALUES ( ?, ?, ?, ?, ?);'
+    const { clave, correoElectronico, direccion, estatus, fechaNacimiento, nombre, nombreUsuario, telefono  } = req.body
 
-        mysqlConnection.query(queryOne, [nombreUsuario, estatus, clave, correoElectronico, tipo], (error, registrarUsuarioDemandante) => {
-            if (error){
-                res.status(500)
-                res.json(mensajes.errorInterno)
-            }else if (registrarUsuarioDemandante.length == 0){
-                //
-            }else{
-                console.log('Exito al registrar el usuario demandante')
-                idDeUsuario = registrarUsuarioDemandante.insertId
-
-                mysqlConnection.query(queryTwo, [idDeUsuario, nombre, fechaNacimiento, telefono, direccion], (error, registrarPerfilDemandante) => {
-                    if (error){
-                        res.status(500)
-                        res.json(mensajes.errorInterno)
-                    }else if(registrarPerfilDemandante.length == 0){
-                        //
-                    }else{
-                        var usuarioDemandante = registrarUsuarioDemandante
-                        var perfilDemandante = registrarPerfilDemandante
-                        var arrayFotografia = Uint8ClampedArray.from(Buffer.from(usuarioDemandante.fotografia, 'base64'))
-
-                        const registroDemandante = {}
-                        registroDemandante['application/json'] = {
-                            "clave": usuarioDemandante['clave'],
-                            "correoElectronico": usuarioDemandante['correo_electronico'],
-                            "direccion": perfilDemandante['direccion'],
-                            "estatus": usuarioDemandante['estatus'],
-                            "fechaNacimiento": perfilDemandante['fecha_nacimiento'],
-                            "idPerfilUsuario": usuarioDemandante['id_perfil_usuario'],
-                            "nombre": perfilDemandante['nonbre'],
-                            "nombreUsuario": usuarioDemandante['nombre_usuario'],
-                            "telefono": perfilDemandante['telefono'],
-                            "idperfilDemandante": perfilDemandante['id_perfil_demandante'],
-                            "fotografia": arrayFotografia
-                        };
-                        res.status(201)
-                        res.json(registroDemandante['application/json'])
-                    }
-                })
-            }
-        })
-    } catch (error) {
-        res.status(500)
-        res.json(mensajes.errorInterno)
-    }
-});
-
-path.put('/v1/perfilDemandantes/:idPerfilDemandante', (req, res) => { // probar y validar
-    const token = req.headers['x-access-token'];
-    var respuesta = verifyToken(token)
-    const { idperfilDemandante } = req.params
-    const { direccion, fechaNacimiento, nombre, telefono, clave, correoElectronico, estatus,
-        nombreUsuario, idPerfilUsuario} = req.body
-
-    try {
-        if (respuesta == 200){
-            var queryOne = 'UPDATE perfil_usuario SET  nombre_usuario = ?, estatus = ?, clave = ?, correo_electronico = ? WHERE id_perfil_usuario = ? ;'
-            var queryTwo = 'UPDATE perfil_demandante SET nonbre = ?, fecha_nacimiento = ?, telefono = ?, direccion = ? WHERE id_perfil_demandante = ? ;'
-
-            mysqlConnection.query(queryOne, [nombreUsuario, estatus, clave, correoElectronico, idPerfilUsuario], (error, actualizarUsuarioDemandante) => {
-                if (error){
+    comprobarRegistro(nombreUsuario, correoElectronico, res, function(resultado){
+        if (resultado >= 1){
+            res.status(422)
+            res.json(mensajes.instruccionNoProcesada)
+        }else{
+            registrarUsuarioDemandante(req.body, res, function(registroUDemandante) {
+                if (res.error){
                     res.status(500)
                     res.json(mensajes.errorInterno)
-                }else if (actualizarUsuarioDemandante.length == 0){
-                    //
                 }else{
-                    console.log('exito al registrar cuenta del demandante')
-                    mysqlConnection.query(queryTwo, [nombre, fechaNacimiento, telefono, direccion, idperfilDemandante], (error, actualizarPerfilDemandante) => {
+                    var idDeUsuario = 0
+                    idDeUsuario = registroUDemandante['application/json']['idPerfilUsuario']
+
+
+                    mysqlConnection.query(queryThree, [idDeUsuario, nombre, fechaNacimiento, telefono, direccion], (error, registro) => {
                         if (error){
                             res.status(500)
                             res.json(mensajes.errorInterno)
-                        }else if (actualizarPerfilDemandante.length == 0){
-                            // aqui podriamos eliminar el registro de arriba 
+                        }else if (registro.length == 0){
+                            res.status(404)
+                            res.json(mensajes.peticionNoEncontrada)
+                        }else{                          
+                            if (registro['affectedRows'] == 1){
+                                
+                                var idAspirante = registro.insertId
+                                const demandante = {}
+
+                                demandante['application/json'] = {
+                                    'clave': registroUDemandante['application/json']['clave'],
+                                    'correoElectronico': registroUDemandante['application/json']['correoElectronico'],
+                                    'direccion': direccion,
+                                    'estatus': registroUDemandante['application/json']['estatus'],
+                                    'fechaNacimiento': fechaNacimiento,
+                                    'idPerfilUsuario': registroUDemandante['application/json']['idPerfilUsuario'],
+                                    'nombre': nombre,
+                                    'nombreUsuario': registroUDemandante['application/json']['nombreUsuario'],
+                                    'telefono': telefono,
+                                    'idPerfilAspirante': idAspirante
+                                };
+
+                                res.status(201)
+                                res.json(demandante['application/json'])
+                            }
+                        }
+                    })
+                }
+            })
+        }
+    }) 
+
+});
+
+path.put('/v1/perfilDemandantes/:idPerfilDemandante', (req, res) => {
+    const token = req.headers['x-access-token'];
+    var respuesta = verifyToken(token)
+    const { idperfilDemandante } = req.params
+    const { clave, correoElectronico, direccion, estatus, fechaNacimiento, idPerfilUsuario, nombre, nombreUsuario, telefono } = req.body
+    var queryThree = 'UPDATE perfil_demandante SET nonbre = ?, fecha_nacimiento = ?, telefono = ?, direccion = ? WHERE id_perfil_demandante = ? ;'
+
+    try {
+        if (respuesta == 200){
+            comprobarRegistro(nombreUsuario, correoElectronico, res, function(resultado) {
+                if (resultado >= 1){
+                    res.status(422)
+                    res.json(mensajes.instruccionNoProcesada)
+                }else{
+                    actualizarUsuarioDemandante(req.body,req.params, res, function(actualizacionDemandante) {
+                        if (error){
+                            res.status(500)
+                            res.json(mensajes.errorInterno)
                         }else{
-                            var modificarUsuarioDemandante = actualizarUsuarioDemandante
-                            var modificarPerfilDemandante = actualizarPerfilDemandante
-                            var arrayFotografia = Uint8ClampedArray.from(Buffer.from(modificarUsuarioDemandante.fotografia, 'base64'))
+                            mysqlConnection.query(queryThree, [nombre, fechaNacimiento, telefono, direccion, idperfilDemandante], (error, actualizacion) => {
+                                if (error){
+                                    res.status(500)
+                                    res.json(mensajes.errorInterno)
+                                }else if (actualizacion.length == 0){
+                                    res.status(404)
+                                    res.json(mensajes.peticionNoEncontrada)
+                                }else{
+                                    if (actualizacion['affectedRows'] == 1){
 
-                            const modificarRegistrDemandante = {}
-                            modificarRegistrDemandante['application/json'] = {
-                                "clave": modificarUsuarioDemandante['clave'],
-                                "correoElectronico": modificarUsuarioDemandante['correo_electronico'],
-                                "direccion": modificarPerfilDemandante['direccion'],
-                                "estatus": modificarUsuarioDemandante['estatus'],
-                                "fechaNacimiento": modificarPerfilDemandante['fecha_nacimiento'],
-                                "idPerfilUsuario": modificarUsuarioDemandante['id_perfil_usuario'],
-                                "nombre": modificarPerfilDemandante['nonbre'],
-                                "nombreUsuario": modificarUsuarioDemandante['nombre_usuario'],
-                                "telefono": modificarPerfilDemandante['telefono'],
-                                "idperfilDemandante": modificarPerfilDemandante['id_perfil_demandante'],
-                                "fotografia": arrayFotografia
-                            };
+                                        const modificacionDemandante = {}
 
-                            res.status(200)
-                            res.json(modificarRegistrDemandante['application/json'])
+                                        modificacionDemandante['application/json'] = {
+                                            'clave': actualizacionDemandante['application/json']['clave'],
+                                            'correoElectronico': actualizacionDemandante['application/json']['correoElectronico'],
+                                            'direccion': direccion,
+                                            'fechaNacimiento': fechaNacimiento,
+                                            'idPerfilUsuario': actualizacionDemandante['idPerfilUsuario'],
+                                            'nombre': nombre,
+                                            'nombreUsuario': actualizacionDemandante['nombreUsuario'],
+                                            'telefono': telefono,
+                                            'idPerfilAspirante': idperfilDemandante
+                                        }
+
+                                        res.status(200)
+                                        res.json(modificacionDemandante['application/json'])
+                                    }
+                                }
+                            })
                         }
                     })
                 }
@@ -215,7 +325,7 @@ path.put('/v1/perfilDemandantes/:idPerfilDemandante', (req, res) => { // probar 
             res.json(mensajes.tokenInvalido)
         }else{
             res.status(500)
-            res.json(mensajes.errorInterno) 
+            res.json(mensajes.errorInterno)
         }
     } catch (error) {
         res.status(500)
