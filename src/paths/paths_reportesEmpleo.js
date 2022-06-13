@@ -224,4 +224,63 @@ path.patch('/v1/reportesEmpleo/:idReporteEmpleo/rechazado', (req, res) => {
 
 });
 
+
+//Aspirante
+
+path.post('/v1/reportesEmpleo', (req, res) => {
+    const token = req.headers['x-access-token'];
+    var idOfertaEmpleo = req.body['idOfertaEmpleo'];
+    var estatus = 1;
+    var contenidoReporte = req.body['motivo'];
+    var idAspirante = req.body['idAspirante'];
+    
+    var respuesta = verifyToken(token, 'Aspirante');
+
+    if(respuesta == 200){
+        var queryOfertaEmpleo = "select count(id_reporte_empleo) AS estaRegistrada FROM reporte_empleo where id_reporte_empleo = ?;";
+        //Confirmar que existe la oferta
+
+        mysqlConnection.query(queryOfertaEmpleo, [idOfertaEmpleo], (error, resultado) => {
+            if(error) {
+                res.json(mensajes.errorInterno);
+                res.status(500)
+            } else {
+                if(resultado[0]['estaRegistrada'] == 0) {
+                    res.json(mensajes.peticionIncorrecta);
+                    res.status(404);
+                } else {
+                    var queryReporte = "INSERT INTO reporte_empleo (id_perfil_aspirante_re, id_oferta_empleo_re, motivo, estatus, fecha_registro) VALUES (?, ?, ?, ?, NOW());"
+                    mysqlConnection.query(queryReporte, [idAspirante, idOfertaEmpleo, contenidoReporte, estatus], (error, resultado)=> {
+                        if(error) {
+                            res.json(mensajes.errorInterno);
+                            res.status(500)
+                        } else {
+                            var nuevoReporte = {};
+                            nuevoReporte = {
+                                "idReporteEmpleo": resultado.insertId,
+                                "idOfertaEmpleo": resultado['id_oferta_empleo_re'],
+                                "idAspirante" : resultado[''],
+                                "estatus": resultado['estatus'],
+                                "fechaRegistro": resultado['fecha_registro'],
+                                "motivo": resultado['motivo']
+                            };
+
+                            res.status(200);
+                            res.json(nuevoReporte);
+                        }
+                    });
+                }
+            }
+        });
+    }else if(respuesta == 401){
+        res.status(respuesta)
+        res.json(mensajes.tokenInvalido);
+
+    }else{
+        res.status(500)
+        res.json(mensajes.errorInterno);
+        
+    }
+});
+
 module.exports = path;
