@@ -55,3 +55,9 @@ exports.instruccionNoProcesada = {
         "message" : "solicitud no procesada"
         }
 }
+
+exports.solicitudEmpleoRegistrada = {
+    "type error" : {
+    "message" : "Ya registraste una solicitud"
+    }
+}
