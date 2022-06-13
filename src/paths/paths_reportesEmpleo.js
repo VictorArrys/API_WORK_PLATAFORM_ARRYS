@@ -255,18 +255,26 @@ path.post('/v1/reportesEmpleo', (req, res) => {
                             res.json(mensajes.errorInterno);
                             res.status(500)
                         } else {
-                            var nuevoReporte = {};
-                            nuevoReporte = {
-                                "idReporteEmpleo": resultado.insertId,
-                                "idOfertaEmpleo": resultado['id_oferta_empleo_re'],
-                                "idAspirante" : resultado[''],
-                                "estatus": resultado['estatus'],
-                                "fechaRegistro": resultado['fecha_registro'],
-                                "motivo": resultado['motivo']
-                            };
+                            var idNuevoReporte = resultado.insertId;
+                            var queryConsulta = "select * from reporte_empleo where id_reporte_empleo = ?";
+                            mysqlConnection.query(queryConsulta, [idNuevoReporte], (error, resultadoConsulta) => {
+                                if (error) {
 
-                            res.status(200);
-                            res.json(nuevoReporte);
+                                } else {
+                                    var nuevoReporte = {};
+                                    nuevoReporte = {
+                                        "idReporteEmpleo": resultadoConsulta[0]['id_reporte_empleo'],
+                                        "idOfertaEmpleo": resultadoConsulta[0]['id_oferta_empleo_re'],
+                                        "idAspirante" : resultadoConsulta[0]['id_perfil_aspirante_re'],
+                                        "estatus": resultadoConsulta[0]['estatus'],
+                                        "fechaRegistro": resultadoConsulta[0]['fecha_registro'],
+                                        "motivo": resultadoConsulta[0]['motivo']
+                                    };
+
+                                    res.status(201);
+                                    res.json(nuevoReporte);
+                                }
+                            });
                         }
                     });
                 }

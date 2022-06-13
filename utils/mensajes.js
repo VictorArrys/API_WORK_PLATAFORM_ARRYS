@@ -61,3 +61,18 @@ exports.solicitudEmpleoRegistrada = {
     "message" : "Ya registraste una solicitud"
     }
 }
+
+
+//Solicitudes de servicio
+exports.solicitudServicioAceptada = {
+    "message" : "Solicitud de servicio aceptada."
+}
+
+exports.solicitudServicioRechazada = {
+    "message" : "Solicitud de servicio rechazada."
+}
+
+exports.solicitudServicioAtendida = {
+    "message" : "La solicitud de servicio ya fue atendida."
+}
+

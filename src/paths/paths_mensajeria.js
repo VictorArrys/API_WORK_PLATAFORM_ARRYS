@@ -134,7 +134,7 @@ path.get("/v1/perfilDemandantes/:idPerfilDemandante/conversaciones/:idConversaci
                             conversacion = {
                                 "tituloSolicitud":  tituloSolicitud,
                                 "idConversacion": idConversacion,
-                                "mensajes": mensajes
+                                "mensajes": listaMensajes
                             }
 
                             res.status(200);
