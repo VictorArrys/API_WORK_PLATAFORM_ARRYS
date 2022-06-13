@@ -3,9 +3,7 @@ const path = Router();
 var mysqlConnection = require('../../utils/conexion');
 const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
-const { send, status } = require('express/lib/response');
 const mensajes = require('../../utils/mensajes');
-const res = require('express/lib/response');
 
 //Valida que el token le pertenezca al administrador
 function verifyTokenEmpleador(token, idPerfilEmpleador) {
