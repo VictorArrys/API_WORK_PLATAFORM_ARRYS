@@ -142,7 +142,7 @@ path.patch("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSoli
                     }
                 });
             } else {
-                res.status(409).send(mensajes.solicitudServicioAceptada);
+                res.status(409).send(mensajes.solicitudServicioAtendida);
             }
         } )
         
@@ -175,12 +175,12 @@ path.patch("/v1/perfilAspirantes/{idPerfilAspirante}/solicitudesServicios/{idSol
                         res.send(mensajes.errorInterno);
                     } else {
                         if(resultadoAceptar.affectedRows == 1) {
-                            res.status(204).send(mensajes.solicitudServicioAceptada);
+                            res.status(204).send(mensajes.solicitudServicioRechazada);
                         }
                     }
                 });
             } else {
-                res.status(409).send(mensajes.solicitudServicioAceptada);
+                res.status(409).send(mensajes.solicitudServicioAtendida);
             }
         } )
         
