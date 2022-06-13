@@ -58,7 +58,7 @@ function verifyTokenUser(token){
     }
 }
 
-/*var almacenFotoPerfil = multer.diskStorage({
+var almacenFotoPerfil = multer.diskStorage({
     destination: function(request,file, callback){
         callback(null, __dirname+'./../../utils/almacenFotografias')
 
@@ -68,18 +68,17 @@ function verifyTokenUser(token){
         callback(null, file.fieldname+'-'+Date.now()+ruta.extname(file.originalname))
 
     }
-})*/
+})
 
 const multerUpload = multer({storage:multer.memoryStorage(), limits:{fileSize:8*1024*1024*10}})
 
-path.patch('/v1/PerfilUsuarios/:idPerfilUsuario/fotografia', multerUpload.single("fotografia"), (req,res) => {
+path.post('/v1/PerfilUsuarios/:idPerfilUsuario/fotografia', multerUpload.single("fotografia"), (req,res) => {
+
     var query = "UPDATE perfil_usuario SET fotografia = ? WHERE id_perfil_usuario = ?;"
     const { idPerfilUsuario } = req.params
 
-
     mysqlConnection.query(query, [req.file.buffer, idPerfilUsuario], (error, resultadoFotografia) => {
         if (error){
-            console.log(error)
             res.status(500)
             res.json(mensajes.errorInterno)
         }else if(resultadoFotografia.length == 0){
@@ -109,7 +108,9 @@ path.get('/v1/iniciarSesion', (req, res) => {
             console.log("¡Credenciales incorrectas! Probablemente el usuario no exista o estan mal sus credenciales");
        
         }else{
-            
+            //Comentar:
+            // mandar a llamar aqui todo el perfil completo del usuario para tener todos los datos ya del lado del cliente
+            // y solo los que inicien sesión podran acceder a todos los datos 
             var usuario = resultadoInicio[0];
 
             const payload = {
@@ -124,12 +125,8 @@ path.get('/v1/iniciarSesion', (req, res) => {
 
             console.log("¡Inicio de sesión exitosa!");
 
-            var arrayFotografia = null
-            if (usuario.fotografia == null){
-                console.log('Fotografia vacia, se procede a poner null')
-            }else{
-                arrayFotografia = Uint8ClampedArray.from(Buffer.from(usuario.fotografia.buffer, 'base64'))
-            }
+
+            var arrayFotografia = Uint8ClampedArray.from(Buffer.from(usuario.fotografia.buffer, 'base64'))
 
             const resultadoJson = {};
             resultadoJson['application/json'] = {
@@ -138,7 +135,6 @@ path.get('/v1/iniciarSesion', (req, res) => {
                 "idPerfilusuario" : usuario['id_perfil_usuario'],
                 "correoElectronico" : usuario['correo_electronico'],
                 "fotografia" : arrayFotografia,
-                "nombre": usuario['nombre_usuario'],
                 "tipoUsuario" : usuario['tipo_usuario'],
             };
             res.setHeader('x-access-token', token)
