@@ -30,11 +30,10 @@ function verifyToken(token, tipoUsuario){
         }
 }
 
-
-function existeContratacion(idOfertaEmpleo, res){
+function existeContratacion(solicitudEmpleo, res, callback){
     var pool = mysqlConnection
 
-    pool.query('SELECT * contratacion_empleo WHERE id_oferta_empleo_coe = ?;',[idOfertaEmpleo] , (error, existeContratacion)=>{
+    pool.query('SELECT * contratacion_empleo WHERE id_oferta_empleo_coe = ?;',[solicitudEmpleo['id_oferta_empleo_sa']] , (error, existeContratacion)=>{
         if(error){
             res.status(500) 
             res.json(mensajes.errorInterno);
@@ -46,35 +45,35 @@ function existeContratacion(idOfertaEmpleo, res){
             res.json(mensajes.peticionNoEncontrada);
 
         }else{ //En caso de existir la contratación solo agregamos el aspirante a ella
-           
-            return existeContratacion
+            callback(existeContratacion)
+            
         }
 
     });  
 
 }
 
-
-function consultarContrataciones(idContratacionEmpleo, res){
+function nombreAspirante(idAspirante, res, callback){
     var pool = mysqlConnection
 
-    pool.query('SELECT * FROM contratacion_empleo_aspirante INNER JOIN perfil_aspirante ON perfil_aspirante.id_perfil_aspirante = contratacion_empleo_aspirante.id_aspirante_cea WHERE id_contratacion_empleo_cea = ?',[idContratacionEmpleo] , (error, resultadoContratacionesAspirante)=>{
-        if(error){ 
+    pool.query('SELECT nombre perfil_aspirante WHERE id_perfil_aspirante = ?;',[idAspirante] , (error, resultadoNombreAspirante)=>{
+        if(error){
+            res.status(500) 
             res.json(mensajes.errorInterno);
-            res.status(500)
-        }else if(resultadoContratacionesAspirante.length == 0){
 
-            console.log('No se pudo obtener la contratación aspirante')
+        }else if(resultadoNombreAspirante.length == 0){
+                     
+            console.log('No existe la contratación')
             res.status(404)
-            res.json(mensajes.peticionNoEncontrada);     
+            res.json(mensajes.peticionNoEncontrada);
 
-        }else{
-            const contratacionEmpleoAspirante = resultadoContratacionesAspirante
-            console.log('Se ha consultado correctamente las contrataciones: ' + `${contratacionEmpleoAspirante}`)
-            return contratacionEmpleoAspirante  
+        }else{ //En caso de existir la contratación solo agregamos el aspirante a ella
+            callback(resultadoNombreAspirante)
+            
         }
 
-    });
+    });  
+
 }
 
 path.get('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
@@ -85,25 +84,46 @@ path.get('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
     if(respuesta == 200){
 
         //Obtenemos la contratación
-        const contratacionEmpleo = existeContratacion(req.params.idOfertaEmpleo, res)
-        if(!contratacionEmpleo == null){
-            //Obtener la lista de las contrataciones de aspirantes
-            const contratacionesAspirante = consultarContrataciones(contratacionEmpleo['id_contratacion_empleo'], res)
+        var pool = mysqlConnection
 
-            if(!contratacionesAspirante == null){
+        pool.query('SELECT * contratacion_empleo WHERE id_oferta_empleo_coe = ?;',[req.params.idOfertaEmpleo] , (error, existeContratacion)=>{
+            if(error){
+                res.status(500) 
+                res.json(mensajes.errorInterno);
 
-                console.log(contratacionesAspirante)
-                res.status(200)
-                res.json(contratacionesAspirante)
-            }else{
+            }else if(existeContratacion.length == 0){
+                        
+                console.log('No existe la contratación')
                 res.status(404)
                 res.json(mensajes.peticionNoEncontrada);
+
+            }else{ //Obtener la lista de las contrataciones de aspirantes
+
+                var idContratacion = existeContratacion['id_contratacion_empleo']
+                
+                pool.query('SELECT * FROM contratacion_empleo_aspirante INNER JOIN perfil_aspirante ON perfil_aspirante.id_perfil_aspirante = contratacion_empleo_aspirante.id_aspirante_cea WHERE id_contratacion_empleo_cea = ?',[idContratacion] , (error, resultadoContratacionesAspirante)=>{
+                    if(error){ 
+                        res.json(mensajes.errorInterno);
+                        res.status(500)
+                    }else if(resultadoContratacionesAspirante.length == 0){
+            
+                        console.log('No se pudo obtener la contratación aspirante')
+                        res.status(404)
+                        res.json(mensajes.peticionNoEncontrada);     
+            
+                    }else{
+                        const contratacionesEmpleoAspirante = resultadoContratacionesAspirante
+                        console.log('Se ha consultado correctamente las contrataciones: ' + `${contratacionesEmpleoAspirante}`)
+                        res.status(200)
+                        res.json(contratacionesEmpleoAspirante)
+                    }
+            
+                });
+
+
             }
 
-        }else{
-            res.status(404)
-            res.json(mensajes.peticionNoEncontrada);
-        }
+        });  
        
     }else if(respuesta == 401){
         res.status(respuesta)
@@ -125,37 +145,50 @@ path.patch('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
     if(respuesta == 200){
        
         //Obtenemos la contratación
-        const contratacionEmpleo = existeContratacion(req.params.idOfertaEmpleo, res)
-        if(!contratacionEmpleo == null){
-            //Agregar valoración del aspirante en caso de existir la contratación
-            var pool = mysqlConnection
+        existeContratacion(req.params.idOfertaEmpleo, res, function(contratacionEmpleo){
+            if(!contratacionEmpleo == null){
+                //Agregar valoración del aspirante en caso de existir la contratación
+                var pool = mysqlConnection
+    
+                //Obtener datos del body
+                var idAspirante = req.query.idAspirante
+                var valoracionAspirante = req.body.valoracionAspirante
+                var idOfertaEmpleo = req.params.idOfertaEmpleo
+    
+                pool.query('UPDATE contratacion_empleo_aspirante SET valoracion_aspirante = ? WHERE id_perfil_aspirante_cea = ? AND id_contratacion_empleo_cea = ?;',[valoracionAspirante, idAspirante, idOfertaEmpleo] , (error, resultadoEvaluacionAspirante)=>{
+                    if(error){ 
+                        
+                        res.json(mensajes.errorInterno);
+                        res.status(500)
+                    }else if(resultadoEvaluacionAspirante.length == 0){
+                        res.status(404)
+                        res.json(mensajes.peticionNoEncontrada);
+            
+                    }else{
 
-            //Obtener datos del body
-            var idAspirante = req.query.idAspirante
-            var valoracionAspirante = req.body.valoracionAspirante
-            var idOfertaEmpleo = req.params.idOfertaEmpleo
+                        nombreAspirante(idAspirante, res, function(nombreAspirante){
+                            res.status(200)
+    
+                            const valoracionAspirante = {}
+    
+                            valoracionAspirante['application/json'] = {
+                                'idAspirante': ofertaEmpleo['id_perfil_aspirante_cea'],
+                                'valoracionAspirante': nombreAspirante,
+                                'nombreAspirante': ofertaEmpleo['dias_laborales']
+                            }
+    
+                            res.send(valoracionAspirante['application/json'])  
 
-            pool.query('UPDATE contratacion_empleo_aspirante SET valoracion_aspirante = ? WHERE id_perfil_aspirante_cea = ? AND id_contratacion_empleo_cea = ?;',[valoracionAspirante, idAspirante, idOfertaEmpleo] , (error, resultadoEvaluacionAspirante)=>{
-                if(error){ 
-                    
-                    res.json(mensajes.errorInterno);
-                    res.status(500)
-                }else if(resultadoEvaluacionAspirante.length == 0){
-                    res.status(404)
-                    res.json(mensajes.peticionNoEncontrada);
-        
-                }else{
-
-                    res.status(200)
-                    res.json(resultadoEvaluacionAspirante)                   
-        
-                }
-            });
-
-        }else{
-            res.status(404)
-            res.json(mensajes.peticionNoEncontrada);
-        }
+                        })                 
+            
+                    }
+                });
+    
+            }else{
+                res.status(404)
+                res.json(mensajes.peticionNoEncontrada);
+            }
+        })
 
         
     }else if(respuesta == 401){

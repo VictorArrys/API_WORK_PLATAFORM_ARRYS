@@ -45,7 +45,7 @@ function obtenerFechaActual(){
     return fechaEstructurada
 }
 
-function existeSolicitud(idSolicitudEmpleo, res){
+function existeSolicitud(idSolicitudEmpleo, res, callback){
     var pool = mysqlConnection
 
     pool.query('SELECT * FROM solicitud_aspirante WHERE id_solicitud_aspirante = ?;',[idSolicitudEmpleo] , (error, resultadoSolicitudEmpleo)=>{
@@ -62,7 +62,7 @@ function existeSolicitud(idSolicitudEmpleo, res){
  
         }else{
             
-            let solicitudEmpleo = resultadoSolicitudEmpleo[0];
+            const solicitudEmpleo = resultadoSolicitudEmpleo[0];
 
             //Caso que la solicitud ya fue aceptada
             if(solicitudEmpleo['estatus'] == 0){
@@ -77,7 +77,8 @@ function existeSolicitud(idSolicitudEmpleo, res){
                 res.json(mensajes.prohibido);
             //El reporte esta pendiente
             }else if(solicitudEmpleo['estatus'] == 1){
-                return solicitudEmpleo 
+                console.log(solicitudEmpleo)
+                callback(solicitudEmpleo)
 
             }else{  
                 console.log('No se pudo comprender la solicitud')
@@ -91,59 +92,66 @@ function existeSolicitud(idSolicitudEmpleo, res){
 
 }
 
-function aceptarSolicitud(idSolicitudEmpleo, res){
+function aceptarSolicitud(idSolicitudEmpleo, res, callback){
     var pool = mysqlConnection
 
-    pool.query('UPDATE solitud_aspirante SET estatus = 0 WHERE id_solicitud_aspirante = ?;',[idSolicitudEmpleo] , (error, resultadoSolicitudEmpleo)=>{
+    pool.query('UPDATE solicitud_aspirante SET estatus = 0 WHERE id_solicitud_aspirante = ?;',[idSolicitudEmpleo] , (error, resultadoSolicitudEmpleo)=>{
         if(error){ 
+            callback(0)
+
             console.log('Error: ')
             res.status(500)
             console.log(error)
             res.json(mensajes.errorInterno);
         }else if(resultadoSolicitudEmpleo.length == 0){
+            callback(0)
             console.log('No se acepto la solicitud')
             res.status(404)
             res.json(mensajes.peticionNoEncontrada);
 
         }else{
-
-            return resultadoSolicitudEmpleo                
+            console.log(resultadoSolicitudEmpleo['changedRows'])
+            callback(resultadoSolicitudEmpleo['changedRows'])
 
         }
     });
 
 }
 
-function existeContratacion(solicitudEmpleo, res){
+function existeContratacion(solicitudEmpleo, res, callback){
     var pool = mysqlConnection
 
-    pool.query('SELECT * contratacion_empleo WHERE id_oferta_empleo_coe = ?;',[solicitudEmpleo['id_oferta_empleo_sa']] , (error, existeContratacion)=>{
+    pool.query('SELECT * FROM contratacion_empleo WHERE id_oferta_empleo_coe = ?;',[solicitudEmpleo['id_oferta_empleo_sa']] , (error, existeContratacion)=>{
         if(error){
+            console.log('Error en existe contratacion')
+            console.log(error)
             res.status(500) 
             res.json(mensajes.errorInterno);
 
         }else if(existeContratacion.length == 0){
-                     
+            callback(0)
             console.log('No existe la contratación')
             res.status(404)
             res.json(mensajes.peticionNoEncontrada);
 
         }else{ //En caso de existir la contratación solo agregamos el aspirante a ella
-           
-            return existeContratacion
+            callback(existeContratacion[0]['id_contratacion_empleo'])
+            
         }
 
     });  
 
 }
 
-function crearConversacion(solicitudEmpleo, res){
+function crearConversacion(solicitudEmpleo, res, callback){
     var pool = mysqlConnection
     // Si aun no existe obtenemos los datos de la oferta para luego crear la contratacion_empleo
 
     pool.query('SELECT * FROM oferta_empleo WHERE id_oferta_empleo= ?;',[solicitudEmpleo['id_oferta_empleo_sa']] , (error, resultadoOfertaEmpleo)=>{
         if(error){ 
+            console.log('Error: ')
             res.status(500)
+            console.log(error)
             res.json(mensajes.errorInterno);
             
         }else if(resultadoOfertaEmpleo.length == 0){
@@ -159,18 +167,20 @@ function crearConversacion(solicitudEmpleo, res){
             const nombreEmpleo = ofertaEmpleo['nombre']
             
             //Creamos la conversacion
-            mysqlConnection.query('INSERT INTO conversacion(nombre_empleo, fecha_contratacion) VALUES(?, ?);',[nombreEmpleo, fechaContratacion] , (error, resultadoConversacion)=>{
+            mysqlConnection.query('INSERT INTO conversacion(nombre_empleo, nombre, fecha_contratacion) VALUES(? ,? ,?);',[nombreEmpleo, 'oferta_empleo', fechaContratacion] , (error, resultadoConversacion)=>{
                 if(error){ 
-                    res.json(mensajes.errorInterno);
+                    console.log('Error: ')
                     res.status(500)
+                    console.log(error)
+                    res.json(mensajes.errorInterno);
                 }else if(resultadoConversacion.length == 0){  
                     console.log('No se creo la conversación')
                     res.status(404)
                     res.json(mensajes.peticionNoEncontrada);  
         
                 }else{
-                    const conversacionCreada = resultadoConversacion[0]
-                    return conversacionCreada
+                    const conversacionCreada = resultadoConversacion
+                    callback(conversacionCreada['insertId'])
 
                 }
 
@@ -181,14 +191,16 @@ function crearConversacion(solicitudEmpleo, res){
 
 }
 
-function crearContratacion(solicitudEmpleo, idConversacion, res){
+function crearContratacion(solicitudEmpleo, idConversacion, res, callback){
     var pool = mysqlConnection
     // Si aun no existe obtenemos los datos de la oferta para luego crear la contratacion_empleo
 
     pool.query('SELECT * FROM oferta_empleo WHERE id_oferta_empleo= ?;',[solicitudEmpleo['id_oferta_empleo_sa']] , (error, resultadoOfertaEmpleo)=>{
         if(error){ 
-            res.json(mensajes.errorInterno);
+            console.log('Error: ')
             res.status(500)
+            console.log(error)
+            res.json(mensajes.errorInterno);
         }else if(resultadoOfertaEmpleo.length == 0){
             
             console.log('No se encontro la oferta de empleo')
@@ -204,8 +216,10 @@ function crearContratacion(solicitudEmpleo, idConversacion, res){
             //Estatus de la contratación {1: En curso, 0: Terminada}
             mysqlConnection.query('INSERT INTO contratacion_empleo(id_oferta_empleo_coe, fecha_contratacion, fecha_finalizacion, estatus, id_conversacion_coe) VALUES(?, ? ,? , ?, ?);',[solicitudEmpleo['id_oferta_empleo_sa'], fechaContratacion, fechaFinalizacion, 1, idConversacion] , (error, resultadoContratacion)=>{
                 if(error){ 
-                    res.json(mensajes.errorInterno);
+                    console.log('Error: ')
                     res.status(500)
+                    console.log(error)
+                    res.json(mensajes.errorInterno);
                 }else if(resultadoContratacion.length == 0){  
                     console.log('No se creo la contratación')
                     res.status(404)
@@ -214,7 +228,8 @@ function crearContratacion(solicitudEmpleo, idConversacion, res){
                 }else{
                     
                     const contratacionNueva = resultadoContratacion
-                    return contratacionNueva
+                    console.log(contratacionNueva)
+                    callback(contratacionNueva['insertId'])
                 
                 }
 
@@ -225,30 +240,46 @@ function crearContratacion(solicitudEmpleo, idConversacion, res){
 
 }
 
-function crearContratacionAspirante(solicitudEmpleo, idEmpleador, res){
+function crearContratacionAspirante(contratacion ,idAspirante, idEmpleador, res, callback){
+    console.log('Aqui llegamos xdd')
 
-    mysqlConnection.query('INSERT INTO contratacion_empleo_aspirante(id_perfil_aspirante_cea, id_perfil_empleador_cea) VALUES(?, ?)',[solicitudEmpleo['id_perfil_aspirante_sa'], idEmpleador] , (error, resultadoContratacionAspirante)=>{
+    console.log('Id aspiranta: v')
+    console.log(idAspirante)
+    
+    console.log('Id empleador: v')
+    console.log(idEmpleador)
+    
+    console.log('Id contratacion: v')
+    console.log(contratacion)
+
+    mysqlConnection.query('INSERT INTO contratacion_empleo_aspirante(id_contratacion_empleo_cea, id_perfil_aspirante_cea, id_perfil_empleador_cea) VALUES(?, ?, ?)',[contratacion ,idAspirante, idEmpleador] , (error, resultadoContratacionAspirante)=>{
         if(error){ 
-            res.json(mensajes.errorInterno);
+            console.log('Error: ')
             res.status(500)
+            console.log(error)
+            res.json(mensajes.errorInterno);
         }else if(resultadoContratacionAspirante.length == 0){
 
             console.log('No se creo la contratación aspirante')
             res.status(404)
             res.json(mensajes.peticionNoEncontrada);     
         }else{
-            const contratacionEmpleoAspirante = resultadoContratacionAspirante[0]
-            console.log('Se ha creado correctamente la solicitud: ' + `${contratacionEmpleoAspirante}`)
-            res.sendStatus(200);   
+            const contratacionEmpleoAspirante = resultadoContratacionAspirante
+            console.log(contratacionEmpleoAspirante['affectedRows'])
+            callback(contratacionEmpleoAspirante['affectedRows'])
+            
         }
 
     });
 }
 
-function obtenerIdEmpleador(solicitudEmpleo, res){
+function obtenerIdEmpleador(solicitudEmpleo, res, callback){
     var pool = mysqlConnection
-    pool.query('SELECT * FROM oferta_empleo WHERE id_oferta_empleo= ?;',[solicitudEmpleo['id_oferta_empleo_sa']] , (error, resultadoOfertaEmpleo)=>{
+    pool.query('SELECT id_perfil_oe_empleador FROM oferta_empleo WHERE id_oferta_empleo= ?;',[solicitudEmpleo['id_oferta_empleo_sa']] , (error, resultadoOfertaEmpleo)=>{
         if(error){ 
+            console.log('Error: ')
+            res.status(500)
+            console.log(error)
             res.status(500)
             res.json(mensajes.errorInterno);
             
@@ -259,11 +290,11 @@ function obtenerIdEmpleador(solicitudEmpleo, res){
             res.json(mensajes.peticionNoEncontrada);
 
         }else{
-            const ofertaEmpleo = resultadoOfertaEmpleo[0]
-            
-            const idEmpleador = ofertaEmpleo['id_perfil_oe_empleador']
 
-            return idEmpleador
+            console.log(resultadoOfertaEmpleo[0]['id_perfil_oe_empleador'])
+
+            callback(resultadoOfertaEmpleo[0]['id_perfil_oe_empleador'])
+            
         }
 
     });   
@@ -282,7 +313,8 @@ path.get('/v1/solicitudesEmpleo', (req, res) => {
                 res.json(mensajes.errorInterno);
                 res.status(500)
             }else if(resultadoSolicitudesEmpleo.length == 0){
-    
+
+                console.log('No se encontro solicitudes de empleo de esta oferta de empleo')
                 res.status(404)
                 res.json(mensajes.peticionNoEncontrada);
      
@@ -336,6 +368,7 @@ path.get('/v1/solicitudesEmpleo/:idSolicitudEmpleo', (req, res) => {
                     res.json(mensajes.peticionIncorrecta);
                 //El reporte esta pendiente
                 }else if(solicitudEmpleo['estatus'] == 1){
+
                     res.status(200);                  
                     res.json(solicitudEmpleo);  
 
@@ -358,8 +391,6 @@ path.get('/v1/solicitudesEmpleo/:idSolicitudEmpleo', (req, res) => {
 
 });
 
-
-
 path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/aceptada', (req, res) => {
 
     //Creamos la constante del token que recibimos
@@ -367,57 +398,83 @@ path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/aceptada', (req, res) => {
     var respuesta = verifyToken(token)
 
     if(respuesta == 200){
+         
+        // Existe la solicitud que se quiere aprobar o cuenta con estado valido {1: pendiente}
+        existeSolicitud(req.params.idSolicitudEmpleo, res, function (existeSolicitudEmpleo){
+
+            console.log(existeSolicitudEmpleo)
+            if(existeSolicitudEmpleo['id_solicitud_aspirante'] > 0){
+
+                // Se acepta la solicitud solo en caso de que haya recibido que existe la solicitud
+                aceptarSolicitud(existeSolicitudEmpleo["id_solicitud_aspirante"], res, function (solicitudAceptada){
+                    if(solicitudAceptada > 0){
         
-    // Existe la solicitud que se quiere aprobar o cuenta con estado valido {1: pendiente}
-        const solicitudAspirante = existeSolicitud(req.params.idSolicitudEmpleo, res)
+                        //Obtenemos el id del empleador de la oferta
+                        obtenerIdEmpleador(existeSolicitudEmpleo, res, function(ofertaEmpleo){
 
-        if(!solicitudAspirante == null){
-        // Se acepta la solicitud solo en caso de que haya recibido que existe la solicitud
-            const solicitudAceptada = aceptarSolicitud(solicitudAspirante["id_solicitud_aspirante"], res)
-            if(!solicitudAceptada == null){
+                            if(ofertaEmpleo > 0){
 
-                //Obtenemos el id del empleador de la oferta
-                const idEmpleador = obtenerIdEmpleador(solicitudAceptada, res)
-                if(!idEmpleador == null){
+                                //Verificamos si existe la contratación de la solicitud
+                                existeContratacion(existeSolicitudEmpleo, res, function(contratacionEmpleo){
 
-                    //Verificamos si existe la contratación de la solicitud
-                    const contratacionEmpleo = existeContratacion(solicitudAceptada, res)
-                    if(contratacionEmpleo == null){
+                                    if(contratacionEmpleo == 0){
+                                        console.log(contratacionEmpleo)
+                                        //Se crea una nueva conversación de la solicitud
+                                        crearConversacion(existeSolicitudEmpleo, res, function(conversacionNueva){
+                                            if(conversacionNueva > 0){
+                                            
+                                                //Se crea una contratación nueva de la solicitud
+                                                crearContratacion(existeSolicitudEmpleo,conversacionNueva , res, function(contratacionNueva){
+                                                    if(contratacionNueva > 0){
+                                                        
+                                                        console.log('Id del empleador')
+                                                        console.log(ofertaEmpleo)
 
-                        //Se crea una nueva conversación de la solicitud
-                        const conversacionNueva =  crearConversacion(solicitudAceptada, res)
-                        if(!conversacionNueva == null){
-                            
-                            //Se crea una contratación nueva de la solicitud
-                            const contratacionNueva = crearContratacion(solicitudAceptada,conversacionNueva['id_conversacion'] , res)
-                            if(!contratacionNueva == null){
-
-                                const contratacionEmpleoAspirante = crearContratacionAspirante(solicitudAceptada, idEmpleador, res)
-                                if(!contratacionEmpleoAspirante == null){
-
-                                }else{
-                                    res.status(200)
-                                    res.json(contratacionEmpleoAspirante)
-                                }
-
-                            }
-                        }
-
-                    }else{
-                        //Solo se agrega al aspirante a la contratación
-                        const contratacionEmpleoAspirante = crearContratacionAspirante(solicitudAceptada, idEmpleador, res)
-                        if(!contratacionEmpleoAspirante == null){
-
-                        }else{
-                            res.status(200)
-                            res.json(contratacionEmpleoAspirante)
-                        }
-                    }
+                                                        crearContratacionAspirante(contratacionNueva ,existeSolicitudEmpleo['id_perfil_aspirante_sa'], ofertaEmpleo, res, function(contratacionEmpleoAspirante){
+                                                            if(contratacionEmpleoAspirante == 1){
+                                                                res.status(204)
+                                                                res.json(contratacionEmpleoAspirante)
+                                                            }else{
                 
-            }
-        }
+                                                            }
+                            
+                                                        })
+                                                        
+                                                    }
+
+                                                })
+                                                
+                                            }
+
+                                        })                
+                
+                                    }else{
+                                        //Solo se agrega al aspirante a la contratación
+                                        crearContratacionAspirante(contratacionEmpleo ,existeSolicitudEmpleo['id_perfil_aspirante_sa'], ofertaEmpleo, res, function(contratacionEmpleoAspirante){
+                                            if(contratacionEmpleoAspirante == 1){
+                                                res.status(204)
+                                                res.json(contratacionEmpleoAspirante)
+                                            }else{
+
+                                            }
             
-        }
+                                        })
+                                    }
+                                })                            
+                            
+                            }
+
+                        })
+                    
+                }
+
+                })
+                    
+                
+                    
+                }
+
+        })
         
     }else if(respuesta == 401){
         res.status(respuesta)

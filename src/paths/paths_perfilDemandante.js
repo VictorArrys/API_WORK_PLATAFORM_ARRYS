@@ -146,6 +146,7 @@ path.post('/v1/perfilDemandantes', (req, res) => { // probar y validar
                             "idperfilDemandante": perfilDemandante['id_perfil_demandante'],
                             "fotografia": arrayFotografia
                         };
+                        
                         res.status(201)
                         res.json(registroDemandante['application/json'])
                     }
