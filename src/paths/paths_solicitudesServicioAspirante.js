@@ -5,8 +5,14 @@ const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
 const mensajes = require('../../utils/mensajes');
 
-//Estatus de solicitudes:
-//Pendiente: 0, Rechazado -1, Acpetado: 1 
+/*
+
+Estatus de solicitudes:
+Pendiente: 0, Rechazado -1, Acpetado: 1
+
+Estatus de contratacion servicio
+Activa: 0, finalizada: 1
+*/
 
 
 //Verfica que el token le pertenezca a un demandante
@@ -137,6 +143,9 @@ path.patch("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSoli
                         res.send(mensajes.errorInterno);
                     } else {
                         if(resultadoAceptar.affectedRows == 1) {
+                            //registrar conversacion y contratacion
+
+
                             res.status(204).send(mensajes.solicitudServicioAceptada);
                         }
                     }
