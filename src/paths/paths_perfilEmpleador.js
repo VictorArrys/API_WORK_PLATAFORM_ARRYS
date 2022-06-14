@@ -108,6 +108,7 @@ path.post('/v1/perfilEmpleadores', (req, res) => {
                             "idPerfilEmpleador": perfilEmpleador['id_perfil_empleador'],
                             "nombreusuario": usuarioEmpleador['nombre_usuario']
                         };
+                        
                         res.status(201)
                         res.json(registroEmpleador['application/json'])
                     }

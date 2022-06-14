@@ -42,9 +42,16 @@ exports.registroExitoso = {
     }
 }
 
-//204
+//200
 exports.actualizacionExitosa = {
     "result action" : {
     "message" : "Actualización exitosa"
     }
+}
+
+//422
+exports.instruccionNoProcesada = {
+    "type error" : {
+        "message" : "solicitud no procesada"
+        }
 }
