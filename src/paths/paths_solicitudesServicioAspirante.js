@@ -28,7 +28,7 @@ function verificarTokenAspirante(token, idPerfilDemandante) {
     }
 }
 
-path.get("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios",(req, res) => {
+path.get("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios", (req, res) => {
     const token = req.headers['x-access-token'];
     tokenValido = verificarTokenAspirante(token);
     
@@ -137,19 +137,53 @@ path.patch("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSoli
                 res.send(mensajes.errorInterno);
             } else if (resultadoComprobacion[0]['estaPendiente'] == 1) {
                 var queryAceptarReporte = "UPDATE solicitud_servicio SET estatus = 1 WHERE id_solicitud_servicio = ? and id_perfil_ss_aspirante = ?;"
-                mysqlConnection.query(queryAceptarReporte, [idSolicitudServicio, idAspirante], (error, resultadoAceptar) => {
-                    if (error) {
-                        res.status(500);
-                        res.send(mensajes.errorInterno);
-                    } else {
-                        if(resultadoAceptar.affectedRows == 1) {
-                            //registrar conversacion y contratacion
-
-
-                            res.status(204).send(mensajes.solicitudServicioAceptada);
+                try {
+                    mysqlConnection.beginTransaction(function (error) {
+                        if (error) { 
+                            throw errorMysql;
+                        } else {
+                            mysqlConnection.query(queryAceptarReporte, [idSolicitudServicio, idAspirante], (error, resultadoAceptar) => {
+                                if(error) {
+                                    mysqlConnection.rollback(function() {
+                                        throw errorMysql;
+                                    });
+                                } else {
+                                    var queryConversacion = "INSERT INTO conversacion (nombre_empleo , nombre, fecha_contratacion) " +
+                                                            "VALUES ( " +
+                                                                "(SELECT titulo FROM solicitud_servicio WHERE id_solicitud_servicio = ?), " +
+                                                                "(SELECT nombre FROM perfil_demandante INNER JOIN solicitud_servicio ON (id_perfil_demandante = id_perfil_ss_demandante) WHERE id_solicitud_servicio = ?), " +
+                                                                "date_format(NOW(), \"%Y-%m-%d\") " +
+                                                            ");";
+                                    mysqlConnection.query(queryConversacion, [idSolicitudServicio, idSolicitudServicio], (error, resultadoConversacion) => {
+                                        if(error) {
+                                            mysqlConnection.rollback(function() {
+                                                throw errorMysql;
+                                            });
+                                        } else {
+                                            var queryContratacionServicio = "INSERT INTO contratacion_servicio ( id_perfil_demandante_cs, id_perfil_aspirante_cs, estatus, valoracion_aspirante, fecha_contratacion, id_conversacion_cs) " +
+                                                                            "VALUES ( " +
+                                                                                "(SELECT id_perfil_ss_demandante FROM solicitud_servicio WHERE id_solicitud_servicio = ?), " +
+                                                                                "(SELECT id_perfil_ss_demandante FROM solicitud_servicio WHERE id_solicitud_servicio = ?), " +
+                                                                                "0, 0, NOW(), ?);";
+                                            mysqlConnection.query(queryContratacionServicio, [idSolicitudServicio, idSolicitudServicio, resultadoConversacion.insertId], (error, resultadoContratacion) => {
+                                                if(error) {
+                                                    mysqlConnection.rollback(function() {
+                                                        throw errorMysql;
+                                                    });
+                                                } else {
+                                                    res.status(204).send(mensajes.solicitudServicioAceptada);
+                                                }
+                                            });
+                                        }
+                                    })
+                                }
+                            });
                         }
-                    }
-                });
+                    });
+                } catch (errorMysql) {
+                    res.status(500);
+                    res.send(mensajes.errorInterno);
+                }
             } else {
                 res.status(409).send(mensajes.solicitudServicioAtendida);
             }

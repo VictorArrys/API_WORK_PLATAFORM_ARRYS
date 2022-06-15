@@ -18,11 +18,9 @@ function verifyTokenAspirante(token, idPerfilAspirante) {
     }
 }
 
-
-
 path.get("/v1/ofertasEmpleo-A", (req, res) => {
     const token = req.headers['x-access-token'];
-    const categoriasEmpleo = req.query[categoriasEmpleo];
+    const categoriasEmpleo = req.query['categoriasEmpleo'];
     var tokenValido = verificarTokenAspirante(token);
     if(tokenValido) {
         var queryConsulta = "SELECT ofEmp.id_oferta_empleo, ofEmp.fecha_inicio, ofEmp.nombre, ofEmp.direccion, ofEmp.cantidad_pago, ofEmp.tipo_pago, ofEmp.dias_laborales, " +
@@ -62,7 +60,7 @@ path.get("/v1/ofertasEmpleo-A", (req, res) => {
 
 path.get("/v1/ofertasEmpleo-A/:idOfertaEmpleo", (req, res) => {
     const token = req.headers['x-access-token'];
-    const categoriasEmpleo = req.query[categoriasEmpleo];
+    const idOfertaEmpleo = req.query['idOfertaEmpleo'];
     var tokenValido = verificarTokenAspirante(token);
     if(tokenValido) {
         
