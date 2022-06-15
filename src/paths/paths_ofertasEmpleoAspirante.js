@@ -40,17 +40,18 @@ path.get("/v1/ofertasEmpleo-A", (req, res) => {
                 resultadoConsulta.forEach(fila => {
                     var ofertaEmpleo = {};
                     ofertaEmpleo = {
-                        "idOfertaEmpleo" : fila[''],
-                        "fechaInicio" : fila[''], 
-                        "nombreEmpleo" : fila[''], 
-                        "direccion" : fila[''], 
-                        "cantidadPago" : fila[''], 
-                        "tipoPago" : fila[''], 
-                        "diasLaborales" : fila[''], 
-                        "vacantesDisponibles" : fila['']
+                        "idOfertaEmpleo" : fila['id_oferta_empleo'],
+                        "fechaInicio" : fila['fecha_inicio'], 
+                        "nombreEmpleo" : fila['nombre'], 
+                        "direccion" : fila['direccion'], 
+                        "cantidadPago" : fila['cantidad_pago'], 
+                        "tipoPago" : fila['tipo_pago'], 
+                        "diasLaborales" : fila['dias_laborales'], 
+                        "vacantesDisponibles" : fila['vacantes_disponibles']
                     }
-
+                    listaOfertas.push(ofertaEmpleo);
                 });
+                res.status(200).send(listaOfertas);
             }
         })
     } else {
@@ -60,7 +61,15 @@ path.get("/v1/ofertasEmpleo-A", (req, res) => {
 });
 
 path.get("/v1/ofertasEmpleo-A/:idOfertaEmpleo", (req, res) => {
-
+    const token = req.headers['x-access-token'];
+    const categoriasEmpleo = req.query[categoriasEmpleo];
+    var tokenValido = verificarTokenAspirante(token);
+    if(tokenValido) {
+        
+    } else {
+        res.status(401);
+        res.send(mensajes.tokenInvalido);
+    }
 });
 
 
