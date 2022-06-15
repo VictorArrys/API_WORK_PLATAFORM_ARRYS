@@ -61,12 +61,10 @@ function verifyTokenUser(token){
 /*var almacenFotoPerfil = multer.diskStorage({
     destination: function(request,file, callback){
         callback(null, __dirname+'./../../utils/almacenFotografias')
-
     },
     filename:function(request, file, callback){
         console.log(file)
         callback(null, file.fieldname+'-'+Date.now()+ruta.extname(file.originalname))
-
     }
 })*/
 

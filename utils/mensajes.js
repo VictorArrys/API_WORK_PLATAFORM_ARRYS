@@ -55,3 +55,53 @@ exports.instruccionNoProcesada = {
         "message" : "solicitud no procesada"
         }
 }
+
+exports.solicitudEmpleoRegistrada = {
+    "type error" : {
+    "message" : "Ya registraste una solicitud"
+    }
+}
+
+
+//Solicitudes de servicio
+exports.solicitudServicioAceptada = {
+    "message" : "Solicitud de servicio aceptada."
+}
+
+exports.solicitudServicioRechazada = {
+    "message" : "Solicitud de servicio rechazada."
+}
+
+exports.solicitudServicioAtendida = {
+    "type error" : {
+        "message" : "La solicitud de servicio ya fue atendida."
+    }
+}
+
+//Servicios
+exports.aspiranteEvaluado = {
+    "message" : "Evaluacion de aspirante registrada."
+}
+ 
+exports.evaluacionDeAspiranteDenegada = {
+    "type error" : {
+        "message" : "El aspirante no se puede evaluado hasta finalizar la contratación."
+    }
+}
+
+exports.contratacionServicioFinalizada = {
+    "message" : "La contratación de servicio fue finalizada."
+}
+
+exports.contratacionServicioPreviamenteFinalizada = {
+    "type error" : {
+        "message" : "El empleador no se puede evaluado hasta finalizar la contratación."
+    }
+}
+
+//Contratacion Empleo - Aspirante
+exports.evaluacionDeEmpleadorDenegada = {
+    "type error" : {
+        "message" : "El empleador no se puede evaluado hasta finalizar la contratación."
+    }
+}
