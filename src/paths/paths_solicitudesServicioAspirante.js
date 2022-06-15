@@ -180,6 +180,7 @@ path.patch("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSoli
                                                             throw error;
                                                         });
                                                     } else {
+                                                        //Guardar cambios de la base de datos
                                                         conexion.commit(function(error) {
                                                             if (error) {
                                                               return connection.rollback(function() {
