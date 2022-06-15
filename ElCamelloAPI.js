@@ -16,8 +16,10 @@ app.use(express.json());
 
 //routes
 app.use(require('./src/paths/paths_usuarios'))
+app.use(require('./src/paths/paths_perfilAdministrador'))
 app.use(require('./src/paths/paths_categorias'))
 app.use(require('./src/paths/paths_perfilDemandante'))
+app.use(require('./src/paths/paths_perfilEmpleador'))
 app.use(require('./src/paths/paths_ofertasEmpleoEmpleador'))
 app.use(require('./src/paths/paths_mensajeria'));
 app.use(require('./src/paths/paths_reportesEmpleo'))
