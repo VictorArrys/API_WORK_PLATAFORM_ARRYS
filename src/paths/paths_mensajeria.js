@@ -74,6 +74,7 @@ path.get('/v1/perfilDemandantes/:idPerfilDemandante/conversaciones', (req, res) 
                     }
                     conversaciones.push(conversacion);
                 });
+                console.log(conversaciones);
                 res.status(200);
                 res.send(conversaciones);
             }
@@ -351,7 +352,7 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/conversaciones", (req, res)=>{
     
     var tokenValido = verifyTokenAspirante(token);
     if (tokenValido) {
-        var queryConversaciones = "select conv.* from " +
+        var queryConversaciones = "select id_conversacion, nombre_empleo, date_format(fecha_contratacion, \"%Y-%m-%d\") as fecha_contratacion from " +
                                   "conversacion as conv inner join participacion_conversacion as parConv " +
                                   "on parConv.id_conversacion_participacion = conv.id_conversacion " +
                                   "where parConv.id_perfil_usuario_participacion = (select id_perfil_usuario_aspirante from perfil_aspirante where id_perfil_aspirante = ?);"
@@ -396,18 +397,19 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/conversaciones/:idConversacion
                                   "on parConv.id_conversacion_participacion = conv.id_conversacion " +
                                   "where parConv.id_perfil_usuario_participacion = (select id_perfil_usuario_aspirante from perfil_aspirante where id_perfil_aspirante = ?) AND conv.id_conversacion = ?;"
     
-        mysqlConnection.query(query, [idPerfilAspirante, idConversacion], (error, resultado) => {
+        mysqlConnection.query(queryConversaciones, [idPerfilAspirante, idConversacion], (error, resultadoConversacion) => {
             if(error){ 
                 res.status(500)
                 res.send(mensajes.errorInterno)
             } else {
-                if (resultado.length == 1){
+                if (resultadoConversacion.length == 1){
                     var queryMensajes = "SELECT m.id_mensaje AS idMensaje, m.id_usuario_remitente as idUsuarioRemitente, m.mensaje AS contenidoMensaje, date_format(m.fechaRegistro, \"%Y-%m-%d %T\") as fechaRegistro, pu.nombre_usuario as remitente, pu.tipo_usuario as tipoUsuario FROM mensaje AS m INNER JOIN perfil_usuario as pu ON m.id_usuario_remitente = pu.id_perfil_usuario where m.id_conversación_mensaje = ?";
 
                     var conversacion = {};
                     var listaMensajes = [];
                     
-                    var idConversacion = resultado[0]['id_conversacion'];
+                    var idConversacion = resultadoConversacion[0]['id_conversacion'];
+                    var titulo = resultadoConversacion[0]['nombre_empleo'];
                     mysqlConnection.query(queryMensajes, [idConversacion], (error, resultado) => {
                         if(error){ 
                             res.status(500)
@@ -425,8 +427,8 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/conversaciones/:idConversacion
                                 listaMensajes.push(mensaje);
                             });
                             conversacion = {
-                                "idConversacion": resultado[0]['id_conversacion'],
-                                "tituloEmpleo": resultado[0]['nombre_empleo'],
+                                "idConversacion": idConversacion,
+                                "tituloEmpleo": titulo,
                                 "mensajes" : listaMensajes
                             }
 
@@ -451,7 +453,7 @@ path.post("/v1/perfilAspirantes/:idPerfilAspirante/conversaciones/:idConversacio
     const idPerfilAspirante = req.params['idPerfilAspirante']
     const idConversacion = req.params['idConversacion']
     const mensaje =  req.body["mensaje"];
-    var tokenValido = verifyTokenDemandante(token);
+    var tokenValido = verifyTokenAspirante(token);
     if (tokenValido) {
         var queryConversacion = "INSERT INTO mensaje (id_conversación_mensaje, id_usuario_remitente, mensaje, fechaRegistro) " +
                                 "VALUES (?,(SELECT id_perfil_usuario_aspirante FROM perfil_aspirante WHERE id_perfil_aspirante = ?),?,NOW());";
