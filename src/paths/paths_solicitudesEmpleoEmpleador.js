@@ -241,18 +241,8 @@ function crearContratacion(solicitudEmpleo, idConversacion, res, callback){
 }
 
 function crearContratacionAspirante(contratacion ,idAspirante, idEmpleador, res, callback){
-    console.log('Aqui llegamos xdd')
 
-    console.log('Id aspiranta: v')
-    console.log(idAspirante)
-    
-    console.log('Id empleador: v')
-    console.log(idEmpleador)
-    
-    console.log('Id contratacion: v')
-    console.log(contratacion)
-
-    mysqlConnection.query('INSERT INTO contratacion_empleo_aspirante(id_contratacion_empleo_cea, id_perfil_aspirante_cea, id_perfil_empleador_cea) VALUES(?, ?, ?)',[contratacion ,idAspirante, idEmpleador] , (error, resultadoContratacionAspirante)=>{
+    mysqlConnection.query('INSERT INTO contratacion_empleo_aspirante(id_contratacion_empleo_cea, id_perfil_aspirante_cea, id_perfil_empleador_cea, valoracion_aspirante, valoracion_empleador) VALUES(?, ?, ?, ?, ?)',[contratacion ,idAspirante, idEmpleador, 0, 0] , (error, resultadoContratacionAspirante)=>{
         if(error){ 
             console.log('Error: ')
             res.status(500)
@@ -308,7 +298,7 @@ path.get('/v1/solicitudesEmpleo', (req, res) => {
     if(respuesta == 200){
         var pool = mysqlConnection
         // estatus de la solicitud de empleo {1: pendiente, 0: aprobada, -1: rechazada }
-        pool.query('SELECT * FROM solicitud_aspirante WHERE id_oferta_empleo_sa = ? AND estatus = 1 ;', [req.query.idOfertaEmpleo], (error, resultadoSolicitudesEmpleo)=>{
+        pool.query('SELECT solicitud_aspirante.*, perfil_aspirante.nombre, perfil_aspirante.id_perfil_usuario_aspirante FROM solicitud_aspirante INNER JOIN perfil_aspirante ON perfil_aspirante.id_perfil_aspirante = solicitud_aspirante.id_perfil_aspirante_sa WHERE id_oferta_empleo_sa = ?;', [req.query.idOfertaEmpleo], (error, resultadoSolicitudesEmpleo)=>{
             if(error){ 
                 res.json(mensajes.errorInterno);
                 res.status(500)
