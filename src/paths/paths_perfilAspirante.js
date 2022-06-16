@@ -18,18 +18,16 @@ function verifyToken(token){
     var statusCode = 0;
     try{
         const tokenData = jwt.verify(token, keys.key); 
-        console.log(tokenData);
   
-        if (tokenData["tipo"] == "Empleador" || tokenData["tipo"] == "Administrador" || tokenData["tipo"] == "Aspirante") {
+        if (tokenData["tipo"] == "Empleador" || tokenData['tipo'] == 'Administrador' || tokenData['tipo'] == 'Aspirante' || tokenData['tipo'] == 'Demandante') {
             statusCode = 200
             return statusCode
         }else{
-            //Caso que un token exista pero no contenga los permisos para la petición
             statusCode = 401
             return statusCode
           }
     
-        } catch (error) { //Caso de un token invalido, es decir que no exista
+        } catch (error) {
             statusCode = 401
             return statusCode
             
@@ -55,51 +53,129 @@ path.post('/v1/perfilAspirantes/:idPerfilAspirante/video', (req, res) => {
     })
 });
 
-function consulta(values){
-    var querythree = 'INSERT INTO categoria_aspirante (id_aspirante_ca, id_categoria_ca, experiencia) VALUES ? ;'
-    mysqlConnection.query(query3, [values], (err, rows, fields) => {
-        if(err){
+function agregarOficiosAspirante(datoAspirante, callback){
+    getOficios(datoAspirante['id_perfil_aspirante'], function(arregloOficios) {
+        var nuevoAspirante = {
+            'direccion': datoAspirante['direccion'],
+            'fechaNacimiento': datoAspirante['fecha_nacimiento'],
+            'idPerfilAspirante': datoAspirante['id_perfil_aspirante'],
+            'nombre': datoAspirante['nombre'],
+            'idPerfilusuario': datoAspirante['id_perfil_usuario_aspirante'],
+            'oficios': arregloOficios,
+            'telefono': datoAspirante['telefono']
+        };
+        
+        callback(nuevoAspirante)
+    })
+}
+
+function getOficios(id, callback){ 
+    var query = 'SELECT * FROM categoria_aspirante where id_aspirante_ca = ?;'
+
+    mysqlConnection.query(query, [id], (error, resultadoOficios) => {
+        if (error){
             res.status(500)
-        }else if (rows.length == 0){
-            res.status(404)
-            res.json(peticionIncorrecta)
+            res.json(mensajes.errorInterno)
         }else{
-            console.log('registro oficio exitoso')
+            var arreglo = []
+            for (var i = 0; i < resultadoOficios.length; i++){
+                arreglo.push(i)
+                arreglo[i] = {
+                    'idAspirante': resultadoOficios[i]['id_aspirante_ca'],
+                    'idCategoria': resultadoOficios[i]['id_categoria_ca'],
+                    'experiencia': resultadoOficios[i]['experiencia']
+                }
+            }
+            callback(arreglo)
         }
     })
 }
 
+/*path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante/oficios', (req, res) => {
+    const token = req.headers['x-access-token']
+    var respuesta = verifyToken(token)
+    var query = 'SELECT * FROM categoria_aspirante where id_aspirante_ca = ?;'
+    const { idPerfilUsuarioAspirante } = req.params
+
+    try{
+        if (respuesta == 200){
+            mysqlConnection.query(query, [idPerfilUsuarioAspirante], (error, resultadoOficios) => {
+                if (error){
+                    res.status(500)
+                    res.json(mensajes.errorInterno)
+                }else if (resultadoOficios.length == 0){
+                    res.status(404)
+                    res.json(mensajes.peticionIncorrecta)
+                }else{
+                    var oficios = []
+                    console.log(resultadoOficios[0]['id_categoria_ca'])
+                    for (var i = 0; i < resultadoOficios.length; i++){
+                        oficios.push(i)
+                        oficios[i] = {
+                            'idAspirante': resultadoOficios[i]['id_aspirante_ca'],
+                            'idCategoria': resultadoOficios[i]['id_categoria_ca'],
+                            'experiencia': resultadoOficios[i]['experiencia']
+                        }
+                    }
+
+                    res.status(200)
+                    res.json(oficios)
+                }
+            })
+        }else if (respuesta == 401){
+            res.status(respuesta)
+            res.json(mensajes.tokenInvalido)
+        }else{
+
+        }
+    }catch (error){
+        res.status(500)
+        res.json(mensajes.errorInterno)
+    }
+})*/
+
 path.get('/v1/perfilAspirantes', (req, res) => {
     const token = req.headers['x-access-token']
     var respuesta = verifyToken(token)
-
+    var query = 'SELECT * FROM perfil_aspirante;'
     try {
         if (respuesta == 200){
-            var query = 'SELECT * FROM perfil_aspirante;'
-            pool = mysqlConnection
-
-            pool.query(query, (error, resultadosAspirantes) => {
+            mysqlConnection.query(query, (error, resultadosAspirantes) => {
                 if (error){
                     res.status(500)
                     res.json(mensajes.errorInterno)
                 }else if(resultadosAspirantes.length == 0){
                     res.status(404)
-                    res.json(peticionIncorrecta)
+                    res.json(mensajes.peticionIncorrecta)
                 }else{
-                    var aspirantes = resultadosAspirantes
+                    var cont = 0;
+                    var listaAspirantes = []
+                    if (resultadosAspirantes.length > 0){
+                        resultadosAspirantes.forEach(aspirante => {
+                            agregarOficiosAspirante(aspirante, function(resultado) {
+                                
+                                listaAspirantes.push(resultado)
+                                if (listaAspirantes.length == resultadosAspirantes.length){
+                                    res.status(200)
+                                    res.json(listaAspirantes)
+                                }
+                            })
+                        })
+                    }else{
+                        res.status(200)
+                        res.json(listaAspirantes)
+                    }
                     
-                    res.status(200)
-                    res.json(aspirantes)
                 }
             })
         }else if(respuesta == 401){
             res.status(respuesta)
-            res.json(tokenInvalido)
+            res.json(mensajes.tokenInvalido)
         }else{
             res.status(500)
             res.json(mensajes.errorInterno) 
         }
-    } catch (error) {
+    }catch (error) {
         res.status(500)
         res.json(mensajes.errorInterno)
     }
@@ -125,8 +201,15 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
                     res.status(404)
                     res.json(mensajes.peticionIncorrecta)
                 }else{
-                    
+
                     var getAspirante = resultadoAspirante[0]
+                    var arrayVideo = []
+                    if (getAspirante.video == null){
+                        console.log('Fotografia vacia, se procede a poner null')
+                    }else{
+                        getAspirante.video.forEach( b => arrayVideo.push(b) );
+                    }
+                    
                     const aspirante = {}
 
                     aspirante['application/json'] = {
@@ -134,10 +217,9 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
                         'fechaNacimiento': getAspirante['fecha_nacimiento'],
                         'idPerfilAspirante': getAspirante['id_perfil_aspirante'],
                         'nombre': getAspirante['nombre'],
-                        'idPerfilusuario': getAspirante['id_perfil_usuario_aspirante'],
-                        //'oficios': arrayOficios hace falta
+                        'idPerfilUsuario': getAspirante['id_perfil_usuario_aspirante'],
                         'telefono': getAspirante['telefono'],
-                        'video': aspirante['video']
+                        'video': arrayVideo
                     }
 
                     res.status(200)

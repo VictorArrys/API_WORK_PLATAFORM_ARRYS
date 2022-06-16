@@ -28,7 +28,7 @@ function verificarTokenAspirante(token, idPerfilDemandante) {
     }
 }
 
-path.get("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios",(req, res) => {
+path.get("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios", (req, res) => {
     const token = req.headers['x-access-token'];
     tokenValido = verificarTokenAspirante(token);
     
@@ -133,23 +133,76 @@ path.patch("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSoli
         var queryComprobacion = "select count(*) as estaPendiente from solicitud_servicio where id_solicitud_servicio = ? AND estatus = 0"
         mysqlConnection.query(queryComprobacion, [idSolicitudServicio], (error, resultadoComprobacion) => {
             if (error) {
+                console.log("Error comprobación")
                 res.status(500);
                 res.send(mensajes.errorInterno);
             } else if (resultadoComprobacion[0]['estaPendiente'] == 1) {
                 var queryAceptarReporte = "UPDATE solicitud_servicio SET estatus = 1 WHERE id_solicitud_servicio = ? and id_perfil_ss_aspirante = ?;"
-                mysqlConnection.query(queryAceptarReporte, [idSolicitudServicio, idAspirante], (error, resultadoAceptar) => {
-                    if (error) {
-                        res.status(500);
-                        res.send(mensajes.errorInterno);
-                    } else {
-                        if(resultadoAceptar.affectedRows == 1) {
-                            //registrar conversacion y contratacion
-
-
-                            res.status(204).send(mensajes.solicitudServicioAceptada);
+                try {
+                    mysqlConnection.getConnection(function (error, conexion) {
+                        if(error) {
+                            throw error;
                         }
-                    }
-                });
+                        conexion.beginTransaction(function (error) {
+                            if (error) { 
+                                console.log("Fallo al intentar iniciar la transacción")
+                                throw error;
+                            } else {
+                                conexion.query(queryAceptarReporte, [idSolicitudServicio, idAspirante], (error, resultadoAceptar) => {
+                                    if(error) {
+                                        conexion.rollback(function() {
+                                            console.log("No se pudo aceptar el reporte");
+                                            throw error;
+                                        });
+                                    } else {
+                                        var queryConversacion = "INSERT INTO conversacion (nombre_empleo , nombre, fecha_contratacion) " +
+                                                                "VALUES ( " +
+                                                                    "(SELECT titulo FROM solicitud_servicio WHERE id_solicitud_servicio = ?), " +
+                                                                    "(SELECT nombre FROM perfil_demandante INNER JOIN solicitud_servicio ON (id_perfil_demandante = id_perfil_ss_demandante) WHERE id_solicitud_servicio = ?), " +
+                                                                    "date_format(NOW(), \"%Y-%m-%d\") " +
+                                                                ");";
+                                        conexion.query(queryConversacion, [idSolicitudServicio, idSolicitudServicio], (error, resultadoConversacion) => {
+                                            if(error) {
+                                                conexion.rollback(function() {
+                                                    console.log("No se pudo registrar la conversación")
+                                                    throw error;
+                                                }); 
+                                            } else {
+                                                var queryContratacionServicio = "INSERT INTO contratacion_servicio ( id_perfil_demandante_cs, id_perfil_aspirante_cs, estatus, valoracion_aspirante, fecha_contratacion, id_conversacion_cs) " +
+                                                                                "VALUES ( " +
+                                                                                    "(SELECT id_perfil_ss_demandante FROM solicitud_servicio WHERE id_solicitud_servicio = ?), " +
+                                                                                    "(SELECT id_perfil_ss_aspirante FROM solicitud_servicio WHERE id_solicitud_servicio = ?), " +
+                                                                                    "0, 0, NOW(), ?);";
+                                                conexion.query(queryContratacionServicio, [idSolicitudServicio, idSolicitudServicio, resultadoConversacion.insertId], (error, resultadoContratacion) => {
+                                                    if(error) {
+                                                        conexion.rollback(function(error) {
+                                                            console.log("No se pudo registrar la contratación")
+                                                            throw error;
+                                                        });
+                                                    } else {
+                                                        //Guardar cambios de la base de datos
+                                                        conexion.commit(function(error) {
+                                                            if (error) {
+                                                              return connection.rollback(function() {
+                                                                console.log
+                                                                throw error;
+                                                              });
+                                                            }
+                                                            res.status(204).json(mensajes.solicitudServicioAceptada)
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    });
+                    
+                } catch (error) {
+                    res.status(500).json(mensajes.errorInterno);
+                } 
             } else {
                 res.status(409).send(mensajes.solicitudServicioAtendida);
             }

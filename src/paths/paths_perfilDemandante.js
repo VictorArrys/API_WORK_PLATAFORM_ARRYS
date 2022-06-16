@@ -47,7 +47,6 @@ function registrarUsuarioDemandante(datoDemandante, res, callback){
     var correoElectronico = datoDemandante['correoElectronico']
     var tipo = 'Demandante'
 
-
     mysqlConnection.query(queryTwo, [nombreU, estatus, clave, correoElectronico, tipo], (error, registro) => {
         if (error){
             res.status(500)
@@ -62,11 +61,11 @@ function registrarUsuarioDemandante(datoDemandante, res, callback){
                 var id = registro.insertId
 
                 registroUsuario['application/json'] = {
-                'clave': clave,
-                'correoElectronico': correoElectronico,
-                'estatus': estatus,
-                'idPerfilUsuario': id,
-                'nombreUsuario': nombreU
+                    'clave': clave,
+                    'correoElectronico': correoElectronico,
+                    'estatus': estatus,
+                    'idPerfilUsuario': id,
+                    'nombreUsuario': nombreU
                 };
 
                 callback(registroUsuario)
@@ -79,36 +78,40 @@ function registrarUsuarioDemandante(datoDemandante, res, callback){
     })
 }
 
-function actualizarUsuarioDemandante(registroDemandante, idusuarioDemandante, res, callback){
-    var queryTwo = 'UPDATE perfil_usuario SET nombre_usuario = ?, clave = ?, correo_electronico = ? WHERE id_perfil_usuario = ? ;'
+function actualizarUsuarioDemandante(registroDemandante,  res, callback){
+    var queryTwo = 'UPDATE perfil_usuario SET nombre_usuario = ?, clave = ?, correo_electronico = ? WHERE id_perfil_usuario = ?;'
     
-    var idUsuario = idusuarioDemandante['idPerfilUsuario']
+    var idUsuario = registroDemandante['idPerfilUsuario']
     var nombreU = registroDemandante['nombreUsuario']
     var clave = registroDemandante['clave']
     var correoElectronico = registroDemandante['correoElectronico']
 
+
     mysqlConnection.query(queryTwo, [nombreU, clave, correoElectronico, idUsuario] , (error, actualizacion) => {
         if (error){
+            console.log(error)
             res.status(500)
             res.json(mensajes.errorInterno)
         }else if (actualizacion.length == 0){
             res.status(404)
             res.json(mensajes.peticionNoEncontrada)
         }else{
-            if (actualizacion['affectedRows'] == 1){
+
+            if (actualizacion['affectedRows'] >= 1){
                 const modificacionUsuario = {}
                 var id = actualizacion.insertId
 
                 modificacionUsuario['application/json'] = {
                     'clave': clave,
                     'correoElectronico': correoElectronico,
-                    'idPerfilUsuario': id,
+                    'idPerfilUsuario': idUsuario,
                     'nombreUsuario': nombreU
                 }
 
                 callback(modificacionUsuario['application/json'])
             }else{
                 res.status(500)
+                console.log('error actualizar despues de callback')
                 res.json(mensajes.errorInterno)
             }
         }
@@ -120,7 +123,21 @@ function  comprobarRegistro(nombreUsuario, correoElectronico, res, resultado){
 
     mysqlConnection.query(queryOne, [nombreUsuario, correoElectronico], (error, comprobacion) => {
         if(error){
-            consoleError(error, 'Funcion: contratacionesEmpleo Paso: Consultar contratacion2')
+            console.log('error funcion comprobacion')
+            res.status(500)
+            res.json(mensajes.errorInterno)
+        }else{
+            resultado(comprobacion[0]['Comprobacion'])
+        }
+    })
+}
+
+function  comprobarActualizacion(nombreUsuario, correoElectronico, res, resultado){
+    var queryOne = 'SELECT count(id_perfil_usuario) as Comprobacion FROM perfil_usuario WHERE nombre_usuario = ? AND correo_electronico = ?';
+
+    mysqlConnection.query(queryOne, [nombreUsuario, correoElectronico], (error, comprobacion) => {
+        if(error){
+            console.log('error funcion comprobacion')
             res.status(500)
             res.json(mensajes.errorInterno)
         }else{
@@ -271,44 +288,46 @@ path.post('/v1/perfilDemandantes', (req, res) => {
 path.put('/v1/perfilDemandantes/:idPerfilDemandante', (req, res) => {
     const token = req.headers['x-access-token'];
     var respuesta = verifyToken(token)
-    const { idperfilDemandante } = req.params
+    const { idPerfilDemandante } = req.params
     const { clave, correoElectronico, direccion, estatus, fechaNacimiento, idPerfilUsuario, nombre, nombreUsuario, telefono } = req.body
     var queryThree = 'UPDATE perfil_demandante SET nonbre = ?, fecha_nacimiento = ?, telefono = ?, direccion = ? WHERE id_perfil_demandante = ? ;'
-
     try {
         if (respuesta == 200){
-            comprobarRegistro(nombreUsuario, correoElectronico, res, function(resultado) {
+            comprobarActualizacion(nombreUsuario, correoElectronico, res, function(resultado) {
                 if (resultado >= 1){
                     res.status(422)
                     res.json(mensajes.instruccionNoProcesada)
                 }else{
-                    actualizarUsuarioDemandante(req.body,req.params, res, function(actualizacionDemandante) {
-                        if (error){
+                    actualizarUsuarioDemandante(req.body, res, function(actualizacionDemandante) {
+                        if (res.error){
+                            console.log('error funcion actualizar')
                             res.status(500)
                             res.json(mensajes.errorInterno)
                         }else{
-                            mysqlConnection.query(queryThree, [nombre, fechaNacimiento, telefono, direccion, idperfilDemandante], (error, actualizacion) => {
+                            console.log(actualizacionDemandante)
+                            mysqlConnection.query(queryThree, [nombre, fechaNacimiento, telefono, direccion, idPerfilDemandante], (error, actualizacion) => {
                                 if (error){
+                                    console.log('error queryThree')
                                     res.status(500)
                                     res.json(mensajes.errorInterno)
                                 }else if (actualizacion.length == 0){
                                     res.status(404)
                                     res.json(mensajes.peticionNoEncontrada)
                                 }else{
-                                    if (actualizacion['affectedRows'] == 1){
+                                    if (actualizacion['affectedRows'] == 1){          
 
                                         const modificacionDemandante = {}
 
                                         modificacionDemandante['application/json'] = {
-                                            'clave': actualizacionDemandante['application/json']['clave'],
-                                            'correoElectronico': actualizacionDemandante['application/json']['correoElectronico'],
+                                            'clave': actualizacionDemandante['clave'],
+                                            'correoElectronico': actualizacionDemandante['correoElectronico'],
                                             'direccion': direccion,
                                             'fechaNacimiento': fechaNacimiento,
-                                            'idPerfilUsuario': actualizacionDemandante['idPerfilUsuario'],
+                                            'idPerfilUsuario': actualizacionDemandante['idPerfilUsuario'], 
                                             'nombre': nombre,
                                             'nombreUsuario': actualizacionDemandante['nombreUsuario'],
                                             'telefono': telefono,
-                                            'idPerfilAspirante': idperfilDemandante
+                                            'idPerfilAspirante': idPerfilDemandante
                                         }
 
                                         res.status(200)
@@ -324,10 +343,12 @@ path.put('/v1/perfilDemandantes/:idPerfilDemandante', (req, res) => {
             res.status(respuesta)
             res.json(mensajes.tokenInvalido)
         }else{
+            console.log('error if')
             res.status(500)
             res.json(mensajes.errorInterno)
         }
     } catch (error) {
+        console.log('error catch')
         res.status(500)
         res.json(mensajes.errorInterno)
     }
