@@ -110,7 +110,7 @@ path.get('/v1/iniciarSesion', (req, res) => { // listo en api
 
             console.log('¡Credenciales incorrectas! Probablemente el usuario no exista o estan mal sus credenciales!');
        
-        }else if (resultadoInicio[0]['tipo_usuario'] == 'Empleador' && resultadoInicio[0]['estatus']){
+        }else if (resultadoInicio[0]['tipo_usuario'] == 'Empleador' && resultadoInicio[0]['estatus'] == 3){
             res.status(403)
             res.json(mensajes.prohibido)
         }else{
