@@ -1,0 +1,14 @@
+{
+  "name": "gestionempleadores",
+  "version": "1.0.0",
+  "description": "Módulo encargado de la gestion de registros de empleadores.",
+  "main": "GestionEmpleadores.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "empleadores"
+  ],
+  "author": "Angel Eduardo Martinez Leo Lim",
+  "license": "ISC"
+}

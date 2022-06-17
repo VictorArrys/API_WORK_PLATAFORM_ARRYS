@@ -1,0 +1,14 @@
+{
+  "name": "gestiondemandantes",
+  "version": "1.0.0",
+  "description": "Modulo para la gestion del registro de demandantes",
+  "main": "GestionDemandantes.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "demandante"
+  ],
+  "author": "Angel Eduardo Martínez Leo Lim",
+  "license": "ISC"
+}
