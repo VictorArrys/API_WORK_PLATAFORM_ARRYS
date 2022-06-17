@@ -11,7 +11,9 @@ const { validarQuery } = require('../../utils/validaciones/validarQuery')
 const { validarParamId } = require('../../utils/validaciones/validarParam')
 
 //Respuestas
-const mensajes = require('../../utils/mensajes')
+const mensajes = require('../../utils/mensajes');
+const { vary } = require('express/lib/response');
+const { json } = require('body-parser');
 
 //Función para verificar el token
 function verifyToken(token){
@@ -35,7 +37,7 @@ function verifyToken(token){
         }
 }
 
-function esctructurarJSON(ofertaEmpleo,categoriaEmpleo , contratacionOfertaEmpleo){
+function esctructurarJSON(ofertaEmpleo,categoriaEmpleo , contratacionOfertaEmpleo, fotos){
     
     const ofertaEmpleoJson = {}
 
@@ -55,8 +57,11 @@ function esctructurarJSON(ofertaEmpleo,categoriaEmpleo , contratacionOfertaEmple
         'vacantes': ofertaEmpleo['vacantes'],
         'idOfertaEmpleo': ofertaEmpleo['id_oferta_empleo'],
         'idPerfilEmpleador': ofertaEmpleo['id_perfil_oe_empleador'],
-        'contratacion': contratacionOfertaEmpleo
+        'contratacion': contratacionOfertaEmpleo,
+        'fotografia': fotos
     }
+
+    console.log(ofertaEmpleoJson)
 
     return ofertaEmpleoJson
 
@@ -136,7 +141,7 @@ path.get('/v1/ofertasEmpleo-E', validarQuery, (req, res) => {
 function consoleError(error, ubicacion){
     console.log('--------------------------------------------------------------------------------------')
     console.log('Se ha presentado un problema en: ' + ubicacion)
-    console.log('Error(es): ' + error.message)
+    console.log('Error(es): ' + error)
     console.log('--------------------------------------------------------------------------------------')
 }
 
@@ -152,17 +157,19 @@ function contratacionesEmpleo(idOfertaEmpleo, res, callback){
             res.json(mensajes.errorInterno);
 
         }else if(existeContratacion.length == 0){
-                    
+                   
             console.log('No existe la contratación')
-             //Estructura JSON contración
-
-             callback('empty') 
+            //Estructura JSON contración
+            const contratacion = {}
+            callback(contratacion) 
 
         }else{ //Obtener la lista de las contrataciones de aspirantes
+            console.log('Muestra')
+            console.log(existeContratacion[0])
+            var idContratacion = existeContratacion[0]['id_contratacion_empleo']
+            const contratacionEmpleoDatos = existeContratacion[0]
 
-            var idContratacion = existeContratacion['id_contratacion_empleo']
-            
-            pool.query('contratacion_empleo_aspirante.id_aspirante_cea,perfil_aspirante.nombre as nombre_aspirante,contratacion_empleo_aspirante.valoracion_aspirante FROM contratacion_empleo_aspirante INNER JOIN perfil_aspirante ON perfil_aspirante.id_perfil_aspirante = contratacion_empleo_aspirante.id_aspirante_cea WHERE id_contratacion_empleo_cea = ?',[idContratacion] , (error, resultadoContratacionesAspirante)=>{
+            pool.query('SELECT contratacion_empleo_aspirante.id_perfil_aspirante_cea, perfil_aspirante.nombre as nombre_aspirante,contratacion_empleo_aspirante.valoracion_aspirante FROM contratacion_empleo_aspirante INNER JOIN perfil_aspirante ON perfil_aspirante.id_perfil_aspirante = contratacion_empleo_aspirante.id_perfil_aspirante_cea WHERE id_contratacion_empleo_cea = ?',[idContratacion] , (error, resultadoContratacionesAspirante)=>{
                 if(error){ 
                     consoleError(error, 'Funcion: contratacionesEmpleo Paso: Consultar contratacionesAspirantes')
                     
@@ -176,32 +183,40 @@ function contratacionesEmpleo(idOfertaEmpleo, res, callback){
                     const contratacion = {}
 
                     contratacion['application/json'] = {
-                        'estatus': existeContratacion['estatus'],
-                        'fechaContratacion': existeContratacion['fecha_contratacion'],
-                        'idContratacionEmpleo': existeContratacion['dias_laborales'],                        
-                        'idOfertaEmpleo': existeContratacion['id_oferta_empleo_coe'],                                              
-                        'fechaFinalizacion': existeContratacion['dias_laborales'],
+                        'estatus': contratacionEmpleoDatos['estatus'],
+                        'fechaContratacion': contratacionEmpleoDatos['fecha_contratacion'],
+                        'idContratacionEmpleo': contratacionEmpleoDatos['id_contratacion_empleo'],                        
+                        'idOfertaEmpleo': contratacionEmpleoDatos['id_oferta_empleo_coe'],                                              
+                        'fechaFinalizacion': contratacionEmpleoDatos['fecha_finalizacion'],
                         'contratados': null
                     }
+                    console.log(contratacion)
                     callback(contratacion)
 
                 }else{
+
+                    console.log('Segunda muestra')
+                    console.log(existeContratacion[0])
+
                     const contratacionesEmpleoAspirante = resultadoContratacionesAspirante
-                    console.log('Se ha consultado correctamente las contrataciones: ' + `${contratacionesEmpleoAspirante}`)
+                    console.log(contratacionesEmpleoAspirante)
 
                     //Estructura JSON contración
                     const contratacion = {}
 
+
                     contratacion['application/json'] = {
-                        'estatus': existeContratacion['estatus'],
-                        'fechaContratacion': existeContratacion['fecha_contratacion'],
-                        'idContratacionEmpleo': existeContratacion['dias_laborales'],                        
-                        'idOfertaEmpleo': existeContratacion['id_oferta_empleo_coe'],                                              
-                        'fechaFinalizacion': existeContratacion['dias_laborales'],
+                        'estatus': contratacionEmpleoDatos['estatus'],
+                        'fechaContratacion': contratacionEmpleoDatos['fecha_contratacion'],
+                        'idContratacionEmpleo': contratacionEmpleoDatos['id_contratacion_empleo'],                        
+                        'idOfertaEmpleo': contratacionEmpleoDatos['id_oferta_empleo_coe'],                                              
+                        'fechaFinalizacion': contratacionEmpleoDatos['fecha_finalizacion'],
                         'contratados': contratacionesEmpleoAspirante
                     }
+                    console.log('convertirJson')
+                    console.log(contratacion)
                     
-                    callback(contratacion)
+                    callback(contratacion['application/json'])
                 }
         
             });
@@ -236,59 +251,72 @@ function categoriaOferta(idCategoriaEmpleo, res, callback){
     }
 }
 
-path.get('/v1/ofertasEmpleo-E:idOfertaEmpleo/fotografias', validarParamId, (req, res) =>{
+function getFotos(idOfertaEmpleo, res, callback){
 
-    //Creamos la constante del token que recibimos
-    const token = req.headers['x-access-token'];
-    var respuesta = verifyToken(token)
-  
-    if(respuesta == 200){
     var pool = mysqlConnection;
 
-        pool.query('SELECT * FROM fotografia WHERE id_oferta_empleo_fotografia = ?;', [req.params.idOfertaEmpleo], (error, resultadoFotografias)=>{
+        pool.query('SELECT * FROM fotografia WHERE id_oferta_empleo_fotografia = ?;', [idOfertaEmpleo], (error, resultadoFotografias)=>{
             
             if(error){ 
                 consoleError(error, 'GET: /v1/ofertasEmpleo-E:idOfertaEmpleo/fotografias Paso: 1era query mysql')
-
+                
                 res.status(500)
                 res.json(mensajes.errorInterno);
                 
             }else if(resultadoFotografias.length == 0){
                 
-                res.status(404)
-                res.json(mensajes.peticionNoEncontrada);
-     
+                callback([])
             }else{
+                var arrayFotografia1 = []; //Uint8ClampedArray.from(Buffer.from(resultadoFotografias[0]['imagen'].buffer, 'base64'))
+                resultadoFotografias[0]['imagen'].forEach(element => {
+                    arrayFotografia1.push(element)
+
+                });
                 
-                var fotografias = resultadoFotografias[0];
-                var arrayFotografia = Uint8ClampedArray.from(Buffer.from(usuario.fotografia.buffer, 'base64'))
+                
+                var arrayFotografia2 = []; //Uint8ClampedArray.from(Buffer.from(resultadoFotografias[1]['imagen'].buffer, 'base64'))
+                resultadoFotografias[1]['imagen'].forEach(element => {
+                    arrayFotografia2.push(element)
+                    
+                });
+                var arrayFotografia3 = []; //Uint8ClampedArray.from(Buffer.from(resultadoFotografias[2]['imagen'].buffer, 'base64'))
+                resultadoFotografias[2]['imagen'].forEach(element => {
+                    arrayFotografia3.push(element)
+                    
+                });
 
-                const fotografiasJson = {}
-
-                fotografiasJson['application/json'] = {
-                    'fotografia1': ofertaEmpleo['cantidad_pago'],
-                    'imagen': ofertaEmpleo['descripcion'],
-                    'imagen': ofertaEmpleo['dias_laborales']
+                var foto1 = {}
+                foto1={
+                    'idFoto': resultadoFotografias[0]['id_fotografia'],
+                    'imagen': arrayFotografia1
+                }
+                var foto2 = {}
+                foto2 = {
+                    'idFoto': resultadoFotografias[1]['id_fotografia'],
+                    'imagen': arrayFotografia2
+                }
+                var foto3 = {}
+                foto3 = {
+                    'idFoto': resultadoFotografias[2]['id_fotografia'],
+                    'imagen': arrayFotografia3
                 }
 
-                res.status(200);
-                res.send(fotografiasJson['application/json'])
+                var fotografiasJson = []
 
+                fotografiasJson= [
+                    foto1,
+                    foto2,
+                    foto3
+                ]
+
+                callback(fotografiasJson)
             }
 
     
         });
-    
-    }else if(respuesta == 401){
-        res.status(respuesta)
-        res.json(mensajes.tokenInvalido);
 
-    }else{
-        res.status(500)
-        res.json(mensajes.errorInterno);
-    }
 
-})
+}
 
 path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', validarParamId, (req, res) => {
 
@@ -338,10 +366,14 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', validarParamId, (req, res) => {
                                 contratacionesEmpleo(ofertaEmpleo['id_oferta_empleo'], res, function(contratacionesOfertaEmpleo){
                                     
                                     categoriaOferta(ofertaEmpleo['id_categoria_oe'], res, function(categoriaEmpleo){
-                                        const ofertaEmpleoJson = esctructurarJSON(ofertaEmpleo, categoriaEmpleo, contratacionesOfertaEmpleo)
+                                        getFotos(ofertaEmpleo['id_oferta_empleo'], res, function(fotos){
 
-                                        res.status(200);
-                                        res.send(ofertaEmpleoJson['application/json']);
+                                            const ofertaEmpleoJson = esctructurarJSON(ofertaEmpleo, categoriaEmpleo, contratacionesOfertaEmpleo, fotos)
+                                            res.status(200);
+                                            res.send(ofertaEmpleoJson['application/json']);
+                                        })                                        
+                                        
+                                        
 
                                     })
                                    
@@ -380,13 +412,12 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', validarParamId, (req, res) => {
 });
 
 
-const multerUpload = multer({storage:multer.memoryStorage(), limits:{fileSize:undefined}})
-
+const multerUpload = multer({storage:multer.memoryStorage(), limits:{fileSize:8*1024*1024*10}})
 
 path.post('/v1/ofertasEmpleo-E/:idOfertaEmpleo/fotografia', multerUpload.single("fotografia"), (req,res) => {
 
     var query = "INSERT INTO fotografia(id_oferta_empleo_fotografia, imagen) VALUES(?, ?);"
-    const idOfertaEmpleo = req.params.idCategoriaEmpleo
+    const idOfertaEmpleo = req.params.idOfertaEmpleo
 
     mysqlConnection.query(query, [idOfertaEmpleo, req.file.buffer], (error, resultadoFotografia) => {
         if (error){
@@ -398,13 +429,12 @@ path.post('/v1/ofertasEmpleo-E/:idOfertaEmpleo/fotografia', multerUpload.single(
             res.status(404)
             res.json(mensajes.peticionNoEncontrada)
         }else{
-            consoleError.log('Registro de foto de la oferta exitoso')
-            res.status(200)
+            console.log('Registro de foto de la oferta exitoso')
+            res.status(201)
             res.json(mensajes.actualizacionExitosa)
         }
     })
 });     
-
 
 path.post('/v1/ofertasEmpleo-E', validarOfertaEmpleo, (req, res) => {
 
@@ -460,8 +490,9 @@ path.put('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
     if(respuesta == 200){
 
         console.log(req.body)
+        console.log(req.params.idOfertaEmpleo)
 
-        var updateQuery = `UPDATE oferta_empleo SET id_categoria_oe = ?, nombre = ?, descripcion = ?, vacantes = ?, dias_laborales = ?, tipo_pago = ?, cantidad_pago = ?, direccion = ?, hora_inicio = ?, hora_fin = ?, fecha_inicio = ?, fecha_finalizacion = ? WHERE id_oferta_empleo = ?`; 
+        var updateQuery = 'UPDATE oferta_empleo SET id_categoria_oe = ?, nombre = ?, descripcion = ?, vacantes = ?, dias_laborales = ?, tipo_pago = ?, cantidad_pago = ?, direccion = ?, hora_inicio = ?, hora_fin = ?, fecha_inicio = ?, fecha_finalizacion = ? WHERE id_oferta_empleo = ?;' 
 
         const tokenData = jwt.verify(token, keys.key); 
         
@@ -490,9 +521,16 @@ path.put('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
                             req.body.vacantes, req.body.diasLaborales, req.body.tipoPago, req.body.cantidadPago, req.body.direccion,
                             req.body.horaInicio, req.body.horaFin, req.body.fechaDeIinicio, req.body.fechaDeFinalizacion, req.params.idOfertaEmpleo], (err, rows, fields) => {
                             if (!err) {
-                                res.sendStatus(204);
+                                console.log(rows)
+                                const updated = {}
+
+                                updated['application/json'] = {
+                                    'cambios': rows['changedRows']
+                                }
+                                res.status(200);
+                                res.json(updated['application/json'])
                             } else {
-                                consoleError(error, 'PUT: ofertasEmpleo-E/:idOfertaEmpleo Paso: update query mysql')
+                                consoleError(err    , 'PUT: ofertasEmpleo-E/:idOfertaEmpleo Paso: update query mysql')
                                 res.status(500)
                                 res.json(mensajes.errorInterno)
                             
