@@ -69,11 +69,8 @@ function comprobarModificacion(nombre, idCategoriaEmpleo, res, resultado){
 }
 
 path.get('/v1/categoriasEmpleo', (req, res) => { // listo api
-    const token = req.headers['x-access-token']
-    var respuesta = verifyToken(token)
     try{
-        if (respuesta == 200){
-            var query = 'SELECT * FROM categoria_empleo'
+        var query = 'SELECT * FROM categoria_empleo'
 
             mysqlConnection.query(query, (error, resultadoCategorias) =>{
                 if (error){
@@ -100,13 +97,6 @@ path.get('/v1/categoriasEmpleo', (req, res) => { // listo api
                     res.json(categorias)
                 }
             })
-        }else if (respuesta == 401){
-            res.status(respuesta)
-            res.json(mensajes.tokenInvalido)
-        }else{
-            res.status(500)
-            res.json(mensajes.errorInterno)
-        }
     }catch (error){
         consoleError(error, 'funcion: categorias empleo. Paso: excepcion cachada')
 

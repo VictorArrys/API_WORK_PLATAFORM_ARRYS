@@ -146,7 +146,7 @@ function  comprobarActualizacion(nombreUsuario, correoElectronico, res, resultad
     })
 }
 
-path.get('/v1/perfilDemandantes', (req, res) => { // probar y validar
+path.get('/v1/perfilDemandantes', (req, res) => {
     const token = req.headers['x-access-token'];
     var respuesta = verifyToken(token)
 
@@ -272,6 +272,8 @@ path.post('/v1/perfilDemandantes', (req, res) => {
                                     'telefono': telefono,
                                     'idPerfilAspirante': idAspirante
                                 };
+
+                                console.log(demandante)
 
                                 res.status(201)
                                 res.json(demandante['application/json'])
