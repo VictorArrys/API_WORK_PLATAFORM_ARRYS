@@ -37,7 +37,7 @@ function verifyToken(token){
         }
 }
 
-function esctructurarJSON(ofertaEmpleo,categoriaEmpleo , contratacionOfertaEmpleo, fotos){
+function esctructurarJSON(ofertaEmpleo,categoriaEmpleo , contratacionOfertaEmpleo){
     
     const ofertaEmpleoJson = {}
 
@@ -57,8 +57,7 @@ function esctructurarJSON(ofertaEmpleo,categoriaEmpleo , contratacionOfertaEmple
         'vacantes': ofertaEmpleo['vacantes'],
         'idOfertaEmpleo': ofertaEmpleo['id_oferta_empleo'],
         'idPerfilEmpleador': ofertaEmpleo['id_perfil_oe_empleador'],
-        'contratacion': contratacionOfertaEmpleo,
-        'fotografia': fotos
+        'contratacion': contratacionOfertaEmpleo
     }
 
     console.log(ofertaEmpleoJson)
@@ -267,23 +266,27 @@ function getFotos(idOfertaEmpleo, res, callback){
                 
                 callback([])
             }else{
-                var arrayFotografia1 = []; //Uint8ClampedArray.from(Buffer.from(resultadoFotografias[0]['imagen'].buffer, 'base64'))
-                resultadoFotografias[0]['imagen'].forEach(element => {
+                var arrayFotografia1 = Uint8ClampedArray.from(Buffer.from(resultadoFotografias[0]['imagen'].buffer, 'base64'))
+                
+                /*resultadoFotografias[0]['imagen'].forEach(element => {
                     arrayFotografia1.push(element)
 
-                });
+                });*/
                 
                 
-                var arrayFotografia2 = []; //Uint8ClampedArray.from(Buffer.from(resultadoFotografias[1]['imagen'].buffer, 'base64'))
-                resultadoFotografias[1]['imagen'].forEach(element => {
+                var arrayFotografia2 = Uint8ClampedArray.from(Buffer.from(resultadoFotografias[1]['imagen'].buffer, 'base64'))
+                
+                /*resultadoFotografias[1]['imagen'].forEach(element => {
                     arrayFotografia2.push(element)
                     
-                });
-                var arrayFotografia3 = []; //Uint8ClampedArray.from(Buffer.from(resultadoFotografias[2]['imagen'].buffer, 'base64'))
-                resultadoFotografias[2]['imagen'].forEach(element => {
+                });*/
+
+                var arrayFotografia3 = Uint8ClampedArray.from(Buffer.from(resultadoFotografias[2]['imagen'].buffer, 'base64'))
+                
+               /* resultadoFotografias[2]['imagen'].forEach(element => {
                     arrayFotografia3.push(element)
                     
-                });
+                });*/
 
                 var foto1 = {}
                 foto1={
@@ -309,6 +312,7 @@ function getFotos(idOfertaEmpleo, res, callback){
                     foto3
                 ]
 
+                console.log(fotografiasJson)
                 callback(fotografiasJson)
             }
 
@@ -366,12 +370,10 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', validarParamId, (req, res) => {
                                 contratacionesEmpleo(ofertaEmpleo['id_oferta_empleo'], res, function(contratacionesOfertaEmpleo){
                                     
                                     categoriaOferta(ofertaEmpleo['id_categoria_oe'], res, function(categoriaEmpleo){
-                                        getFotos(ofertaEmpleo['id_oferta_empleo'], res, function(fotos){
 
-                                            const ofertaEmpleoJson = esctructurarJSON(ofertaEmpleo, categoriaEmpleo, contratacionesOfertaEmpleo, fotos)
+                                            const ofertaEmpleoJson = esctructurarJSON(ofertaEmpleo, categoriaEmpleo, contratacionesOfertaEmpleo)
                                             res.status(200);
-                                            res.send(ofertaEmpleoJson['application/json']);
-                                        })                                        
+                                            res.send(ofertaEmpleoJson['application/json']);                                     
                                         
                                         
 
@@ -410,6 +412,15 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', validarParamId, (req, res) => {
 
 
 });
+
+path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo/fotografia', (req,res) => {
+
+    getFotos(req.params.idOfertaEmpleo, res, function(fotos){
+
+        res.status(200);
+        res.json(fotos);
+    })         
+});    
 
 
 const multerUpload = multer({storage:multer.memoryStorage(), limits:{fileSize:8*1024*1024*10}})

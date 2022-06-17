@@ -381,6 +381,25 @@ path.get('/v1/solicitudesEmpleo/:idSolicitudEmpleo', (req, res) => {
 
 });
 
+function reducirVacante(idOfertaEmpleo,res, callback){
+
+   var updateQuery = 'UPDATE oferta_empleo SET vacantes = vacantes - 1 WHERE id_oferta_empleo = ?;' 
+   mysqlConnection.query(updateQuery,[idOfertaEmpleo], (err, rows, fields) => {
+    if (!err) {
+        console.log(rows['changedRows'])
+        callback(rows['changedRows'])
+    } else {
+        consoleError(err, 'Reducir vacantes')
+        res.status(500)
+        res.json(mensajes.errorInterno)
+    
+    }
+}); 
+          
+    
+
+}
+
 path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/aceptada', (req, res) => {
 
     //Creamos la constante del token que recibimos
@@ -422,8 +441,13 @@ path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/aceptada', (req, res) => {
 
                                                         crearContratacionAspirante(contratacionNueva ,existeSolicitudEmpleo['id_perfil_aspirante_sa'], ofertaEmpleo, res, function(contratacionEmpleoAspirante){
                                                             if(contratacionEmpleoAspirante == 1){
-                                                                res.status(204)
-                                                                res.json(contratacionEmpleoAspirante)
+                                                                reducirVacante(existeSolicitudEmpleo['id_oferta_empleo_sa'],res, function(reducirVacante){
+                                                                    if(reducirVacante > 0){
+                                                                        res.status(204)
+                                                                    }
+                                                                    
+                                                                })
+                                                                
                                                             }else{
                 
                                                             }
@@ -442,8 +466,12 @@ path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/aceptada', (req, res) => {
                                         //Solo se agrega al aspirante a la contratación
                                         crearContratacionAspirante(contratacionEmpleo ,existeSolicitudEmpleo['id_perfil_aspirante_sa'], ofertaEmpleo, res, function(contratacionEmpleoAspirante){
                                             if(contratacionEmpleoAspirante == 1){
-                                                res.status(204)
-                                                res.json(contratacionEmpleoAspirante)
+                                                reducirVacante(existeSolicitudEmpleo['id_oferta_empleo_sa'],res, function(reducirVacante){
+                                                    if(reducirVacante > 0){
+                                                        res.status(204)
+                                                    }
+                                                    
+                                                })
                                             }else{
 
                                             }
