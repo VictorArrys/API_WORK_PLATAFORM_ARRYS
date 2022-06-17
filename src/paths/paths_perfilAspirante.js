@@ -207,6 +207,7 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
                     if (getAspirante.video == null){
                         console.log('Fotografia vacia, se procede a poner null')
                     }else{
+                        //arrayVideo = Uint8ClampedArray.from(Buffer.from(getAspirante.video.buffer, 'base64'))
                         getAspirante.video.forEach( b => arrayVideo.push(b) );
                     }
                     

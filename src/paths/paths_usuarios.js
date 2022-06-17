@@ -68,6 +68,13 @@ function verifyTokenUser(token){
     }
 })*/
 
+function consoleError(error, ubicacion){
+    console.log('--------------------------------------------------------------------------------------')
+    console.log('Se ha presentado un problema en: ' + ubicacion)
+    console.log('Error(es): ' + error.message)
+    console.log('--------------------------------------------------------------------------------------')
+}
+
 const multerUpload = multer({storage:multer.memoryStorage(), limits:{fileSize:8*1024*1024*10}})
 
 path.patch('/v1/PerfilUsuarios/:idPerfilUsuario/fotografia', multerUpload.single("fotografia"), (req,res) => {
@@ -90,22 +97,22 @@ path.patch('/v1/PerfilUsuarios/:idPerfilUsuario/fotografia', multerUpload.single
     })
 });
 
-path.get('/v1/iniciarSesion', (req, res) => {
-
-    var pool = mysqlConnection
-
+path.get('/v1/iniciarSesion', (req, res) => { // listo en api
     const {nombreUsuario, clave} = req.query
 
-    pool.query('SELECT * FROM perfil_usuario WHERE nombre_usuario = ? AND clave = ?', [nombreUsuario, clave], (error, resultadoInicio)=>{
+    mysqlConnection.query('SELECT * FROM perfil_usuario WHERE nombre_usuario = ? AND clave = ?', [nombreUsuario, clave], (error, resultadoInicio)=>{
         if(error){ 
             res.status(500)
-            res.send({msg: error.message})
+            res.send(mensajes.errorInterno)
         } else if(resultadoInicio.length == 0){
             res.status(404)
             res.json(mensajes.peticionNoEncontrada)
 
-            console.log("¡Credenciales incorrectas! Probablemente el usuario no exista o estan mal sus credenciales");
+            console.log('¡Credenciales incorrectas! Probablemente el usuario no exista o estan mal sus credenciales!');
        
+        }else if (resultadoInicio[0]['tipo_usuario'] == 'Empleador' && resultadoInicio[0]['estatus']){
+            res.status(403)
+            res.json(mensajes.prohibido)
         }else{
             
             var usuario = resultadoInicio[0];
@@ -126,7 +133,6 @@ path.get('/v1/iniciarSesion', (req, res) => {
                 console.log('Fotografia vacia, se procede a poner null')
             }else{
                 arrayFotografia = Uint8ClampedArray.from(Buffer.from(usuario.fotografia.buffer, 'base64'))
-                //usuario.fotografia.forEach( b => lista.push(b) );
             }
 
             const resultadoJson = {};
@@ -139,8 +145,9 @@ path.get('/v1/iniciarSesion', (req, res) => {
                 "nombre": usuario['nombre_usuario'],
                 "tipoUsuario" : usuario['tipo_usuario'],
             };
-            res.setHeader('x-access-token', token)
 
+
+            res.setHeader('x-access-token', token)
             res.status(200)
             res.send(resultadoJson['application/json'])
         }
@@ -150,51 +157,59 @@ path.get('/v1/iniciarSesion', (req, res) => {
 
 });
 
-path.get('/v1/perfilUsuarios', (req, res) => { // en la pantalla de los usuarios me manda a llamar este endpoint
+path.get('/v1/perfilUsuarios', (req, res) => { // listo en api
     const token = req.headers['x-access-token'];
     var respuesta = verifyToken(token)
 
-    if(respuesta == 200){
-        var query = 'SELECT * FROM perfil_usuario;'
-        var pool = mysqlConnection
+    try{
+        if (respuesta == 200){
+            var query = 'SELECT * FROM perfil_usuario;'
 
-        pool.query(query, (error, resultadoUsuarios) => {
-            if(error){ 
-                res.status(500)
-                res.json(mensajes.errorInterno)
-            }else if(resultadoUsuarios.length == 0){
-                res.status(404)
-                res.json(mensajes.peticionNoEncontrada)
-            }else{
-                var cont = 0 
-                var usuarios = []
+            mysqlConnection.query(query, (error, resultadoUsuarios) =>{
+                if (error){
+                    consoleError(error, 'funcion: catalogo usuarios. Paso: consultar todos los usuarios')
 
-                do{
-                    usuarios.push(cont)
-
-                    usuarios[cont] = {
-                        'idPerfilUsuario' : resultadoUsuarios[cont]['id_perfil_usuario'],
-                        'nombreUsuario': resultadoUsuarios[cont]['nombre_usuario'],
-                        'estatus': resultadoUsuarios[cont]['estatus'],
-                        'clave': resultadoUsuarios[cont]['clave'],
-                        'correoElectronico' : resultadoUsuarios[cont]['correo_electronico'],
-                        'tipoUsuario' : resultadoUsuarios[cont]['tipo_usuario']
-                    }
-                    cont ++;
-                } while(cont < resultadoUsuarios.length)
-
-                res.status(200)
-                res.json(usuarios)
+                    res.status(500)
+                    res.json(mensajes.errorInterno)
+                }else if (resultadoUsuarios.length == 0){
+                    res.status(404)
+                    res.json(mensajes.peticionNoEncontrada)
+                }else{
+                    var cont = 0 
+                    var usuarios = []
     
-            }
-        })
-    }else if (respuesta == 401){
-        res.status(respuesta)
-        res.json(mensajes.tokenInvalido)
-    }else{
+                    do{
+                        usuarios.push(cont)
+    
+                        usuarios[cont] = {
+                            'idPerfilUsuario' : resultadoUsuarios[cont]['id_perfil_usuario'],
+                            'nombreUsuario': resultadoUsuarios[cont]['nombre_usuario'],
+                            'estatus': resultadoUsuarios[cont]['estatus'],
+                            'clave': resultadoUsuarios[cont]['clave'],
+                            'correoElectronico' : resultadoUsuarios[cont]['correo_electronico'],
+                            'tipoUsuario' : resultadoUsuarios[cont]['tipo_usuario']
+                        }
+                        cont ++;
+                    } while(cont < resultadoUsuarios.length)
+    
+                    res.status(200)
+                    res.json(usuarios)
+                }
+            })
+        }else if (respuesta == 401){
+            res.status(respuesta)
+            res.json(mensajes.tokenInvalido)
+        }else{
+            res.status(500)
+            res.json(mensajes.errorInterno)
+        }
+    }catch (error){
+        consoleError(error, 'funcion: catalogo usuarios. Paso: excepcion cachada')
+
         res.status(500)
         res.json(mensajes.errorInterno)
     }
+
 });
 
 path.get('/v1/PerfilUsuarios/:idPerfilUsuario',(req, res) => { 

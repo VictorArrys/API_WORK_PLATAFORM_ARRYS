@@ -33,24 +33,31 @@ function verifyToken(token){
         }
 }
 
+function consoleError(error, ubicacion){
+    console.log('--------------------------------------------------------------------------------------')
+    console.log('Se ha presentado un problema en: ' + ubicacion)
+    console.log('Error(es): ' + error.message)
+    console.log('--------------------------------------------------------------------------------------')
+}
+
 function actualizarUsuarioAdministrador(registroAdministrador, res, callback){
     var queryTwo = 'UPDATE perfil_usuario SET nombre_usuario = ?, clave = ?, correo_electronico = ? WHERE id_perfil_usuario = ?;'
 
     var idUsuario = registroAdministrador['idPerfilUsuario']
-    var nombreU = registroAdministrador['nombreusuario']
+    var nombreU = registroAdministrador['nombreUsuario']
     var clave = registroAdministrador['clave']
     var correoElectronico = registroAdministrador['correoElectronico']
 
     mysqlConnection.query(queryTwo, [nombreU, clave, correoElectronico, idUsuario], (error, acualizacion) => {
         if (error){
-            console.log(error)
+            consoleError(error, 'Funcion: funcion actualizar administrador. Paso: error en actualizacion')
+
             res.status(500)
             res.json(mensajes.errorInterno)
         }else if (acualizacion.length == 0){
             res.status(404)
             res.json(mensajes.peticionNoEncontrada)
         }else{
-            if (acualizacion['affectedRows'] >= 0){
                 const modificacionUsuario = {}
                 var id = acualizacion.insertId
 
@@ -62,11 +69,7 @@ function actualizarUsuarioAdministrador(registroAdministrador, res, callback){
                 };
 
                 callback(modificacionUsuario['application/json'])
-            }else{
-                res.status(500)
-                console.log('error actualizar despues de callback')
-                res.json(mensajes.errorInterno)
-            }
+
         }
     })
 }
@@ -76,7 +79,8 @@ function comprobarActualizacion(nombreUsuario, correoElectronico, res, resultado
 
     mysqlConnection.query(queryOne, [nombreUsuario, correoElectronico], (error, comprobacion) => {
         if(error){
-            console.log('error funcion comprobacion')
+            consoleError(error, 'Funcion: comprobar actualizacion. Paso: comprobacion')
+
             res.status(500)
             res.json(mensajes.errorInterno)
         }else{
@@ -85,7 +89,7 @@ function comprobarActualizacion(nombreUsuario, correoElectronico, res, resultado
     })
 }
 
-path.get('/v1/perfilAdministradores', (req, res) => {  // jala
+path.get('/v1/perfilAdministradores', (req, res) => { // listo Api
     const token = req.headers['x-access-token']
     var respuesta = verifyToken(token)
 
@@ -95,6 +99,8 @@ path.get('/v1/perfilAdministradores', (req, res) => {  // jala
 
             mysqlConnection.query(query, (error, resultadoAdministradores) => {
                 if (error){
+                    consoleError(error, 'Funcion: administradores. Paso: consultar todos los administradores')
+
                     res.status(500)
                     res.json(mensajes.errorInterno)
                 }else if (resultadoAdministradores.length == 0){
@@ -103,7 +109,7 @@ path.get('/v1/perfilAdministradores', (req, res) => {  // jala
                 }else{
                     var cont = 0
                     var administradores = []
-                    console.log(resultadoAdministradores)
+
                     do{
                         administradores.push(cont)
 
@@ -114,7 +120,7 @@ path.get('/v1/perfilAdministradores', (req, res) => {  // jala
                             'telefono': resultadoAdministradores[cont]['telefono']
                         };
                         cont ++
-                    }while (cont < resultadoAdministradores)
+                    }while (cont < resultadoAdministradores.length)
 
                     res.status(200)
                     res.json(administradores)
@@ -122,18 +128,20 @@ path.get('/v1/perfilAdministradores', (req, res) => {  // jala
             })
         }else if (respuesta == 401){
             res.status(respuesta)
-            res.json(tokenInvalido)
+            res.json(mensajes.tokenInvalido)
         }else{
             res.status(500)
             res.json(mensajes.errorInterno)
         }
     } catch (error) {
+        consoleError(error, 'Funcion: administradores. Paso: excepcion cachada.')
+
         res.status(500)
         res.json(mensajes.errorInterno)
     }
 });
 
-path.get('/v1/perfilAdministradores/:idPerfilUsuarioAdmin', (req, res) => { // jala
+path.get('/v1/perfilAdministradores/:idPerfilUsuarioAdmin', (req, res) => { // listo api
     const token = req.headers['x-access-token']
     var respuesta = verifyToken(token)
 
@@ -145,6 +153,8 @@ path.get('/v1/perfilAdministradores/:idPerfilUsuarioAdmin', (req, res) => { // j
 
             mysqlConnection.query(query, [idPerfilUsuarioAdmin], (error, resultadoAdministrador) => {
                 if(error){
+                    consoleError(error, 'Funcion: administradores. Paso: consultar administrador')
+
                     res.status(500)
                     res.json(mensajes.errorInterno)
                 }else if (resultadoAdministrador.length == 0){
@@ -167,23 +177,25 @@ path.get('/v1/perfilAdministradores/:idPerfilUsuarioAdmin', (req, res) => { // j
             })
         }else if (respuesta == 401){
             res.status(respuesta)
-            res.json(tokenInvalido)
+            res.json(mensajes.tokenInvalido)
         }else{
             res.status(500)
             res.json(mensajes.errorInterno)
         }
     } catch (error) {
+        consoleError(error, 'Funcion: administradores. Paso: Excepcion cachada.')
+
         res.status(500)
         res.json(mensajes.errorInterno)
     }
 });
 
 
-path.put('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {
+path.put('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => { // listo api
     const token = req.headers['x-access-token'];
     var respuesta = verifyToken(token)
     const { idPerfilAdministrador } = req.params
-    const { clave, correoElectronico, estatus, idPerfilUsuario, nombre, telefono, nombreUsuario} = req.body
+    const { clave, correoElectronico, idPerfilUsuario, nombre, telefono, nombreUsuario} = req.body
     var queryThree = 'UPDATE perfil_administrador SET nombre = ?, telefono = ? WHERE id_perfil_administrador = ?;'
 
     try{
@@ -194,107 +206,45 @@ path.put('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => {
                     res.json(mensajes.instruccionNoProcesada)
                 }else{
                     actualizarUsuarioAdministrador(req.body, res, function(actualizacionAdministrador) {
-                        if (res.error){
-                            console.log('error funcion actualizar')
-                            res.status(500)
-                            res.json(mensajes.errorInterno)
-                        }else{
-                            mysqlConnection.query(queryThree, [nombre, telefono, idPerfilAdministrador], (error, actualizacionPerfil) => {
-                                if (error){
-                                    res.status(500)
-                                    res.json(mensajes.errorInterno)
-                                }else if(actualizacionPerfil.length == 401){
-                                    res.status(404)
-                                    res.json(mensajes.peticionNoEncontrada)
-                                }else{
-                                    if (actualizacionPerfil['affectedRows'] >= 0 ){
-                                        const modificarAdministrador = {}
 
-                                        modificarAdministrador['application/json'] = {
-                                            'idPerfilUsuario': idPerfilUsuario,
-                                            'idPerfilAdministrador': idPerfilAdministrador
-                                        }
+                        mysqlConnection.query(queryThree, [nombre, telefono, idPerfilAdministrador], (error, modificarAdministrador) =>{
+                            if (error){
+                                consoleError(error, 'Funcion: modigicar administrador. Paso: error al modificar administrador')
 
-                                        res.status(200)
-                                        res.json(modificarAdministrador['aplication/json'])
-                                    }
+                                res.status(500)
+                                res.json(mensajes.errorInterno)
+                            }else if (modificarAdministrador.length == 0){
+                                res.status(404)
+                                res.json(mensajes.peticionNoEncontrada)
+                            }else{
+
+                                
+                                const putAdministrador = {}
+                                putAdministrador['application/json'] = {
+                                    'idPerfilUsuario': idPerfilUsuario,
+                                    'idPerfilAdministrador': idPerfilAdministrador
                                 }
-                            })
-                        }
+
+                                res.status(200)
+                                res.json(putAdministrador['application/json'])
+                            }
+                        })
                     })
                 }
             })
         }else if (respuesta == 401){
             res.status(respuesta)
-            res.json(tokenInvalido)
+            res.json(mensajes.tokenInvalido)
         }else{
             res.status(500)
             res.json(mensajes.errorInterno)
         }
     }catch (error){
+        consoleError(error, 'Funcion: modificar administrador. Paso: Excepcion cachada')
+
         res.status(500)
         res.json(mensajes.errorInterno)
     }
-    /*const token = req.headers['x-access-token']
-    var respuesta = verifyToken(token)
-    const { idPerfilAdministrador } = req.params
-    const {nombre, telefono, clave, correoElectronico, estatus, idPerfilUsuario, nombreUsuario} = req.body
-
-    try{
-        if(respuesta == 200){
-            var queryOne = 'UPDATE perfil_usuario SET  nombre_usuario = ?, estatus = ?, clave = ?, correo_electronico = ?  WHERE id_perfil_usuario = ? ;'
-            var queryTwo = 'UPDATE perfil_administrador SET nombre = ?, telefono = ? WHERE id_perfil_administrador = ? ;'
-
-            mysqlConnection.query(queryOne, [nombreUsuario, estatus, clave, correoElectronico, idPerfilUsuario], (error, actualizarUsuarioAdministrador) => {
-                if(error){
-                    res.status(500)
-                    res.json(mensajes.errorInterno)
-                }else if (actualizarUsuarioAdministrador.length == 0){
-                    res.status(404)
-                    res.json(mensajes.peticionNoEncontrada)
-                }else{
-                    console.log('exito al registrar cuenta del Administrador')
-                    mysqlConnection.query(queryTwo, [nombre, telefono, idPerfilAdministrador], (error, actualizarAdministrador) => {
-                        if(error){
-                            res.status(500)
-                            res.json(mensajes.errorInterno)
-                        }else if(actualizarAdministrador.length == 0){
-                            //
-                        }else{
-                            var perfilAdministrador = actualizarAdministrador
-                            var usuarioAdministrador = actualizarUsuarioAdministrador
-                            var arrayFotografia = Uint8ClampedArray.from(Buffer.from(usuarioAdministrador.fotografia, 'base64'))
-
-                            const modificarAdministrador = {}
-                            modificarAdministrador['application/json'] = {
-                                "clave" : usuarioAdministrador['clave'],
-                                "tipo" : usuarioAdministrador['tipo_usuario'],
-                                "estatus" : usuarioAdministrador['estatus'],
-                                "idPerfilusuario" : usuarioAdministrador['id_perfil_usuario'],
-                                "correoElectronico" : usuarioAdministrador['correo_electronico'],
-                                "fotografia" : arrayFotografia,
-                                "tipoUsuario" : actualizarUsuarioAdministrador['tipo_usuario'],
-                                "nombre": perfilAdministrador['nombre'],
-                                "telefono": perfilAdministrador['telefono'],
-                                "idPerfilAdministrador": perfilAdministrador['id_perfil_administrador']
-                            };
-                            res.status(200)
-                            res.send(modificarAdministrador['application/json'])
-                        }
-                    })
-                }
-            })
-        }else if (respuesta == 401){
-            res.status(respuesta)
-            res.json(tokenInvalido)
-        }else{
-            res.status(500)
-            res.json(mensajes.errorInterno)
-        }
-    }catch (error){
-        res.status(500)
-        res.json(mensajes.errorInterno)
-    }*/
 });
 
 module.exports = path
