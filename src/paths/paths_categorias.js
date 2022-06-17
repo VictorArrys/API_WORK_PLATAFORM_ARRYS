@@ -15,7 +15,7 @@ function verifyToken(token){
         const tokenData = jwt.verify(token, keys.key)
         console.log(tokenData);
   
-        if (tokenData["tipo"] == "Administrador") {
+        if (tokenData["tipo"] == "Administrador" || tokenData["tipo"] == "Empleador" || tokenData["tipo"] == "Demandante" || tokenData["tipo"] == "Aspirante") {
             statusCode = 200
             return statusCode
         }else{
