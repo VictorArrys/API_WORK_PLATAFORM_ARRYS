@@ -1,0 +1,15 @@
+{
+  "name": "mensajeria",
+  "version": "1.0.0",
+  "description": "Módulo encargado de gestionar la mensajeria entre los usuarios.",
+  "main": "Mensajeria.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mesajeria",
+    "conversación"
+  ],
+  "author": "Angel Eduardo Martinez Leo Lim",
+  "license": "ISC"
+}
