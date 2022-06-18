@@ -32,6 +32,13 @@ function verifyToken(token){
         }
 }
 
+function consoleError(error, ubicacion){
+    console.log('--------------------------------------------------------------------------------------')
+    console.log('Se ha presentado un problema en: ' + ubicacion)
+    console.log('Error(es): ' + error.message)
+    console.log('--------------------------------------------------------------------------------------')
+}
+
 function registrarUsuarioEmpleador(datoEmpleador, res, callback){
     var queryTwo = 'INSERT INTO perfil_usuario (nombre_usuario, estatus,  clave, correo_electronico, tipo_usuario) VALUES (?, ?, ?, ?, ?) ;'
 
@@ -126,7 +133,7 @@ function comprobarRegistro(nombreUsuario, correoElectronico, res, resultado){
     })
 }
 
-function comprobarActualizacion(nombreUsuario, correoElectronico, res, resultado){
+function comprobarActualizacion(nombreUsuario, correoElectronico, res, resultado){ // verificar mañana
     var queryOne = 'SELECT count(id_perfil_usuario) as Comprobacion FROM perfil_usuario WHERE nombre_usuario = ? AND correo_electronico = ?';
 
     mysqlConnection.query(queryOne, [nombreUsuario, correoElectronico], (error, comprobacion) => {
@@ -195,55 +202,67 @@ path.get('/v1/perfilEmpleadores', (req, res) => {
     }
 });
 
-path.post('/v1/perfilEmpleadores', (req, res) => {
+path.post('/v1/perfilEmpleadores', (req, res) => { // listo en api
     var queryThree = 'INSERT INTO perfil_empleador (id_perfil_usuario_empleador, nombre_organizacion, nombre, direccion, fecha_nacimiento, telefono, amonestaciones) VALUES (?, ?, ?, ?, ?, ?, ?);'
     const { clave, correoElectronico, direccion, estatus, fechaNacimiento, nombre, nombreOrganizacion, telefono, nombreusuario } = req.body
     console.log(req.body)
-    comprobarRegistro(nombreusuario, correoElectronico, res, function(resultado) {
-        if (resultado >= 1){
-            res.status(422)
-            res.json(mensajes.instruccionNoProcesada)
-        }else{
-            registrarUsuarioEmpleador(req.body, res, function(registroUempleador) {
-                if (res.error){
-                    console.log(error)
-                    res.status(500)
-                    res.json(mensajes.errorInterno)
-                }else{
-                    var idDeUsuario = 0;
-                    idDeUsuario = registroUempleador['application/json']['idPerfilUsuario']
 
-                    mysqlConnection.query(queryThree, [idDeUsuario, nombreOrganizacion, nombre, direccion, fechaNacimiento, telefono, 0], (error, registroPerfil) => {
-                        if (error){
-                            console.log(error)
-                            res.status(500)
-                            res.json(mensajes.errorInterno)
-                        }else if (registroPerfil.length == 0){
-                            console.log('404 perfil')
-                            res.status(404)
-                            res.json(mensajes.peticionNoEncontrada)
-                        }else{
-                            if (registroPerfil['affectedRows'] == 1){
-                                var idEmpleador = registroPerfil.insertId
-
-                                const nuevoEmpleador = {}
-                                nuevoEmpleador['application/json'] = {
-                                    'idPerfilUsuario': registroUempleador['application/json']['idPerfilUsuario'],
-                                    'idPerfilAspirante': idEmpleador
+    try {
+        comprobarRegistro(nombreusuario, correoElectronico, res, function(resultado) {
+            if (resultado >= 1){
+                res.status(422)
+                res.json(mensajes.instruccionNoProcesada)
+            }else{
+                registrarUsuarioEmpleador(req.body, res, function(registroUempleador) {
+                    if (res.error){
+                        consoleError(error, 'Funcion: registrar empleador. Paso: error al registrar usuarioEmpleador')
+    
+                        res.status(500)
+                        res.json(mensajes.errorInterno)
+                    }else{
+                        var idDeUsuario = 0;
+                        idDeUsuario = registroUempleador['application/json']['idPerfilUsuario']
+    
+                        mysqlConnection.query(queryThree, [idDeUsuario, nombreOrganizacion, nombre, direccion, fechaNacimiento, telefono, 0], (error, registroPerfil) => {
+                            if (error){
+                                consoleError(error, 'Funcion: registrar Perfil Empleador. Paso: error al registrar perfil empleador')
+    
+                                res.status(500)
+                                res.json(mensajes.errorInterno)
+                            }else if (registroPerfil.length == 0){
+                                console.log('404 perfil')
+                                res.status(404)
+                                res.json(mensajes.peticionNoEncontrada)
+                            }else{
+                                if (registroPerfil['affectedRows'] == 1){
+                                    var idEmpleador = registroPerfil.insertId
+    
+                                    const nuevoEmpleador = {}
+                                    nuevoEmpleador['application/json'] = {
+                                        'idPerfilUsuario': registroUempleador['application/json']['idPerfilUsuario'],
+                                        'idPerfilAspirante': idEmpleador
+                                    }
+    
+                                    res.status(201)
+                                    res.json(nuevoEmpleador['application/json'])
                                 }
-
-                                res.status(201)
-                                res.json(nuevoEmpleador['application/json'])
                             }
-                        }
-                    })
-                }
-            })
-        }
-    })
+                        })
+                    }
+                })
+            }
+        })
+    } catch (error) {
+        consoleError(error, 'Funcion: registrar empleador. Paso Excepcion cachada')
+
+        res.status(500)
+        res.json(mensajes.errorInterno)
+    }
+
+    
 });
 
-path.get('/v1/perfilEmpleadores/:idPerfilUsuarioEmpleador', (req, res) => {
+path.get('/v1/perfilEmpleadores/:idPerfilUsuarioEmpleador', (req, res) => { // listo en api
     const token = req.headers['x-access-token']
     var respuesta = verifyToken(token)
     const { idPerfilUsuarioEmpleador } = req.params
@@ -254,6 +273,8 @@ path.get('/v1/perfilEmpleadores/:idPerfilUsuarioEmpleador', (req, res) => {
 
             mysqlConnection.query(query, [idPerfilUsuarioEmpleador], (error, resultadoEmpleador) => {
                 if (error){
+                    consoleError(error, 'Funcion: obtener Empleador. Paso: error al obtener empleador')
+
                     res.status(500)
                     res.json(mensajes.errorInterno)
                 }else if (resultadoEmpleador.length == 0){
@@ -286,6 +307,8 @@ path.get('/v1/perfilEmpleadores/:idPerfilUsuarioEmpleador', (req, res) => {
             res.json(mensajes.errorInterno)
         }
     } catch (error) {
+        consoleError(error, 'Funcion: Obtener empleador. Paso: Excepcion cachada')
+
         res.status(500)
         res.json(mensajes.errorInterno)
     }
@@ -307,20 +330,22 @@ path.put('/v1/perfilEmpleadores/:idPerfilEmpleador', (req, res) => {
                 }else{
                     actualizarUsuarioEmpleador(req.body, res, function(actualizacionEmpleador) {
                         if (res.error){
-                            console.log('error funcion actualizar')
+                            consoleError(error, 'Funcion: actualizar empleador. Paso: error al actualizar usuario empleador')
+
                             res.status(500)
                             res.json(mensajes.errorInterno)
                         }else{
                             mysqlConnection.query(queryThree, [nombreOrganizacion, nombre, direccion, fechaNacimiento, telefono, idPerfilEmpleador], (error, actualizacionPerfil) =>{
                                 if (error){
-                                    console.log(error)
+                                    consoleError(error, 'Funcion: actualizar perfil empleador. Paso: Error al acutalizar empleador')
+
                                     res.status(500)
                                     res.json(mensajes.errorInterno)
                                 }else if(actualizacionPerfil.length == 0){
                                     res.status(404)
                                     res.json(peticionIncorrecta)
                                 }else{
-                                    if (actualizacionPerfil['affectedRows'] == 1){
+                                    if (actualizacionPerfil['affectedRows'] >= 1){
                                         const modificarEmpleador = {}
 
                                         modificarEmpleador['application/json'] ={
@@ -341,12 +366,12 @@ path.put('/v1/perfilEmpleadores/:idPerfilEmpleador', (req, res) => {
             res.status(respuesta)
             res.json(mensajes.tokenInvalido)
         }else{
-            console.log('error en el if')
             res.status(500)
             res.json(mensajes.errorInterno)
         }
     }catch(error){
-        console.log('error en el catch')
+        consoleError(error, 'Funcion: actualizar empleador. Paso: Excepcion cachada')
+
         res.status(500)
         res.json(mensajes.errorInterno)
     }

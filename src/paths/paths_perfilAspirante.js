@@ -19,7 +19,7 @@ function verifyToken(token){
     try{
         const tokenData = jwt.verify(token, keys.key); 
   
-        if (tokenData['tipo'] == 'Administrador' || tokenData['tipo'] == 'Aspirante' || tokenData['tipo'] == 'Demandante') {
+        if (tokenData["tipo"] == "Empleador" || tokenData['tipo'] == 'Administrador' || tokenData['tipo'] == 'Aspirante' || tokenData['tipo'] == 'Demandante') {
             statusCode = 200
             return statusCode
         }else{
@@ -86,8 +86,25 @@ function getOficios(id, callback){
                     'experiencia': resultadoOficios[i]['experiencia']
                 }
             }
+            console.log(arreglo)
             callback(arreglo)
         }
+    })
+}
+
+function getAspirante(datoAspirante, callback){
+    getOficios(datoAspirante, function(arregloOficios) {
+        var registroAspirante = {
+            'direccion': datoAspirante['direccion'],
+            'fechaNacimiento': datoAspirante['fecha_nacimiento'],
+            'idPerfilAspirante': datoAspirante['id_perfil_aspirante'],
+            'nombre': datoAspirante['nombre'],
+            'idPerfilusuario': datoAspirante['id_perfil_usuario_aspirante'],
+            'oficios': arregloOficios,
+            'telefono': datoAspirante['telefono']
+        };
+        
+        callback(registroAspirante)
     })
 }
 
@@ -201,14 +218,19 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
                     res.status(404)
                     res.json(mensajes.peticionIncorrecta)
                 }else{
+                    /*var idUsuarioAspirante = resultadoAspirante[0]['id_perfil_usuario_aspirante']
+                    getAspirante(idUsuarioAspirante, function(getAspirante){
+                        console.log(getAspirante)
+                    })*/
 
                     var getAspirante = resultadoAspirante[0]
-                    var arrayVideo = []
-                    if (getAspirante.video == null){
+                    //var arrayVideo = []
+                    /*if (getAspirante.video == null){
                         console.log('Fotografia vacia, se procede a poner null')
                     }else{
+                        //arrayVideo = Uint8ClampedArray.from(Buffer.from(getAspirante.video.buffer, 'base64'))
                         getAspirante.video.forEach( b => arrayVideo.push(b) );
-                    }
+                    }*/
                     
                     const aspirante = {}
 
@@ -219,7 +241,7 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
                         'nombre': getAspirante['nombre'],
                         'idPerfilUsuario': getAspirante['id_perfil_usuario_aspirante'],
                         'telefono': getAspirante['telefono'],
-                        'video': arrayVideo
+                        //'video': arrayVideo
                     }
 
                     res.status(200)
@@ -242,10 +264,9 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
 });
 
 path.post('/v1/perfilAspirantes', (req, res) => {
-    var idDeUsuario = 0;
+    var idDeUsuario = 0
     const {clave, correoElectronico, direccion, estatus, fechaNacimiento, nombre, nombreUsuario, oficios,
         telefono } = req.body
-
     try {
         var queryOne = 'INSERT INTO perfil_usuario (nombre_usuario, estatus, clave, correo_electronico, tipo_usuario) VALUES (?, ?, ?, ?, ?);'
         var queryTwo = 'INSERT INTO perfil_aspirante ( id_perfil_usuario_aspirante, nombre, direccion, fecha_nacimiento, telefono) VALUES (?, ?, ?, ?, ?); '
@@ -273,7 +294,7 @@ path.post('/v1/perfilAspirantes', (req, res) => {
                         res.status(403)
                         res.json(mensajes.prohibido)
                     }else{
-                        var idAspirante = 0
+                        var idUsuario = registroUsuarioAspirante.insertId
 
                         idAspirante = registroPerfilAspirante.insertId
 
@@ -301,31 +322,26 @@ path.post('/v1/perfilAspirantes', (req, res) => {
                             }else{
                                 console.log("exito, oficios insertados: " + registroOficios.affectedRows);
 
-                                var perfilAspirante = registroPerfilAspirante[0]
-                                var usuarioAspirante = registroUsuarioAspirante[0]
-                                //var arrayFotografia = Uint8ClampedArray.from(Buffer.from(usuarioAspirante.fotografia, 'base64'))
-
                                 const PerfilAspirante = {}
                                 PerfilAspirante['application/json'] = {
-                                    'clave': usuarioAspirante['clave'],
-                                    'correoElectronico': usuarioAspirante['correo_electronico'],
-                                    'direccion': perfilAspirante['direccion'],
-                                    'estatus': usuarioAspirante['estatus'],
-                                    'fechaNacimiento': perfilAspirante['fecha_nacimiento'],
-                                    'idPerfilUsuario': usuarioAspirante['id_perfil_usuario'],
-                                    'nombre': perfilAspirante['nombre'],
-                                    'nombreUsuario': usuarioAspirante['nombre_usuario'],
-                                    'oficios': registroOficios,
-                                    'telefono': perfilAspirante['telefono'],
-                                    //'video': perfilAspirante['video'],
-                                    'idPerfilAspirante': perfilAspirante['id_perfil_aspirante'],
-                                    //'fotografia': arrayFotografia
+                                    'clave': clave,
+                                    'correoElectronico': correoElectronico,
+                                    'direccion': direccion,
+                                    'estatus': estatus,
+                                    'fechaNacimiento': fechaNacimiento,
+                                    'idPerfilUsuario': idUsuario,
+                                    'nombre': nombre,
+                                    'nombreUsuario': nombreUsuario,
+                                    'oficios': valores,
+                                    'telefono': telefono,
+                                    'idPerfilAspirante': idAspirante,
                                     }
 
-                                }
+                                    console.log(PerfilAspirante)
+                                    res.status(201)
+                                    res.json(PerfilAspirante['application/json'])
 
-                                res.status(201)
-                                res.json(PerfilAspirante['application/json'])
+                                }
                              })
 
 
