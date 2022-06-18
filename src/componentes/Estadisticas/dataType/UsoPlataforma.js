@@ -1,5 +1,6 @@
 exports.UsoPlataforma = class UsoPlataforma {
-    fecha; 
+    fecha;
+    mes;
     ofertasPublicadas;
     categoria
 }
