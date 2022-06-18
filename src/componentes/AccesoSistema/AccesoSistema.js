@@ -10,11 +10,11 @@ exports.AccesoSistema = class AccesoSistema {
         UsuarioDAO.restablecerContraseña(correoElectronico, funcionRespuesta);
     }
 
-    static habilitarPerrfil(idUsuario, funcionRespuesta) {
-
+    static habilitarPerfil(idUsuario, funcionRespuesta) {
+        UsuarioDAO.habilitarPerfil(idUsuario, funcionRespuesta)
     }
 
     static deshabilitarPerfil(idUsuario, funcionRespuesta) {
-
+        UsuarioDAO.deshabilitarPerfil(idUsuario, funcionRespuesta);
     }
 }
