@@ -1,0 +1,3 @@
+exports.OfertaEmpleo = class OfertaEmpleo {
+    
+}
