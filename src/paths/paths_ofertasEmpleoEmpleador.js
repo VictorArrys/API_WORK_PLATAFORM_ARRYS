@@ -266,22 +266,24 @@ function getFotos(idOfertaEmpleo, res, callback){
                 
                 callback([])
             }else{
-                var arrayFotografia1 = Uint8ClampedArray.from(Buffer.from(resultadoFotografias[0]['imagen'].buffer, 'base64'))
+                var arrayFotografia1 = null
+                arrayFotografia1 = Uint8ClampedArray.from(Buffer.from(resultadoFotografias[0]['imagen'].buffer, 'base64'))
                 
                 /*resultadoFotografias[0]['imagen'].forEach(element => {
                     arrayFotografia1.push(element)
 
                 });*/
                 
-                
-                var arrayFotografia2 = Uint8ClampedArray.from(Buffer.from(resultadoFotografias[1]['imagen'].buffer, 'base64'))
+                var arrayFotografia2 = null
+                arrayFotografia2 = Uint8ClampedArray.from(Buffer.from(resultadoFotografias[1]['imagen'].buffer, 'base64'))
                 
                 /*resultadoFotografias[1]['imagen'].forEach(element => {
                     arrayFotografia2.push(element)
                     
                 });*/
-
-                var arrayFotografia3 = Uint8ClampedArray.from(Buffer.from(resultadoFotografias[2]['imagen'].buffer, 'base64'))
+                
+                var arrayFotografia3 = null
+                arrayFotografia3 = Uint8ClampedArray.from(Buffer.from(resultadoFotografias[2]['imagen'].buffer, 'base64'))
                 
                /* resultadoFotografias[2]['imagen'].forEach(element => {
                     arrayFotografia3.push(element)
@@ -491,6 +493,28 @@ path.post('/v1/ofertasEmpleo-E', validarOfertaEmpleo, (req, res) => {
         }
 
 });
+
+path.put('/v1/ofertasEmpleo-E/:idOfertaEmpleo/:idFotografia/fotografia', multerUpload.single("fotografia"), (req,res) => {
+
+    var query = "UPDATE fotografia SET imagen = ? WHERE id_oferta_empleo_fotografia = ? AND id_fotografia = ?;"
+    const idOfertaEmpleo = req.params.idOfertaEmpleo
+    const idFoto = req.params.idFotografia
+    mysqlConnection.query(query, [req.file.buffer, idOfertaEmpleo, idFoto], (error, resultadoFotografia) => {
+        if (error){
+            console.log('Error debido a: ')
+            console.log(error.message)            
+            res.status(500)
+            res.json(mensajes.errorInterno)
+        }else if(resultadoFotografia.length == 0){
+            res.status(404)
+            res.json(mensajes.peticionNoEncontrada)
+        }else{
+            console.log('Actualización de foto de la oferta exitoso')
+            res.status(200)
+            res.json(mensajes.actualizacionExitosa)
+        }
+    })
+});   
 
 
 path.put('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {

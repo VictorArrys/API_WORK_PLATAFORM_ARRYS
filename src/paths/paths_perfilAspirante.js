@@ -86,6 +86,7 @@ function getOficios(id, callback){
                     'experiencia': resultadoOficios[i]['experiencia']
                 }
             }
+            console.log(arreglo)
             callback(arreglo)
         }
     })

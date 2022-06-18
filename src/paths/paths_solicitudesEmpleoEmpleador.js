@@ -442,8 +442,8 @@ path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/aceptada', (req, res) => {
                                                         crearContratacionAspirante(contratacionNueva ,existeSolicitudEmpleo['id_perfil_aspirante_sa'], ofertaEmpleo, res, function(contratacionEmpleoAspirante){
                                                             if(contratacionEmpleoAspirante == 1){
                                                                 reducirVacante(existeSolicitudEmpleo['id_oferta_empleo_sa'],res, function(reducirVacante){
-                                                                    if(reducirVacante > 0){
-                                                                        res.status(204)
+                                                                    if(reducirVacante >= 1){
+                                                                        res.sendStatus(204)
                                                                     }
                                                                     
                                                                 })
@@ -467,8 +467,8 @@ path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/aceptada', (req, res) => {
                                         crearContratacionAspirante(contratacionEmpleo ,existeSolicitudEmpleo['id_perfil_aspirante_sa'], ofertaEmpleo, res, function(contratacionEmpleoAspirante){
                                             if(contratacionEmpleoAspirante == 1){
                                                 reducirVacante(existeSolicitudEmpleo['id_oferta_empleo_sa'],res, function(reducirVacante){
-                                                    if(reducirVacante > 0){
-                                                        res.status(204)
+                                                    if(reducirVacante >= 0){
+                                                        res.sendStatus(204)
                                                     }
                                                     
                                                 })
@@ -516,8 +516,9 @@ path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/rechazada', (req, res) => {
         var pool = mysqlConnection
         pool.query('SELECT * FROM solicitud_aspirante WHERE id_solicitud_aspirante = ?;',[req.params.idSolicitudEmpleo] , (error, resultadoSolicitudEmpleo)=>{
             if(error){ 
-                res.json(mensajes.errorInterno);
                 res.status(500)
+                res.json(mensajes.errorInterno);
+                
             }else if(resultadoSolicitudEmpleo[0].length == 0){
     
                 res.status(404)
@@ -537,17 +538,17 @@ path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/rechazada', (req, res) => {
                     res.json(mensajes.peticionIncorrecta);
                 //El reporte esta pendiente
                 }else if(solicitudEmpleo['estatus'] == 1){
-
-                    pool.query('UPDATE solitud_aspirante SET estatus = -1 WHERE id_solicitud_aspirante = ?;',[solicitudEmpleo['id_solicitud_aspirante']] , (error, resultadoSolicitudEmpleo)=>{
+                    
+                    pool.query('UPDATE solicitud_aspirante SET estatus = ? WHERE id_solicitud_aspirante = ?;',[-1, req.params.idSolicitudEmpleo] , (error, resultadoSolicitudEmpleo)=>{
                         if(error){ 
-                            res.json(mensajes.errorInterno);
                             res.status(500)
+                            res.json(mensajes.errorInterno);
+                            
                         }else if(resultadoSolicitudEmpleo.length == 0){
                             res.status(404)
                             res.json(mensajes.peticionNoEncontrada);
                 
                         }else{
-
                             res.sendStatus(204);                     
                 
                         }
