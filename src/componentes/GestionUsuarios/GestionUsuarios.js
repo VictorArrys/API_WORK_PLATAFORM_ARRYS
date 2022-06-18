@@ -1,7 +1,22 @@
-const {AspiranteDAO} = require('./data/AspiranteDAO')
-const {DemandanteDAO} = require('./data/DemandanteDAO')
+const {AspiranteDAO} = require('./data/AspiranteDAO');
+const {DemandanteDAO} = require('./data/DemandanteDAO');
+const {UsuarioDAO} = require('./data/UsuarioDAO');
 
 exports.GestionUsuarios = class {
+    //Usuario
+    static getUsuarios(callback) {
+        UsuarioDAO.getUsuarios(callback);
+    }
+
+    static getUsuario(idUsuario, callback) {
+        this.getUsuario(idUsuario, callback);
+    }
+
+    static patchFotografiaUsuario(idUsuario, fotografia, callback) {
+        
+    }
+
+
     //Aspirante
     static getAspirantes(callback) {
         AspiranteDAO.getAspirantes(callback);
@@ -39,4 +54,9 @@ exports.GestionUsuarios = class {
     static putDemandante(demandante, callback) {
         DemandanteDAO.putDemandante(demandante, callback);
     }
+
+    //Empleador
+
+
+    //Administrador
 }
