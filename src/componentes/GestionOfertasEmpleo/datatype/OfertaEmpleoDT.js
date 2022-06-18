@@ -1,4 +1,4 @@
-exports.OfertaEmpleo = class OfertaEmpleo {
+exports.OfertaEmpleoDT = class OfertaEmpleoDT {
     cantidadPago;
     descripcion;
     diasLaborales;
@@ -8,9 +8,11 @@ exports.OfertaEmpleo = class OfertaEmpleo {
     horaFin;
     horaInicio;
     idCategoriaEmpleo;
+    categoriaEmpleo;
     nombre;
     tipoPago;
     vacantes;
     idOfertaEmpleo;
     idPerfilEmpleador;
+    contratacion;
 }

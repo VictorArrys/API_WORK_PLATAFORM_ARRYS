@@ -4,7 +4,7 @@ exports.OfertaEmpleoDAO = class OfertaEmpleoDAO {
 
     }
 
-    static getOfertaEmpleo(idOfertaEmpleo, callback) {
+    static getOfertaEmpleo(idOfertaEmpleo, idUsuario, callback) {
 
     }
 
@@ -12,7 +12,7 @@ exports.OfertaEmpleoDAO = class OfertaEmpleoDAO {
 
     }
 
-    static postFotografiasOfertaEmpleo(idOfertaEmpleo, fotografia, callback) {
+    static postFotografiaOfertaEmpleo(idOfertaEmpleo, fotografia, callback) {
 
     }
 
@@ -26,9 +26,16 @@ exports.OfertaEmpleoDAO = class OfertaEmpleoDAO {
 
     }
 
-    static putOfertaEmpleo(ofertaEmpleo, callback) {
+    static putOfertaEmpleo(ofertaEmpleo, idUsuario, callback) {
 
     }
 
     //Aspirante
+    static getOfertasEmpleoAspirante(arregloIdCategoria, callback) {
+
+    }
+
+    static getOfertaEmpleoAspirante(idOfertaEmpleo, callback) {
+
+    }
 }

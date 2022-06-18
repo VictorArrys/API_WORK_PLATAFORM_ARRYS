@@ -4,6 +4,6 @@ exports.Usuario = class Usuario {
     idPerfilusuario;
     correoElectronico;
     fotografia;
-    nombre;
+    nombreUsuario;
     tipoUsuario
 }
