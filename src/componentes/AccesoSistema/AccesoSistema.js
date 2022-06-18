@@ -9,4 +9,12 @@ exports.AccesoSistema = class AccesoSistema {
     static restablecerContraseña(correoElectronico, funcionRespuesta) {
         UsuarioDAO.restablecerContraseña(correoElectronico, funcionRespuesta)
     }
+
+    static habilitarPerrfil(idUsuario, funcionRespuesta) {
+
+    }
+
+    static deshabilitarPerfil(idUsuario, funcionRespuesta) {
+        
+    }
 }
