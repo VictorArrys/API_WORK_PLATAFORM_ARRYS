@@ -22,14 +22,14 @@ exports.ValidarToken = function(token) {
             || tokenData["tipo"] == "Aspirante" || tokenData["tipo"] == "Administrador"){
             statusCode = 200;
             console.log(tokenData);
-            return {"statusCode": statusCode, "tokeData": tokenData};
+            return {"statusCode": statusCode, "tokenData": tokenData};
         }else{
             statusCode = 401;
-            return {"statusCode": statusCode, "tokeData": tokenData};;
+            return {"statusCode": statusCode, "tokenData": tokenData};;
         }
     }catch (error){
         statusCode = 401;
-        return {"statusCode": statusCode, "tokeData": null};;
+        return {"statusCode": statusCode, "tokenData": null};;
     }
 }
 
@@ -42,13 +42,13 @@ exports.ValidarTokenTipoUsuario = function(token, tipoUsuario) {
         if(tokenData["tipo"] == tipoUsuario){
             statusCode = 200;
             console.log(tokenData);
-            return {"statusCode": statusCode, "tokeData": tokenData};;
+            return {"statusCode": statusCode, "tokenData": tokenData};;
         }else{
             statusCode = 401;
-            return {"statusCode": statusCode, "tokeData": tokenData};;
+            return {"statusCode": statusCode, "tokenData": tokenData};;
         }
     }catch (error){
         statusCode = 401;
-        return {"statusCode": statusCode, "tokeData": null};;
+        return {"statusCode": statusCode, "tokenData": null};;
     }
 }
