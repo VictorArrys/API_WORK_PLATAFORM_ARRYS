@@ -9,8 +9,6 @@ exports.CrearToken = function(payload) {
     const token = jwt.sign(payload, llave, { 
         expiresIn: 60 * 60 * 24
     });
-    console.log("Gestion TOKEN");
-    console.log(token)
     return token;
 }
 
