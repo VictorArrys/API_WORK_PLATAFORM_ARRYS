@@ -1,0 +1,17 @@
+{
+  "name": "gestionreportesempleo",
+  "version": "1.0.0",
+  "description": "Módulo encargado de la gestión de reportes de ofertas de empleo.",
+  "main": "GestionReportesEmpleo.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "reporte",
+    "empleo",
+    "administrados",
+    "aspirante"
+  ],
+  "author": "Angel Eduardo Nartínez Leo Lim",
+  "license": "ISC"
+}
