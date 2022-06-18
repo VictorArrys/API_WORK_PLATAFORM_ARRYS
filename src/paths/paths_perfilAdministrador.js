@@ -164,6 +164,8 @@ path.get('/v1/perfilAdministradores/:idPerfilUsuarioAdmin', (req, res) => { // l
                     var administrador = resultadoAdministrador[0]
                     var getAdministrador = {}
 
+                    console.log(resultadoAdministrador)
+
                     getAdministrador['application/json'] = {
                         'idPerfilAdministrador': administrador['id_perfil_administrador'],
                         'idPerfilUsuarioAdmin' : administrador['id_perfil_usuario_admin'],

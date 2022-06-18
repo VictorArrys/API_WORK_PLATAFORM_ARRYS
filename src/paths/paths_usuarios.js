@@ -44,7 +44,7 @@ function verifyTokenUser(token){
     try{
         const tokenData = jwt.verify(token, keys.key); 
 
-        if(tokenData["tipo"] == "Empleador" || tokenData["tipo"] == "Demandante" || tokenData["tipo"] == "Aspirante"){
+        if(tokenData["tipo"] == "Empleador" || tokenData["tipo"] == "Demandante" || tokenData["tipo"] == "Aspirante" || tokenData["tipo"] == "Administrador"){
             statusCode = 200
             console.log(tokenData)
             return statusCode
@@ -212,7 +212,7 @@ path.get('/v1/perfilUsuarios', (req, res) => { // listo en api
 
 });
 
-path.get('/v1/PerfilUsuarios/:idPerfilUsuario',(req, res) => { 
+path.get('/v1/PerfilUsuarios/:idPerfilUsuario',(req, res) => {  // listo api
     const token = req.headers['x-access-token']
     var respuesta = verifyTokenUser(token)
 
@@ -268,18 +268,19 @@ path.patch('/v1/restablecer', (req, res) => {
 });
 
 
-path.patch('/v1/perfilUsuarios/:idPerfilUsuario/habilitar', (req, res) => { // todos los metodos tienen que ir en un try/catch para cachar cualquier error
+path.patch('/v1/perfilUsuarios/:idPerfilUsuario/habilitar', (req, res) => {  // listo api
     try{
         const token = req.headers['x-access-token']
         var respuesta = verifyTokenUser(token)
         const { idPerfilUsuario } = req.params
 
-
         if(respuesta == 200){
             var query = 'UPDATE perfil_usuario SET estatus = ? WHERE id_perfil_usuario = ?;'
 
             mysqlConnection.query(query, [1, idPerfilUsuario], (error, resultadoHabilitar) => {
-                if(error){ 
+                if(error){
+                    consoleError(error, 'Funcion: Habilitar perfil. Paso: error al habilitar perfil')
+                    
                     res.status(500)
                     res,json(mensajes.errorInterno)
                 }else if(resultadoHabilitar.length == 0){
@@ -305,13 +306,15 @@ path.patch('/v1/perfilUsuarios/:idPerfilUsuario/habilitar', (req, res) => { // t
             res.json(mensajes.errorInterno)
         }
     }catch (error){
+        consoleError(error, 'Funcion: Habilitar perfil. Paso: Excepcion cachada')
+
         res.status(500)
         res.json(mensajes.errorInterno)
     }
 
 });
 
-path.patch('/v1/perfilUsuarios/:idPerfilUsuario/deshabilitar', (req, res) => { // implementar validaciones
+path.patch('/v1/perfilUsuarios/:idPerfilUsuario/deshabilitar', (req, res) => { // listo api
     const token = req.headers['x-access-token'];
     var respuesta = verifyTokenUser(token)
     const { idPerfilUsuario } = req.params
@@ -321,7 +324,9 @@ path.patch('/v1/perfilUsuarios/:idPerfilUsuario/deshabilitar', (req, res) => { /
             var query = 'UPDATE perfil_usuario SET estatus = ? WHERE id_perfil_usuario = ?;'
 
             mysqlConnection.query(query, [2, idPerfilUsuario], (error, resultadoDeshabilitar) => {
-                if(error){ 
+                if(error){
+                    consoleError(error, 'Funcion: Deshabilitar usuario. Paso: error al deshabilitar')
+                    
                     res.status(500)
                     res,json(mensajes.errorInterno)
                 }else if(resultadoDeshabilitar.length == 0){
@@ -347,6 +352,8 @@ path.patch('/v1/perfilUsuarios/:idPerfilUsuario/deshabilitar', (req, res) => { /
             res.json(mensajes.errorInterno)
         }
     }catch (error){
+        consoleError(error, 'Funcion: deshabilitar perfil. Paso: Excepcion cachada.')
+
         res.status(500)
         res.json(mensajes.errorInterno)
     }

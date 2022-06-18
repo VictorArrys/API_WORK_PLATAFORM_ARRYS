@@ -229,62 +229,64 @@ path.get('/v1/perfilDemandantes/:idPerfilUsuarioDemandante', (req, res) => {
     }
 });
 
-path.post('/v1/perfilDemandantes', (req, res) => { 
+path.post('/v1/perfilDemandantes', (req, res) => { // listo api
     var queryThree = 'INSERT INTO perfil_demandante (id_perfil_usuario_demandante, nonbre, fecha_nacimiento, telefono, direccion) VALUES ( ?, ?, ?, ?, ?);'
     const { clave, correoElectronico, direccion, estatus, fechaNacimiento, nombre, nombreUsuario, telefono  } = req.body
 
-    comprobarRegistro(nombreUsuario, correoElectronico, res, function(resultado){
-        if (resultado >= 1){
-            res.status(422)
-            res.json(mensajes.instruccionNoProcesada)
-        }else{
-            registrarUsuarioDemandante(req.body, res, function(registroUDemandante) {
-                if (res.error){
-                    res.status(500)
-                    res.json(mensajes.errorInterno)
-                }else{
-                    var idDeUsuario = 0
-                    idDeUsuario = registroUDemandante['application/json']['idPerfilUsuario']
+    try{
+        comprobarRegistro(nombreUsuario, correoElectronico, res, function(resultado){
+            if (resultado >= 1){
+                res.status(422)
+                res.json(mensajes.instruccionNoProcesada)
+            }else{
+                registrarUsuarioDemandante(req.body, res, function(registroUDemandante) {
+                    if (res.error){
+                        consoleError(error, 'Funcion: Registrar demandante. Paso: Error al registrar usuario')
 
+                        res.status(500)
+                        res.json(mensajes.errorInterno)
+                    }else{
+                        var idDeUsuario = 0
+                        idDeUsuario = registroUDemandante['application/json']['idPerfilUsuario']
+    
+    
+                        mysqlConnection.query(queryThree, [idDeUsuario, nombre, fechaNacimiento, telefono, direccion], (error, registro) => {
+                            if (error){
+                                consoleError(error, 'Funcion: Registrar Demandante. Paso: Error al registrar demandante')
 
-                    mysqlConnection.query(queryThree, [idDeUsuario, nombre, fechaNacimiento, telefono, direccion], (error, registro) => {
-                        if (error){
-                            res.status(500)
-                            res.json(mensajes.errorInterno)
-                        }else if (registro.length == 0){
-                            res.status(404)
-                            res.json(mensajes.peticionNoEncontrada)
-                        }else{                          
-                            if (registro['affectedRows'] == 1){
-                                
-                                var idAspirante = registro.insertId
-                                const demandante = {}
-
-                                demandante['application/json'] = {
-                                    'clave': registroUDemandante['application/json']['clave'],
-                                    'correoElectronico': registroUDemandante['application/json']['correoElectronico'],
-                                    'direccion': direccion,
-                                    'estatus': registroUDemandante['application/json']['estatus'],
-                                    'fechaNacimiento': fechaNacimiento,
-                                    'idPerfilUsuario': registroUDemandante['application/json']['idPerfilUsuario'],
-                                    'nombre': nombre,
-                                    'nombreUsuario': registroUDemandante['application/json']['nombreUsuario'],
-                                    'telefono': telefono,
-                                    'idPerfilAspirante': idAspirante
-                                };
-
-                                console.log(demandante)
-
-                                res.status(201)
-                                res.json(demandante['application/json'])
+                                res.status(500)
+                                res.json(mensajes.errorInterno)
+                            }else if (registro.length == 0){
+                                res.status(404)
+                                res.json(mensajes.peticionNoEncontrada)
+                            }else{                          
+                                if (registro['affectedRows'] == 1){
+                                    
+                                    var idDemandante = registro.insertId
+                                    const demandante = {}
+    
+                                    demandante['application/json'] = {
+                                        'idPerfilUsuario': registroUDemandante['application/json']['idPerfilUsuario'],
+                                        'idPerfilDemandante': idDemandante
+                                    };
+    
+                                    console.log(demandante)
+    
+                                    res.status(201)
+                                    res.json(demandante['application/json'])
+                                }
                             }
-                        }
-                    })
-                }
-            })
-        }
-    }) 
+                        })
+                    }
+                })
+            }
+        })
+    }catch (error){
+        consoleError(error, 'Funcion: registrar demandante. Paso: Excepcion cachada')
 
+        res.status(500)
+        res.json(mensajes.errorInterno)
+    }
 });
 
 path.put('/v1/perfilDemandantes/:idPerfilDemandante', (req, res) => {
