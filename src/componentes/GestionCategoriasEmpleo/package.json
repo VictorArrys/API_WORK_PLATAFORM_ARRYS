@@ -1,0 +1,14 @@
+{
+  "name": "gestioncategorias",
+  "version": "1.0.0",
+  "description": "Módulo encargador de la gestion de categorías de empleo",
+  "main": "GestionCategoriasEmpleo.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "categorias"
+  ],
+  "author": "Angel Eduardo Martínez Leo Lim",
+  "license": "ISC"
+}

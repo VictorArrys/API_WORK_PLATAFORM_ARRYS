@@ -1,0 +1,16 @@
+{
+  "name": "gestionservicios",
+  "version": "1.0.0",
+  "description": "Módulo encargado de la gestions de solicitudes de servicio y contrataciones de servicio",
+  "main": "GestionServicios.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "servicio",
+    "solicitud",
+    "contratacion"
+  ],
+  "author": "Angel Eduardo Martinez Leo Lim",
+  "license": "ISC"
+}

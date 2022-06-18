@@ -1,0 +1,15 @@
+{
+  "name": "accesosistema",
+  "version": "1.0.0",
+  "description": "Modulo encargado de la gestión de acceso al sistema",
+  "main": "AccesoSistema.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "login",
+    "logout"
+  ],
+  "author": "Angel Eduardo Martínez Leo Lim",
+  "license": "ISC"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "estadisticas",
+  "version": "1.0.0",
+  "description": "Módulo encargado de la consulta de estadisticas del sistema.",
+  "main": "Estadisticas.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Angel Eduardo Martínez Leo Lim",
+  "license": "ISC"
+}
