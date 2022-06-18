@@ -1,5 +1,6 @@
 const {Aspirante} = require('../modelo/Aspirante');
 const {OficioDAO} = require('./OficioDAO');
+const {UsuarioDAO} = require('./UsuarioDAO')
 
 var mysqlConnection = require('../../../../utils/conexion');
 
@@ -40,8 +41,14 @@ exports.AspiranteDAO = class AspiranteDAO {
         
     }
 
-    static postAspirante(aspirante, callback) {
+    static postAspirante(aspiranteNuevo, callback) {
+        UsuarioDAO.postUsuario(aspiranteNuevo, (error, idUsuario) => {
+            //mysql.query
+                //if error
 
+                //else
+                    //Registrar aspirante
+        })
     }
 
     static putAspirante(aspirante, callback) {

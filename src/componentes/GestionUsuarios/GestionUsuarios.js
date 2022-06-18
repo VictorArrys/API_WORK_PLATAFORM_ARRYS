@@ -1,6 +1,8 @@
 const {AspiranteDAO} = require('./data/AspiranteDAO');
 const {DemandanteDAO} = require('./data/DemandanteDAO');
 const {UsuarioDAO} = require('./data/UsuarioDAO');
+const {EmpleadorDAO} = require('./data/EmpleadorDAO');
+const {AdministradorDAO} = require('./data/AdministradorDAO');
 
 exports.GestionUsuarios = class {
     //Usuario
@@ -9,11 +11,11 @@ exports.GestionUsuarios = class {
     }
 
     static getUsuario(idUsuario, callback) {
-        this.getUsuario(idUsuario, callback);
+        UsuarioDAO.getUsuario(idUsuario, callback);
     }
 
     static patchFotografiaUsuario(idUsuario, fotografia, callback) {
-        
+        UsuarioDAO.patchFotografiaUsuario(idUsuario, fotografia, callback);
     }
 
 
@@ -56,7 +58,32 @@ exports.GestionUsuarios = class {
     }
 
     //Empleador
+    static getEmpleadores(callback) {
+        EmpleadorDAO.getEmpleadores(callback);
+    }
 
+    static getEmpleador(idEmpleador, callback) {
+        EmpleadorDAO.getEmpleador(idEmpleador, callback);
+    }
+
+    static postEmpleador(empleadorNuevo, callback) {
+        EmpleadorDAO.postEmpleador(empleadorNuevo, callback);
+    }
+
+    static putEmpleador(empleador, callback) {
+        EmpleadorDAO.putEmpleador(empleador, callback)
+    }
 
     //Administrador
+    static getAdministradores(callback) {
+        AdministradorDAO.getAdministradores(callback);
+    }
+
+    static getAdministrador(idUsuairo, callback) {
+        AdministradorDAO.getAdministrador(idUsuairo, callback);
+    }
+
+    static putAdministrador(administrador, callback) {
+        AdministradorDAO.putAdministrador(administrador, callback);
+    }
 }

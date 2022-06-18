@@ -1,4 +1,4 @@
-const {CategoriaEmpleoDAO} = require('./dao/CategoriaEmpleoDAO')
+const {CategoriaEmpleoDAO} = require('./data/CategoriaEmpleoDAO')
 
 exports.GestionCategoriasEmpleo = class GestionCategoriasEmpleo {
     static getCategoriasEmpleo(callback) {

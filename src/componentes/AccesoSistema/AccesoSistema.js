@@ -1,4 +1,4 @@
-const {UsuarioDAO} =require('./dao/UsuarioDAO')
+const {UsuarioDAO} = require('./data/UsuarioDAO')
 
 exports.AccesoSistema = class AccesoSistema {
     //funcionRespuesta lleva parametro error y resultado
@@ -7,7 +7,7 @@ exports.AccesoSistema = class AccesoSistema {
     }
 
     static restablecerContraseña(correoElectronico, funcionRespuesta) {
-        UsuarioDAO.restablecerContraseña(correoElectronico, funcionRespuesta)
+        UsuarioDAO.restablecerContraseña(correoElectronico, funcionRespuesta);
     }
 
     static habilitarPerrfil(idUsuario, funcionRespuesta) {
@@ -15,6 +15,6 @@ exports.AccesoSistema = class AccesoSistema {
     }
 
     static deshabilitarPerfil(idUsuario, funcionRespuesta) {
-        
+
     }
 }

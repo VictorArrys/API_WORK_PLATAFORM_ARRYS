@@ -1,9 +1,10 @@
-exports.Aspirante = class Aspirante {
+const {Usuario} = require('./Usuario');
+
+exports.Aspirante = class Aspirante extends Usuario {
     direccion;
     fechaNacimiento;
     idPerfilAspirante;
     nombre;
-    idPerfilUsuario;
     telefono;
     video;
     oficios;

@@ -7,6 +7,10 @@ exports.UsuarioDAO = class UsuarioDAO {
 
     }
 
+    static postUsuario(usuario, callback) {
+        
+    }
+
     static patchFotografiaUsuario(idUsuario, fotografia, callback) {
         
     }

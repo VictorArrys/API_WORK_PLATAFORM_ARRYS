@@ -1,5 +1,5 @@
-const {MensajeDAO} = require('./dao/MensajeDAO');
-const {ConversacionDAO} = require('./dao/ConversacionDAO');
+const {MensajeDAO} = require('./data/MensajeDAO');
+const {ConversacionDAO} = require('./data/ConversacionDAO');
 
 exports.Mensajeria = class Mensajeria {
     
