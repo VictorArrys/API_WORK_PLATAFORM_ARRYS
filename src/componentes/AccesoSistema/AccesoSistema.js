@@ -10,6 +10,10 @@ exports.AccesoSistema = class AccesoSistema {
         UsuarioDAO.restablecerContraseña(correoElectronico, funcionRespuesta);
     }
 
+    static cerrarSesion(idUsuario, callback) {
+        UsuarioDAO.cerrarSesion(idUsuario, callback);
+    }
+
     static habilitarPerfil(idUsuario, funcionRespuesta) {
         UsuarioDAO.habilitarPerfil(idUsuario, funcionRespuesta)
     }

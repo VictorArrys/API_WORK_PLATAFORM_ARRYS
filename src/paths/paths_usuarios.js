@@ -230,9 +230,22 @@ path.patch('/v1/restablecer', (req, res) => {
 
 path.patch('/v1/perfilUsuarios/:idPerfilUsuario/habilitar', (req, res) => {  // listo api
     try{
-        const token = req.headers['x-access-token']
-        var respuesta = verifyTokenUser(token)
-        const { idPerfilUsuario } = req.params
+        const token = req.headers['x-access-token'];
+        var validacionToken = GestionToken.ValidarToken(token);
+        //var respuesta = verifyTokenUser(token);
+        const { idPerfilUsuario } = req.params;
+
+        if (validacionToken.statusCode == 200) {
+            AccesoSistema.habilitarPerfil(idPerfilUsuario, (codigoRespuesta, cuerpoRespuesta) => {
+                res.status(codigoRespuesta).json(cuerpoRespuesta);
+            });
+        } else if(respuesta == 401){
+            res.status(respuesta)
+            res.json(mensajes.tokenInvalido)
+        } else {
+            res.status(500)
+            res.json(mensajes.errorInterno)
+        }
 
         if(respuesta == 200){
             var query = 'UPDATE perfil_usuario SET estatus = ? WHERE id_perfil_usuario = ?;'
