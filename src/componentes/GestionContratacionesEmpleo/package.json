@@ -1,0 +1,17 @@
+{
+  "name": "gestioncontratacionesempleo",
+  "version": "1.0.0",
+  "description": "Módulo encargado de la gestión de contrataciones de empleo",
+  "main": "GestionContratacionesEmpleo.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "contrataciones",
+    "empleo",
+    "aspirante",
+    "empleador"
+  ],
+  "author": "Angel Eduardo Martínez Leo Lim",
+  "license": "ISC"
+}
