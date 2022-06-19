@@ -44,4 +44,29 @@ exports.UsuarioDAO = class UsuarioDAO {
 
         callback(null, {});
     }
+
+    static habilitarPerfil(idUsuario, callback) {
+        var query = 'UPDATE perfil_usuario SET estatus = 1 WHERE id_perfil_usuario = ?;'
+
+        mysqlConnection.query(query, [ idUsuario], (error, resultadoHabilitar) => {
+            if(error){
+                //consoleError(error, 'Funcion: Habilitar perfil. Paso: error al habilitar perfil')
+                callback(500, mensajes.errorInterno);
+            }else if(resultadoHabilitar.changedRows == 1){//Se modifico el registro de usuario
+                const idPerfilHabilitado = {}
+
+                idPerfilHabilitado = {
+                    "idPerfilusuario" : idPerfilUsuario,
+                    "estatus" : 1
+                };
+                callback(200, idPerfilHabilitado);
+            }else{
+                callback(404, mensajes.peticionNoEncontrada);
+            }
+        })
+    }
+
+    static deshabilitarPerfil(idUsuario, funcionRespuesta) {
+        
+    }
 }
