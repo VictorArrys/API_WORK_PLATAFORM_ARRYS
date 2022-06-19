@@ -240,13 +240,11 @@ path.patch('/v1/perfilUsuarios/:idPerfilUsuario/habilitar', (req, res) => {  // 
                 res.status(codigoRespuesta).json(cuerpoRespuesta);
             });
         } else if(respuesta == 401){
-            res.status(respuesta)
-            res.json(mensajes.tokenInvalido)
+            res.status(respuesta).json(mensajes.tokenInvalido);
         } else {
-            res.status(500)
-            res.json(mensajes.errorInterno)
+            res.status(500).json(mensajes.errorInterno);
         }
-
+        /*
         if(respuesta == 200){
             var query = 'UPDATE perfil_usuario SET estatus = ? WHERE id_perfil_usuario = ?;'
 
@@ -277,7 +275,7 @@ path.patch('/v1/perfilUsuarios/:idPerfilUsuario/habilitar', (req, res) => {  // 
         }else{
             res.status(500)
             res.json(mensajes.errorInterno)
-        }
+        }*/
     }catch (error){
         consoleError(error, 'Funcion: Habilitar perfil. Paso: Excepcion cachada')
 
