@@ -16,4 +16,8 @@ exports.DemandanteDAO = class DemandanteDAO {
     static putDemandante(demandante, callback) {
         
     }
+
+    static #getNuevoRegistro(idAspirante, callback){
+        
+    }
 }

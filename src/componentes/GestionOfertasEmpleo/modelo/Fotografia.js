@@ -1,4 +1,4 @@
 exports.Fotografia = class Fotografia {
-    idFotografia;
+    idFoto;
     fotografia;
 }

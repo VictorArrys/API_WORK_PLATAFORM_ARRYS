@@ -49,16 +49,26 @@ exports.AspiranteDAO = class AspiranteDAO {
     }
 
     static postAspirante(aspiranteNuevo, callback) {
-        UsuarioDAO.postUsuario(aspiranteNuevo, (error, idUsuario) => {
-            //mysql.query
-                //if error
+        UsuarioDAO.postUsuario(aspiranteNuevo, (codigoRespuesta, cuerpoRespuestaUsuario) => {
+            if(codigoRespuesta == 201) {
+                mysqlConnection.query('',[], (error, resuldadoRegistro)=>{
+                    if (error) {
+                        callback(500, mensajes.errorInterno);
+                    } else {
+                        this.getNuevoRegistro(resuldadoRegistro.insertId, callback);
+                    }
+                })
+            } else {
 
-                //else
-                    //Registrar aspirante
+            }
         })
     }
 
     static putAspirante(aspirante, callback) {
 
+    }
+
+    static #getNuevoRegistro(idAspirante, callback){
+        
     }
 }

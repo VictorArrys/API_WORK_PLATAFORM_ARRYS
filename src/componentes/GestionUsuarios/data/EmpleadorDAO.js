@@ -16,4 +16,8 @@ exports.EmpleadorDAO = class EmpleadorDAO {
     static putEmpleador(empleador, callback) {
         
     }
+
+    static #getNuevoRegistro(idAspirante, callback){
+        
+    }
 }
