@@ -79,8 +79,8 @@ exports.GestionUsuarios = class {
         AdministradorDAO.getAdministradores(callback);
     }
 
-    static getAdministrador(idUsuairo, callback) {
-        AdministradorDAO.getAdministrador(idUsuairo, callback);
+    static getAdministrador(idUsuario, callback) {
+        AdministradorDAO.getAdministrador(idUsuario, callback);
     }
 
     static putAdministrador(administrador, callback) {

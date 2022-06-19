@@ -3,6 +3,9 @@ const path = Router();
 var mysqlConnection = require('../../utils/conexion');
 const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
+const GestionToken = require('../utils/GestionToken');
+const { GestionUsuarios } = require('../componentes/GestionUsuarios')
+
 
 //Respuestas
 const mensajes = require('../../utils/mensajes');
@@ -89,45 +92,18 @@ function comprobarActualizacion(nombreUsuario, correoElectronico, res, resultado
     })
 }
 
-path.get('/v1/perfilAdministradores', (req, res) => { // listo Api
+path.get('/v1/perfilAdministradores', (req, res) => { 
     const token = req.headers['x-access-token']
-    var respuesta = verifyToken(token)
+    var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador")
 
     try {
-        if (respuesta == 200){
-            var query = 'SELECT * FROM perfil_administrador;'
-
-            mysqlConnection.query(query, (error, resultadoAdministradores) => {
-                if (error){
-                    consoleError(error, 'Funcion: administradores. Paso: consultar todos los administradores')
-
-                    res.status(500)
-                    res.json(mensajes.errorInterno)
-                }else if (resultadoAdministradores.length == 0){
-                    res.status(404)
-                    res.json(mensajes.peticionNoEncontrada)
-                }else{
-                    var cont = 0
-                    var administradores = []
-
-                    do{
-                        administradores.push(cont)
-
-                        administradores[cont] = {
-                            'idPerfilAdministrador': resultadoAdministradores[cont]['id_perfil_administrador'],
-                            'idPerfilUsuarioAdmin' : resultadoAdministradores[cont]['id_perfil_usuario_admin'],
-                            'nombre': resultadoAdministradores[cont]['nombre'],
-                            'telefono': resultadoAdministradores[cont]['telefono']
-                        };
-                        cont ++
-                    }while (cont < resultadoAdministradores.length)
-
-                    res.status(200)
-                    res.json(administradores)
-                }
-            })
-        }else if (respuesta == 401){
-            res.status(respuesta)
+        if (respuesta.statusCode == 200){
+           GestionUsuarios.getAdministradores(function(codigoRespuesta, cuerpoRespuesta){
+            res.status(codigoRespuesta)
+            res.json(cuerpoRespuesta)
+           })
+        }else if (respuesta.statusCode == 401){
+            res.status(respuesta.statusCode)
             res.json(mensajes.tokenInvalido)
         }else{
             res.status(500)
@@ -141,44 +117,20 @@ path.get('/v1/perfilAdministradores', (req, res) => { // listo Api
     }
 });
 
-path.get('/v1/perfilAdministradores/:idPerfilUsuarioAdmin', (req, res) => { // listo api
+path.get('/v1/perfilAdministradores/:idPerfilUsuarioAdmin', (req, res) => { 
     const token = req.headers['x-access-token']
-    var respuesta = verifyToken(token)
+    var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador")
 
     const { idPerfilUsuarioAdmin } = req.params
 
     try {
-        if(respuesta == 200){
-            var query = 'SELECT * FROM perfil_administrador WHERE id_perfil_usuario_admin = ?;'
-
-            mysqlConnection.query(query, [idPerfilUsuarioAdmin], (error, resultadoAdministrador) => {
-                if(error){
-                    consoleError(error, 'Funcion: administradores. Paso: consultar administrador')
-
-                    res.status(500)
-                    res.json(mensajes.errorInterno)
-                }else if (resultadoAdministrador.length == 0){
-                    res.status(404)
-                    res.json(mensajes.peticionNoEncontrada)
-                }else{
-                    var administrador = resultadoAdministrador[0]
-                    var getAdministrador = {}
-
-                    console.log(resultadoAdministrador)
-
-                    getAdministrador['application/json'] = {
-                        'idPerfilAdministrador': administrador['id_perfil_administrador'],
-                        'idPerfilUsuarioAdmin' : administrador['id_perfil_usuario_admin'],
-                        'nombre': administrador['nombre'],
-                        'telefono': administrador['telefono']
-                    }
-
-                    res.status(200)
-                    res.json(getAdministrador['application/json'])
-                }
-            })
-        }else if (respuesta == 401){
-            res.status(respuesta)
+        if(respuesta.statusCode == 200){
+            GestionUsuarios.getAdministrador(idPerfilUsuarioAdmin, function(codigoRespuesta, cuerpoRespuesta){
+                res.status(codigoRespuesta)
+                res.json(cuerpoRespuesta)
+            })  
+        }else if (respuesta.statusCode == 401){
+            res.status(respuesta.statusCode)
             res.json(mensajes.tokenInvalido)
         }else{
             res.status(500)
@@ -202,6 +154,7 @@ path.put('/v1/perfilAdministradores/:idPerfilAdministrador', (req, res) => { // 
 
     try{
         if (respuesta == 200){
+
             comprobarActualizacion(nombreUsuario, correoElectronico, res, function(resultado) {
                 if (resultado >= 1){
                     res.status(422)

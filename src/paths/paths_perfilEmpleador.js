@@ -8,6 +8,8 @@ const req = require('express/lib/request');
 const res = require('express/lib/response');
 const pool = require('../../utils/conexion');
 const mensajes = require('../../utils/mensajes');
+const GestionToken = require('../utils/GestionToken');
+const { GestionUsuarios } = require('../componentes/GestionUsuarios');
 
 const { query } = require('express');
 
@@ -149,49 +151,19 @@ function comprobarActualizacion(nombreUsuario, correoElectronico, res, resultado
 
 path.get('/v1/perfilEmpleadores', (req, res) => {
     const token = req.headers['x-access-token']
-    var respuesta = verifyToken(token)
+    var respuesta = GestionToken.ValidarToken(token)
 
     try {
-        if(respuesta == 200){
-            var query = 'SELECT * FROM perfil_empleador;'
-
-            mysqlConnection.query(query, (error, resultadoEmpleadores) => {
-                if(error){
-                    console(error)
-                    res.status(500)
-                    res.json(mensajes.errorInterno)
-                }else if (resultadoEmpleadores.length == 0){
-                    res.status(404)
-                    res.json(peticionIncorrecta)
-                }else{
-                    var cont = 0;
-                    var empleadores = []
-
-                    do{
-                        empleadores.push(cont)
-
-                        empleadores[cont] = {
-                            'idPerfilEmpleador': resultadoEmpleadores[cont]['id_perfil_empleador'],
-                            'idPerfilUsuarioEmpleador': resultadoEmpleadores[cont]['id_perfil_usuario_empleador'],
-                            'nombreOrganizacion': resultadoEmpleadores[cont]['nombre_organizacion'],
-                            'nombre': resultadoEmpleadores[cont]['nombre'],
-                            'direccion': resultadoEmpleadores[cont]['direccion'],
-                            'fechaNacimiento': resultadoEmpleadores[cont]['fecha_nacimiento'],
-                            'telefono': resultadoEmpleadores[cont]['telefono'],
-                            'amonestaciones': resultadoEmpleadores[cont]['amonestaciones']
-                        }
-                        cont ++;
-                    }while(cont < resultadoEmpleadores.length)
-
-                    res.status(200)
-                    res.json(empleadores)
-                }
+        if(respuesta.statusCode == 200){
+            GestionUsuarios.getEmpleadores(function(codigoRespuesta, cuerpoRespuesta){
+                res.status(codigoRespuesta)
+                res.json(cuerpoRespuesta)
             })
-        }else if (respuesta == 401){
-            res.status(respuesta)
+            
+        }else if (respuesta.statusCode == 401){
+            res.status(respuesta.statusCode)
             res.json(mensajes.tokenInvalido)
         }else{
-            console.log('error if')
             res.status(500)
             res.json(mensajes.errorInterno)
         }
@@ -262,44 +234,18 @@ path.post('/v1/perfilEmpleadores', (req, res) => { // listo en api
     
 });
 
-path.get('/v1/perfilEmpleadores/:idPerfilUsuarioEmpleador', (req, res) => { // listo en api
+path.get('/v1/perfilEmpleadores/:idPerfilUsuarioEmpleador', (req, res) => {
     const token = req.headers['x-access-token']
-    var respuesta = verifyToken(token)
+    var respuesta = GestionToken.ValidarToken(token)
     const { idPerfilUsuarioEmpleador } = req.params
 
     try {
-        if (respuesta == 200){
-            var query = 'SELECT * FROM perfil_empleador WHERE id_perfil_usuario_empleador = ?;'
-
-            mysqlConnection.query(query, [idPerfilUsuarioEmpleador], (error, resultadoEmpleador) => {
-                if (error){
-                    consoleError(error, 'Funcion: obtener Empleador. Paso: error al obtener empleador')
-
-                    res.status(500)
-                    res.json(mensajes.errorInterno)
-                }else if (resultadoEmpleador.length == 0){
-                    res.status(404)
-                    res.json(peticionIncorrecta)
-                }else{
-                    var empleador = resultadoEmpleador[0]
-                    var getEmpleador = {}
-
-                    getEmpleador['application/json'] = {
-                        'idPerfilEmpleador': empleador['id_perfil_empleador'],
-                        'idPerfilUsuarioEmpleador': empleador['id_perfil_usuario_empleador'],
-                        'nombreOrganizacion': empleador['nombre_organizacion'],
-                        'nombre': empleador['nombre'],
-                        'direccion': empleador['direccion'],
-                        'fechaNacimiento': empleador['fecha_nacimiento'],
-                        'telefono': empleador['telefono'],
-                        'amonestaciones': empleador['amonestaciones']
-                    };
-
-                    res.status(200)
-                    res.json(getEmpleador['application/json'])
-                }
+        if (respuesta.statusCode == 200){
+            GestionUsuarios.getEmpleador(idPerfilUsuarioEmpleador, function(codigoRespuesta, cuerpoRespuesta){
+                res.status(codigoRespuesta)
+                res.json(cuerpoRespuesta)
             })
-        }else if (respuesta == 401){
+        }else if (respuesta.statusCode == 401){
             res.status(respuesta)
             res.json(mensajes.tokenInvalido)
         }else{

@@ -5,7 +5,8 @@ const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
 const ruta = require('path');
 const multer = require('multer');
-
+const { GestionUsuarios } = require('../componentes/GestionUsuarios/GestionUsuarios')
+const GestionToken = require('../utils/GestionToken') 
 
 
 //Respuestas
@@ -108,90 +109,22 @@ function getAspirante(datoAspirante, callback){
     })
 }
 
-/*path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante/oficios', (req, res) => {
-    const token = req.headers['x-access-token']
-    var respuesta = verifyToken(token)
-    var query = 'SELECT * FROM categoria_aspirante where id_aspirante_ca = ?;'
-    const { idPerfilUsuarioAspirante } = req.params
-
-    try{
-        if (respuesta == 200){
-            mysqlConnection.query(query, [idPerfilUsuarioAspirante], (error, resultadoOficios) => {
-                if (error){
-                    res.status(500)
-                    res.json(mensajes.errorInterno)
-                }else if (resultadoOficios.length == 0){
-                    res.status(404)
-                    res.json(mensajes.peticionIncorrecta)
-                }else{
-                    var oficios = []
-                    console.log(resultadoOficios[0]['id_categoria_ca'])
-                    for (var i = 0; i < resultadoOficios.length; i++){
-                        oficios.push(i)
-                        oficios[i] = {
-                            'idAspirante': resultadoOficios[i]['id_aspirante_ca'],
-                            'idCategoria': resultadoOficios[i]['id_categoria_ca'],
-                            'experiencia': resultadoOficios[i]['experiencia']
-                        }
-                    }
-
-                    res.status(200)
-                    res.json(oficios)
-                }
-            })
-        }else if (respuesta == 401){
-            res.status(respuesta)
-            res.json(mensajes.tokenInvalido)
-        }else{
-
-        }
-    }catch (error){
-        res.status(500)
-        res.json(mensajes.errorInterno)
-    }
-})*/
-
 path.get('/v1/perfilAspirantes', (req, res) => {
     const token = req.headers['x-access-token']
-    var respuesta = verifyToken(token)
+    var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Demandante")
     var query = 'SELECT * FROM perfil_aspirante;'
     try {
-        if (respuesta == 200){
-            mysqlConnection.query(query, (error, resultadosAspirantes) => {
-                if (error){
-                    res.status(500)
-                    res.json(mensajes.errorInterno)
-                }else if(resultadosAspirantes.length == 0){
-                    res.status(404)
-                    res.json(mensajes.peticionIncorrecta)
-                }else{
-                    var cont = 0;
-                    var listaAspirantes = []
-                    if (resultadosAspirantes.length > 0){
-                        resultadosAspirantes.forEach(aspirante => {
-                            agregarOficiosAspirante(aspirante, function(resultado) {
-                                
-                                listaAspirantes.push(resultado)
-                                if (listaAspirantes.length == resultadosAspirantes.length){
-                                    res.status(200)
-                                    res.json(listaAspirantes)
-                                }
-                            })
-                        })
-                    }else{
-                        res.status(200)
-                        res.json(listaAspirantes)
-                    }
-                    
-                }
+        if (respuesta.statusCode == 200){
+            GestionUsuarios.getAspirantes(function(codigoRespuesta, cuerpoRespuesta){
+                res.status(codigoRespuesta)
+                res.json(cuerpoRespuesta)
             })
-        }else if(respuesta == 401){
-            res.status(respuesta)
+        }else if (respuesta.statusCode == 401){
+            res.status(401)
             res.json(mensajes.tokenInvalido)
-        }else{
-            res.status(500)
-            res.json(mensajes.errorInterno) 
         }
+        
+        
     }catch (error) {
         res.status(500)
         res.json(mensajes.errorInterno)
@@ -218,12 +151,14 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
                     res.status(404)
                     res.json(mensajes.peticionIncorrecta)
                 }else{
+                    getAspirante(req.params)
+                    
                     /*var idUsuarioAspirante = resultadoAspirante[0]['id_perfil_usuario_aspirante']
                     getAspirante(idUsuarioAspirante, function(getAspirante){
                         console.log(getAspirante)
                     })*/
 
-                    var getAspirante = resultadoAspirante[0]
+                    //var getAspirante = resultadoAspirante[0]
                     //var arrayVideo = []
                     /*if (getAspirante.video == null){
                         console.log('Fotografia vacia, se procede a poner null')
@@ -232,9 +167,9 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
                         getAspirante.video.forEach( b => arrayVideo.push(b) );
                     }*/
                     
-                    const aspirante = {}
+                    //const aspirante = {}
 
-                    aspirante['application/json'] = {
+                    /*aspirante['application/json'] = {
                         'direccion': getAspirante['direccion'],
                         'fechaNacimiento': getAspirante['fecha_nacimiento'],
                         'idPerfilAspirante': getAspirante['id_perfil_aspirante'],
@@ -245,7 +180,7 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
                     }
 
                     res.status(200)
-                    res.json(aspirante['application/json'])
+                    res.json(aspirante['application/json'])*/
                 }
             })
         }else if (respuesta == 401){

@@ -8,6 +8,8 @@ const req = require('express/lib/request');
 const res = require('express/lib/response');
 const pool = require('../../utils/conexion');
 const mensajes = require('../../utils/mensajes');
+const GestionToken = require('../utils/GestionToken');
+const { GestionUsuarios } = require('../componentes/GestionUsuarios');
 
 function verifyToken(token){
     var statusCode = 0;
@@ -49,6 +51,8 @@ function registrarUsuarioDemandante(datoDemandante, res, callback){
 
     mysqlConnection.query(queryTwo, [nombreU, estatus, clave, correoElectronico, tipo], (error, registro) => {
         if (error){
+            consoleError(error, 'Funcion: registrar usuario demandante. Paso: error al registrar')
+
             res.status(500)
             res.json(mensajes.errorInterno)
         }else if (registro.length == 0){
@@ -89,7 +93,8 @@ function actualizarUsuarioDemandante(registroDemandante,  res, callback){
 
     mysqlConnection.query(queryTwo, [nombreU, clave, correoElectronico, idUsuario] , (error, actualizacion) => {
         if (error){
-            console.log(error)
+            consoleError(error, 'Funcion: actualizar usuario demandante. Paso: error al actualizar usuario')
+
             res.status(500)
             res.json(mensajes.errorInterno)
         }else if (actualizacion.length == 0){
@@ -111,7 +116,6 @@ function actualizarUsuarioDemandante(registroDemandante,  res, callback){
                 callback(modificacionUsuario['application/json'])
             }else{
                 res.status(500)
-                console.log('error actualizar despues de callback')
                 res.json(mensajes.errorInterno)
             }
         }
@@ -123,7 +127,9 @@ function  comprobarRegistro(nombreUsuario, correoElectronico, res, resultado){
 
     mysqlConnection.query(queryOne, [nombreUsuario, correoElectronico], (error, comprobacion) => {
         if(error){
-            console.log('error funcion comprobacion')
+            consoleError(error, 'Funcion: comprobar registro. Paso: error al comprobar registro')
+
+
             res.status(500)
             res.json(mensajes.errorInterno)
         }else{
@@ -137,7 +143,8 @@ function  comprobarActualizacion(nombreUsuario, correoElectronico, res, resultad
 
     mysqlConnection.query(queryOne, [nombreUsuario, correoElectronico], (error, comprobacion) => {
         if(error){
-            console.log('error funcion comprobacion')
+            consoleError(error, 'Funcion: comprobar actualizacion. Paso: error al comprobar actualizacion')
+
             res.status(500)
             res.json(mensajes.errorInterno)
         }else{
@@ -148,28 +155,15 @@ function  comprobarActualizacion(nombreUsuario, correoElectronico, res, resultad
 
 path.get('/v1/perfilDemandantes', (req, res) => {
     const token = req.headers['x-access-token'];
-    var respuesta = verifyToken(token)
+    var respuesta = GestionToken.ValidarToken(token)
 
     try{
-        if(respuesta == 200){
-            var query = 'SELECT * FROM perfil_demandante;'
-            pool = mysqlConnection
-
-            pool.query(query, (error, resultadoDemandantes) => {
-                if(error){
-                    res.status(500)
-                    res.json(mensajes.errorInterno)
-                }else if (resultadoDemandantes.length == 0){
-                    res.status(404)
-                    res.json(mensajes.peticionNoEncontrada)
-                }else{
-                    var demandantes = resultadoDemandantes
-
-                    res.status(200)
-                    res.json(demandantes)
-                }
+        if(respuesta.statusCode == 200){
+            GestionUsuarios.getDemandantes(function(codigoRespuesta, cuerpoRespuesta){
+                res.status(codigoRespuesta)
+                res.json(cuerpoRespuesta)
             })
-        }else if (respuesta == 401){
+        }else if (respuesta.statusCode == 401){
             res.status(respuesta)
             res.json(mensajes.tokenInvalido)
         }else{
@@ -177,6 +171,8 @@ path.get('/v1/perfilDemandantes', (req, res) => {
             res.json(mensajes.errorInterno)
         }
     }catch (error){
+        consoleError(error, 'Funcion: Obtener demandantes. Paso: Excepcion cachada')
+
         res.status(500)
         res.json(mensajes.errorInterno)
     }
@@ -184,38 +180,17 @@ path.get('/v1/perfilDemandantes', (req, res) => {
 
 path.get('/v1/perfilDemandantes/:idPerfilUsuarioDemandante', (req, res) => { 
     const token = req.headers['x-access-token'];
-    var respuesta = verifyToken(token)
+    var respuesta = GestionToken.ValidarToken(token)
     const { idPerfilUsuarioDemandante } = req.params
 
     try {
-        if (respuesta == 200){
-            var query = 'SELECT * FROM perfil_demandante WHERE id_perfil_usuario_demandante = ?;'
-
-            mysqlConnection.query(query, [idPerfilUsuarioDemandante], (error, resultadoDemandante) => {
-                if (error){
-                    console.log(error)
-                    res.status(500)
-                    res.json(mensajes.errorInterno)
-                }else if (resultadoDemandante.length == 0){
-                    res.status(404)
-                    res.json(mensajes.peticionNoEncontrada)
-                }else{
-                    var getdemandante = resultadoDemandante[0]
-
-                    const demandante = {}
-                    demandante['application/json'] = {
-                        'direccion': getdemandante['direccion'],
-                        "fechaNacimiento": getdemandante['fecha_nacimiento'],
-                        "nombre": getdemandante['nonbre'],
-                        "telefono": getdemandante['telefono'],
-                        "idperfilDemandante": getdemandante['id_perfil_demandante']
-                    };
-
-                    res.status(200)
-                    res.json(demandante['application/json'])
-                }
+        if (respuesta.statusCode == 200){
+            GestionUsuarios.getDemandante(idPerfilUsuarioDemandante, function(codigoRespuesta, cuerpoRespuesta){
+                res.status(codigoRespuesta)
+                res.json(cuerpoRespuesta)
             })
-        }else if (respuesta == 401){
+           
+        }else if (respuesta.statusCode == 401){
             res.status(respuesta)
             res.json(mensajes.tokenInvalido)
         }else{
@@ -223,7 +198,8 @@ path.get('/v1/perfilDemandantes/:idPerfilUsuarioDemandante', (req, res) => {
             res.json(mensajes.errorInterno)
         }
     } catch (error) {
-        console.log(error)
+        consoleError(error, 'Funcion: obtener demandante. Paso: Excepcion cachada')
+
         res.status(500)
         res.json(mensajes.errorInterno)
     }
@@ -289,7 +265,7 @@ path.post('/v1/perfilDemandantes', (req, res) => { // listo api
     }
 });
 
-path.put('/v1/perfilDemandantes/:idPerfilDemandante', (req, res) => {
+path.put('/v1/perfilDemandantes/:idPerfilDemandante', (req, res) => { // listo en api
     const token = req.headers['x-access-token'];
     var respuesta = verifyToken(token)
     const { idPerfilDemandante } = req.params
@@ -304,14 +280,16 @@ path.put('/v1/perfilDemandantes/:idPerfilDemandante', (req, res) => {
                 }else{
                     actualizarUsuarioDemandante(req.body, res, function(actualizacionDemandante) {
                         if (res.error){
-                            console.log('error funcion actualizar')
+                            consoleError(error, 'Funcion: Registrar usuario demandante. Paso: error al registrar usuario')
+
                             res.status(500)
                             res.json(mensajes.errorInterno)
                         }else{
                             console.log(actualizacionDemandante)
                             mysqlConnection.query(queryThree, [nombre, fechaNacimiento, telefono, direccion, idPerfilDemandante], (error, actualizacion) => {
                                 if (error){
-                                    console.log('error queryThree')
+                                    consoleError(error, 'Funcion: registrar demandante. Paso: error al registrar demandante')
+
                                     res.status(500)
                                     res.json(mensajes.errorInterno)
                                 }else if (actualizacion.length == 0){
@@ -323,14 +301,7 @@ path.put('/v1/perfilDemandantes/:idPerfilDemandante', (req, res) => {
                                         const modificacionDemandante = {}
 
                                         modificacionDemandante['application/json'] = {
-                                            'clave': actualizacionDemandante['clave'],
-                                            'correoElectronico': actualizacionDemandante['correoElectronico'],
-                                            'direccion': direccion,
-                                            'fechaNacimiento': fechaNacimiento,
                                             'idPerfilUsuario': actualizacionDemandante['idPerfilUsuario'], 
-                                            'nombre': nombre,
-                                            'nombreUsuario': actualizacionDemandante['nombreUsuario'],
-                                            'telefono': telefono,
                                             'idPerfilAspirante': idPerfilDemandante
                                         }
 
@@ -347,12 +318,13 @@ path.put('/v1/perfilDemandantes/:idPerfilDemandante', (req, res) => {
             res.status(respuesta)
             res.json(mensajes.tokenInvalido)
         }else{
-            console.log('error if')
+
             res.status(500)
             res.json(mensajes.errorInterno)
         }
     } catch (error) {
-        console.log('error catch')
+        consoleError(error, 'Funcion: registrar demandante. Paso: Excepcion cachada')
+
         res.status(500)
         res.json(mensajes.errorInterno)
     }

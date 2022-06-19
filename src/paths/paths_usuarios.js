@@ -239,43 +239,12 @@ path.patch('/v1/perfilUsuarios/:idPerfilUsuario/habilitar', (req, res) => {  // 
             AccesoSistema.habilitarPerfil(idPerfilUsuario, (codigoRespuesta, cuerpoRespuesta) => {
                 res.status(codigoRespuesta).json(cuerpoRespuesta);
             });
-        } else if(respuesta == 401){
+        } else if(validacionToken == 401){
             res.status(respuesta).json(mensajes.tokenInvalido);
         } else {
             res.status(500).json(mensajes.errorInterno);
         }
-        /*
-        if(respuesta == 200){
-            var query = 'UPDATE perfil_usuario SET estatus = ? WHERE id_perfil_usuario = ?;'
-
-            mysqlConnection.query(query, [1, idPerfilUsuario], (error, resultadoHabilitar) => {
-                if(error){
-                    consoleError(error, 'Funcion: Habilitar perfil. Paso: error al habilitar perfil')
-                    
-                    res.status(500)
-                    res,json(mensajes.errorInterno)
-                }else if(resultadoHabilitar.length == 0){
-                    res.status(404)
-                    res.json(mensajes.peticionNoEncontrada)
-                }else{
-                    const idPerfilHabilitado = {}
-
-                    idPerfilHabilitado['application/json'] = {
-                        "idPerfilusuario" : idPerfilUsuario,
-                        "estatus" : 1
-                    };
-
-                    res.status(200)
-                    res.send(idPerfilHabilitado['application/json'])
-                }
-            })
-        }else if(respuesta == 401){
-            res.status(respuesta)
-            res.json(mensajes.tokenInvalido)
-        }else{
-            res.status(500)
-            res.json(mensajes.errorInterno)
-        }*/
+        
     }catch (error){
         consoleError(error, 'Funcion: Habilitar perfil. Paso: Excepcion cachada')
 
