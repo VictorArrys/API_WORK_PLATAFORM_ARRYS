@@ -7,6 +7,9 @@ const multer = require('multer');
 const { validarParamIdUsuario } = require('../../utils/validaciones/validarParam')
 const { send, status, json } = require('express/lib/response');
 
+const {AccesoSistema} = require('../componentes/accesosistema');
+const GestionToken = require('../utils/GestionToken');
+
 //Respuestas
 const mensajes = require('../../utils/mensajes');
 const req = require('express/lib/request');
@@ -100,61 +103,18 @@ path.patch('/v1/PerfilUsuarios/:idPerfilUsuario/fotografia', multerUpload.single
 path.get('/v1/iniciarSesion', (req, res) => { // listo en api
     const {nombreUsuario, clave} = req.query
 
-    mysqlConnection.query('SELECT * FROM perfil_usuario WHERE nombre_usuario = ? AND clave = ?', [nombreUsuario, clave], (error, resultadoInicio)=>{
-        if(error){ 
-            res.status(500)
-            res.send(mensajes.errorInterno)
-        } else if(resultadoInicio.length == 0){
-            res.status(404)
-            res.json(mensajes.peticionNoEncontrada)
-
-            console.log('¡Credenciales incorrectas! Probablemente el usuario no exista o estan mal sus credenciales!');
-       
-        }else if (resultadoInicio[0]['tipo_usuario'] == 'Empleador' && resultadoInicio[0]['estatus'] == 3){
-            res.status(403)
-            res.json(mensajes.prohibido)
-        }else{
-            
-            var usuario = resultadoInicio[0];
-
-            const payload = {
-                "idUsuario" : usuario['id_perfil_usuario'],
-                "clave" : usuario['clave'],
-                "tipo" : usuario['tipo_usuario']
+    AccesoSistema.iniciarSesion(nombreUsuario, clave, (codigoRespuesta, cuerpoRespuesta) => {
+        if(codigoRespuesta == 200) {
+            const payloadToken = {
+                "idUsuario" : cuerpoRespuesta.idPerfilUsuario,
+                "clave" : cuerpoRespuesta.clave,
+                "tipo" : cuerpoRespuesta.tipoUsuario
             }
-            
-            const token = jwt.sign(payload, keys.key, { 
-                expiresIn: 60 * 60 * 24
-              });
-
-            console.log("¡Inicio de sesión exitosa!");
-            var arrayFotografia = null
-            if (usuario.fotografia == null){
-                console.log('Fotografia vacia, se procede a poner null')
-            }else{
-                arrayFotografia = Uint8ClampedArray.from(Buffer.from(usuario.fotografia.buffer, 'base64'))
-            }
-
-            const resultadoJson = {};
-            resultadoJson['application/json'] = {
-                "clave" : usuario['clave'],
-                "estatus" : usuario['estatus'],
-                "idPerfilusuario" : usuario['id_perfil_usuario'],
-                "correoElectronico" : usuario['correo_electronico'],
-                "fotografia" : arrayFotografia,
-                "nombre": usuario['nombre_usuario'],
-                "tipoUsuario" : usuario['tipo_usuario'],
-            };
-
-
-            res.setHeader('x-access-token', token)
-            res.status(200)
-            res.send(resultadoJson['application/json'])
+            var token = GestionToken.CrearToken(payloadToken);
+            res.setHeader('x-access-token', token);
         }
+        res.status(codigoRespuesta).json(cuerpoRespuesta);
     });
-
-
-
 });
 
 path.get('/v1/perfilUsuarios', (req, res) => { // listo en api
