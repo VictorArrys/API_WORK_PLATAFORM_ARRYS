@@ -20,7 +20,10 @@ exports.AspiranteDAO = class AspiranteDAO {
                     resultadoConsulta.forEach(elemento => {
                         var aspirante = new Aspirante();
                         aspirante.idPerfilAspirante = elemento['id_perfil_aspirante'];
-                        //Faltan datos
+                        aspirante.direccion = elemento['direccion'];
+                        aspirante.fechaNacimiento = elemento['fecha_nacimiento'];
+                        aspirante.nombre = elemento['nombre'];
+                        aspirante.telefono = elemento['telefono'];
                         OficioDAO.getOficios(aspirante.idPerfilAspirante, (errorOficios, resultadoOficios)=> {
                             if(errorOficios) {
                                 callback(errorOficios);
@@ -41,7 +44,36 @@ exports.AspiranteDAO = class AspiranteDAO {
     }
 
     static getAspirante(idUsuario, callback) {
+        var query = 'SELECT * FROM perfil_aspirante WHERE id_perfil_usuario_aspirante = ?;'
+        mysqlConnection.query(query, [idUsuario], (error, resultadoConsulta) => {
+            if (error) {
+                callback(500, mensajes.errorInterno);
+            } else {
+                if (resultadoConsulta.length == 0) {
+                    callback(404, mensajes.peticionNoEncontrada);
+                } else {
+                    var perfilAspirante = new Aspirante();
+                    perfilAspirante.direccion = resultadoConsulta[0]['direccion'];
+                    perfilAspirante.fechaNacimiento = resultadoConsulta[0]['fecha_nacimiento'];
+                    perfilAspirante.idPerfilAspirante = resultadoConsulta[0]['id_perfil_aspirante'];
+                    perfilAspirante.nombre = resultadoConsulta[0]['nombre'];
+                    perfilAspirante.idPerfilUsuario = resultadoConsulta[0]['id_perfil_usuario_aspirante'];
+                    perfilAspirante.telefono = resultadoConsulta[0]['telefono'];
 
+                    callback(200, perfilAspirante);
+                }
+
+                /*aspirante['application/json'] = {
+                        'direccion': getAspirante['direccion'],
+                        'fechaNacimiento': getAspirante['fecha_nacimiento'],
+                        'idPerfilAspirante': getAspirante['id_perfil_aspirante'],
+                        'nombre': getAspirante['nombre'],
+                        'idPerfilUsuario': getAspirante['id_perfil_usuario_aspirante'],
+                        'telefono': getAspirante['telefono'],
+                        //'video': arrayVideo
+                    }*/
+            }
+        });
     }
 
     static getVideoAspirante(idAspirante, callback) {
@@ -55,7 +87,7 @@ exports.AspiranteDAO = class AspiranteDAO {
                     if (error) {
                         callback(500, mensajes.errorInterno);
                     } else {
-                        this.getNuevoRegistro(resuldadoRegistro.insertId, callback);
+                        AspiranteDAO.#getNuevoRegistro(resuldadoRegistro.insertId, callback);
                     }
                 })
             } else {

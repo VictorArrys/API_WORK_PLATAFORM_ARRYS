@@ -1,7 +1,7 @@
 exports.Usuario = class Usuario {
     clave;
     estatus;
-    idPerfilusuario;
+    idPerfilUsuario;
     correoElectronico;
     fotografia;
     nombreUsuario;
