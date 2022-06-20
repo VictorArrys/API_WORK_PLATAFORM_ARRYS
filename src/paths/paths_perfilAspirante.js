@@ -129,7 +129,7 @@ path.get('/v1/perfilAspirantes', (req, res) => {
 
 
 
-path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
+/*path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
     const token = req.headers['x-access-token'];
     const { idPerfilUsuarioAspirante } = req.params;
 
@@ -145,7 +145,7 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
     }*/
 
 
-    var respuesta = verifyToken(token)
+    //var respuesta = verifyToken(token)
     
     /*
     try {
@@ -165,10 +165,10 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
                         res.send(200, respuesta);
                     })
                     
-                    /*var idUsuarioAspirante = resultadoAspirante[0]['id_perfil_usuario_aspirante']
+                    var idUsuarioAspirante = resultadoAspirante[0]['id_perfil_usuario_aspirante']
                     getAspirante(idUsuarioAspirante, function(getAspirante){
                         console.log(getAspirante)
-                    })*/
+                    })
 
                     //var getAspirante = resultadoAspirante[0]
                     //var idAspirante =  getAspirante['id_perfil_aspirante']
@@ -178,7 +178,7 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
                     }else{
                         //arrayVideo = Uint8ClampedArray.from(Buffer.from(getAspirante.video.buffer, 'base64'))
                         getAspirante.video.forEach( b => arrayVideo.push(b) );
-                    }*/
+                    }
                     
                     const aspirante = {}
                     var arregloOficios = []
@@ -222,14 +222,14 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
         }else{
             res.status(500)
             res.json(mensajes.errorInterno)
-        }*/
+        }
     } catch (error) {
         console.log("del catch")
         console.log(error)
         res.status(500)
         res.json(mensajes.errorInterno)
-    }*/
-});
+    }
+})*/
 
 path.post('/v1/perfilAspirantes', (req, res) => {
     var idDeUsuario = 0
