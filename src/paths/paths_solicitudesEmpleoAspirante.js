@@ -27,7 +27,7 @@ path.post("/v1/ofertasEmpleo-A/:idOfertaEmpleo/solicitarVacante", (req, res)=>{
 
     if (tokenValido) {
         var queryComprobacion = "SELECT COUNT(*) as numSolicitudes FROM solicitud_aspirante where id_perfil_aspirante_sa = ? and id_oferta_empleo_sa = ?;";
-        mysqlConnection.query(queryComprobacion, [], (error, resultado) => {
+        mysqlConnection.query(queryComprobacion, [idPerfilAspirante,idOfertaEmpleo], (error, resultado) => {
             if (error) {
                 res.status(500);
                 res.json(mensajes.errorInterno);
