@@ -5,6 +5,10 @@ const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
 const mensajes = require('../../utils/mensajes');
 
+const GestionToken = require('../utils/GestionToken');
+const { Mensajeria } = require('../componentes/Mensajeria/Mensajeria');
+
+
 //Valida que el token le pertenezca al administrador
 function verifyTokenEmpleador(token, idPerfilEmpleador) {
     try{
@@ -390,9 +394,13 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/conversaciones/:idConversacion
     idPerfilAspirante =  req.params['idPerfilAspirante'];
     idConversacion = req.params['idConversacion'];
 
-    var tokenValido = verifyTokenAspirante(token);
-    if (tokenValido) {
-        var queryConversaciones = "select conv.* from " +
+    var validacionToken = GestionToken.ValidarTokenTipoUsuario("Aspirante");
+    if (validacionToken.statusCode == 200) {
+        Mensajeria.getConversacionAspirante(idPerfilAspirante, idConversacion, (codigoRespuesta, cuerpoRespuesta) => {
+            res.status(codigoRespuesta, cuerpoRespuesta);
+        });
+
+        /*var queryConversaciones = "select conv.* from " +
                                   "conversacion as conv inner join participacion_conversacion as parConv " +
                                   "on parConv.id_conversacion_participacion = conv.id_conversacion " +
                                   "where parConv.id_perfil_usuario_participacion = (select id_perfil_usuario_aspirante from perfil_aspirante where id_perfil_aspirante = ?) AND conv.id_conversacion = ?;"
@@ -441,10 +449,9 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/conversaciones/:idConversacion
                     res.json(mensajes.peticionNoEncontrada);
                 }
             }
-        });
+        });*/
     } else {
-        res.status(401)
-        res.send(mensajes.tokenInvalido);
+        res.status(401).send(mensajes.tokenInvalido);
     }
 });
 

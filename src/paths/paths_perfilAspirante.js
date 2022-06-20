@@ -72,7 +72,6 @@ function agregarOficiosAspirante(datoAspirante, callback){
 
 function getOficios(id, callback){ 
     var query = 'SELECT * FROM categoria_aspirante where id_aspirante_ca = ?;'
-
     mysqlConnection.query(query, [id], (error, resultadoOficios) => {
         if (error){
             res.status(500)
@@ -115,15 +114,13 @@ path.get('/v1/perfilAspirantes', (req, res) => {
     try {
         if (respuesta.statusCode == 200){
             GestionUsuarios.getAspirantes(function(codigoRespuesta, cuerpoRespuesta){
-                res.status(codigoRespuesta)
-                res.json(cuerpoRespuesta)
+                res.status(codigoRespuesta);
+                res.json(cuerpoRespuesta);
             })
         }else if (respuesta.statusCode == 401){
-            res.status(401)
-            res.json(mensajes.tokenInvalido)
+            res.status(401);
+            res.json(mensajes.tokenInvalido);
         }
-        
-        
     }catch (error) {
         res.status(500)
         res.json(mensajes.errorInterno)
@@ -133,31 +130,48 @@ path.get('/v1/perfilAspirantes', (req, res) => {
 
 
 path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
-    const token = req.headers['x-access-token']
-    var respuesta = verifyToken(token)
-    const { idPerfilUsuarioAspirante } = req.params
+    const token = req.headers['x-access-token'];
+    const { idPerfilUsuarioAspirante } = req.params;
 
+    var validacionToken = GestionToken.ValidarToken(token);
+
+    /*if ( validacionToken.statusCode == 200) {
+        GestionUsuarios.getAspirante(idPerfilUsuarioAspirante, (codigoRespuesta, cuerpoRespuesta) => {
+            res.status(codigoRespuesta).send(cuerpoRespuesta);
+        });
+    } else {
+        res.status(401)
+        res.json(mensajes.tokenInvalido)
+    }*/
+
+
+    var respuesta = verifyToken(token)
+    
+    /*
     try {
         if (respuesta == 200){
             var query = 'SELECT * FROM perfil_aspirante WHERE id_perfil_usuario_aspirante = ?;'
 
             mysqlConnection.query(query, [idPerfilUsuarioAspirante], (error, resultadoAspirante) => {
                 if (error){
-                    console.log(error)
+                    console.log("Hola")
                     res.status(500)
                     res.json(mensajes.errorInterno)
                 }else if(resultadoAspirante.length == 0){
                     res.status(404)
                     res.json(mensajes.peticionIncorrecta)
                 }else{
+                    getAspirante(req.params, (respuesta)=> {
+                        res.send(200, respuesta);
+                    })
                     
                     /*var idUsuarioAspirante = resultadoAspirante[0]['id_perfil_usuario_aspirante']
                     getAspirante(idUsuarioAspirante, function(getAspirante){
                         console.log(getAspirante)
                     })*/
 
-                    var getAspirante = resultadoAspirante[0]
-                    var idAspirante =  getAspirante['id_perfil_aspirante']
+                    //var getAspirante = resultadoAspirante[0]
+                    //var idAspirante =  getAspirante['id_perfil_aspirante']
                     /*var arrayVideo = []
                     if (getAspirante.video == null){
                         console.log('Fotografia vacia, se procede a poner null')
@@ -196,10 +210,10 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
                         'idPerfilUsuario': getAspirante['id_perfil_usuario_aspirante'],
                         'telefono': getAspirante['telefono'],
                         //'video': arrayVideo
-                    }*/
+                    }
 
-                    /*res.status(200)
-                    res.json(aspirante['application/json'])*/
+                    //res.status(200)
+                    //res.json(aspirante['application/json'])
                 }
             })
         }else if (respuesta == 401){
@@ -208,13 +222,13 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
         }else{
             res.status(500)
             res.json(mensajes.errorInterno)
-        }
+        }*/
     } catch (error) {
         console.log("del catch")
         console.log(error)
         res.status(500)
         res.json(mensajes.errorInterno)
-    }
+    }*/
 });
 
 path.post('/v1/perfilAspirantes', (req, res) => {

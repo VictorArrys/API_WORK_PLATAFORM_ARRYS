@@ -53,10 +53,10 @@ exports.UsuarioDAO = class UsuarioDAO {
                 //consoleError(error, 'Funcion: Habilitar perfil. Paso: error al habilitar perfil')
                 callback(500, mensajes.errorInterno);
             }else if(resultadoHabilitar.changedRows == 1){//Se modifico el registro de usuario
-                const idPerfilHabilitado = {}
+                var idPerfilHabilitado = {}
 
                 idPerfilHabilitado = {
-                    "idPerfilusuario" : idPerfilUsuario,
+                    "idPerfilusuario" : idUsuario,
                     "estatus" : 1
                 };
                 callback(200, idPerfilHabilitado);
