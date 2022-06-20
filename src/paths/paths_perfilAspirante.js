@@ -87,7 +87,6 @@ function getOficios(id, callback){
                     'experiencia': resultadoOficios[i]['experiencia']
                 }
             }
-            console.log(arreglo)
             callback(arreglo)
         }
     })
@@ -151,25 +150,45 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
                     res.status(404)
                     res.json(mensajes.peticionIncorrecta)
                 }else{
-                    getAspirante(req.params)
                     
                     /*var idUsuarioAspirante = resultadoAspirante[0]['id_perfil_usuario_aspirante']
                     getAspirante(idUsuarioAspirante, function(getAspirante){
                         console.log(getAspirante)
                     })*/
 
-                    //var getAspirante = resultadoAspirante[0]
-                    //var arrayVideo = []
-                    /*if (getAspirante.video == null){
+                    var getAspirante = resultadoAspirante[0]
+                    var idAspirante =  getAspirante['id_perfil_aspirante']
+                    /*var arrayVideo = []
+                    if (getAspirante.video == null){
                         console.log('Fotografia vacia, se procede a poner null')
                     }else{
                         //arrayVideo = Uint8ClampedArray.from(Buffer.from(getAspirante.video.buffer, 'base64'))
                         getAspirante.video.forEach( b => arrayVideo.push(b) );
                     }*/
                     
-                    //const aspirante = {}
+                    const aspirante = {}
+                    var arregloOficios = []
+
+                    getOficios(idAspirante, function(oficios){
+                        aspirante['application/json'] = {
+                        
+                            'direccion': getAspirante['direccion'],
+                            'fechaNacimiento': getAspirante['fecha_nacimiento'],
+                            'idPerfilAspirante': getAspirante['id_perfil_aspirante'],
+                            'nombre': getAspirante['nombre'],
+                            'idPerfilUsuario': getAspirante['id_perfil_usuario_aspirante'],
+                            'oficios': oficios,
+                            'telefono': getAspirante['telefono']
+                            //'video': arrayVideo
+                        }
+
+                        res.status(200)
+                        res.json(aspirante['application/json'])
+                    })
+
 
                     /*aspirante['application/json'] = {
+                        
                         'direccion': getAspirante['direccion'],
                         'fechaNacimiento': getAspirante['fecha_nacimiento'],
                         'idPerfilAspirante': getAspirante['id_perfil_aspirante'],
@@ -177,9 +196,9 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
                         'idPerfilUsuario': getAspirante['id_perfil_usuario_aspirante'],
                         'telefono': getAspirante['telefono'],
                         //'video': arrayVideo
-                    }
+                    }*/
 
-                    res.status(200)
+                    /*res.status(200)
                     res.json(aspirante['application/json'])*/
                 }
             })
