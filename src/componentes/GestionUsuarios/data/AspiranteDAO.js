@@ -62,16 +62,6 @@ exports.AspiranteDAO = class AspiranteDAO {
 
                     callback(200, perfilAspirante);
                 }
-
-                /*aspirante['application/json'] = {
-                        'direccion': getAspirante['direccion'],
-                        'fechaNacimiento': getAspirante['fecha_nacimiento'],
-                        'idPerfilAspirante': getAspirante['id_perfil_aspirante'],
-                        'nombre': getAspirante['nombre'],
-                        'idPerfilUsuario': getAspirante['id_perfil_usuario_aspirante'],
-                        'telefono': getAspirante['telefono'],
-                        //'video': arrayVideo
-                    }*/
             }
         });
     }

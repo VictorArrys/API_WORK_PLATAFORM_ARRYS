@@ -129,107 +129,21 @@ path.get('/v1/perfilAspirantes', (req, res) => {
 
 
 
-/*path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
+path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
     const token = req.headers['x-access-token'];
     const { idPerfilUsuarioAspirante } = req.params;
 
     var validacionToken = GestionToken.ValidarToken(token);
 
-    /*if ( validacionToken.statusCode == 200) {
+    if ( validacionToken.statusCode == 200) {
         GestionUsuarios.getAspirante(idPerfilUsuarioAspirante, (codigoRespuesta, cuerpoRespuesta) => {
             res.status(codigoRespuesta).send(cuerpoRespuesta);
         });
     } else {
         res.status(401)
         res.json(mensajes.tokenInvalido)
-    }*/
-
-
-    //var respuesta = verifyToken(token)
-    
-    /*
-    try {
-        if (respuesta == 200){
-            var query = 'SELECT * FROM perfil_aspirante WHERE id_perfil_usuario_aspirante = ?;'
-
-            mysqlConnection.query(query, [idPerfilUsuarioAspirante], (error, resultadoAspirante) => {
-                if (error){
-                    console.log("Hola")
-                    res.status(500)
-                    res.json(mensajes.errorInterno)
-                }else if(resultadoAspirante.length == 0){
-                    res.status(404)
-                    res.json(mensajes.peticionIncorrecta)
-                }else{
-                    getAspirante(req.params, (respuesta)=> {
-                        res.send(200, respuesta);
-                    })
-                    
-                    var idUsuarioAspirante = resultadoAspirante[0]['id_perfil_usuario_aspirante']
-                    getAspirante(idUsuarioAspirante, function(getAspirante){
-                        console.log(getAspirante)
-                    })
-
-                    //var getAspirante = resultadoAspirante[0]
-                    //var idAspirante =  getAspirante['id_perfil_aspirante']
-                    /*var arrayVideo = []
-                    if (getAspirante.video == null){
-                        console.log('Fotografia vacia, se procede a poner null')
-                    }else{
-                        //arrayVideo = Uint8ClampedArray.from(Buffer.from(getAspirante.video.buffer, 'base64'))
-                        getAspirante.video.forEach( b => arrayVideo.push(b) );
-                    }
-                    
-                    const aspirante = {}
-                    var arregloOficios = []
-
-                    getOficios(idAspirante, function(oficios){
-                        aspirante['application/json'] = {
-                        
-                            'direccion': getAspirante['direccion'],
-                            'fechaNacimiento': getAspirante['fecha_nacimiento'],
-                            'idPerfilAspirante': getAspirante['id_perfil_aspirante'],
-                            'nombre': getAspirante['nombre'],
-                            'idPerfilUsuario': getAspirante['id_perfil_usuario_aspirante'],
-                            'oficios': oficios,
-                            'telefono': getAspirante['telefono']
-                            //'video': arrayVideo
-                        }
-
-                        res.status(200)
-                        res.json(aspirante['application/json'])
-                    })
-
-
-                    /*aspirante['application/json'] = {
-                        
-                        'direccion': getAspirante['direccion'],
-                        'fechaNacimiento': getAspirante['fecha_nacimiento'],
-                        'idPerfilAspirante': getAspirante['id_perfil_aspirante'],
-                        'nombre': getAspirante['nombre'],
-                        'idPerfilUsuario': getAspirante['id_perfil_usuario_aspirante'],
-                        'telefono': getAspirante['telefono'],
-                        //'video': arrayVideo
-                    }
-
-                    //res.status(200)
-                    //res.json(aspirante['application/json'])
-                }
-            })
-        }else if (respuesta == 401){
-            res.status(respuesta)
-            res.json(mensajes.tokenInvalido)
-        }else{
-            res.status(500)
-            res.json(mensajes.errorInterno)
-        }
-    } catch (error) {
-        console.log("del catch")
-        console.log(error)
-        res.status(500)
-        res.json(mensajes.errorInterno)
     }
-})*/
+})
 
 path.post('/v1/perfilAspirantes', (req, res) => {
     var idDeUsuario = 0
