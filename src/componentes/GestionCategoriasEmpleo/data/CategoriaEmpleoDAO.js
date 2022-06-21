@@ -26,7 +26,7 @@ exports.CategoriaEmpleoDAO = class CategoriaEmpleoDAO{
         })
     }
     static postCategoriaEmpleo(nombre, callback) {
-
+        
     }
 
     static patchCategoriaEmpleo(idCategoriaEmpleo, nombre, callback) {

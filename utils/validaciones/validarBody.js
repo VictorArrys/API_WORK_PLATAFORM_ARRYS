@@ -51,12 +51,12 @@ const validarOfertaEmpleo = [
         .exists()
         .not()
         .isEmpty()
-        .isLength({min: 5, max: 5}),
+        .isLength({min: 3, max: 5}),
     check('horaInicio')
         .exists()
         .not()
         .isEmpty()
-        .isLength({min: 5, max: 5}),
+        .isLength({min: 3, max: 5}),
     check('idCategoriaEmpleo')
         .exists()
         .not()
