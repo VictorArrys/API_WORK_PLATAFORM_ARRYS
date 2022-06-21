@@ -6,7 +6,8 @@ const jwt = require('jsonwebtoken');
 const ruta = require('path');
 const multer = require('multer');
 const { GestionUsuarios } = require('../componentes/GestionUsuarios/GestionUsuarios')
-const GestionToken = require('../utils/GestionToken') 
+const GestionToken = require('../utils/GestionToken')
+var fileSystem = require('fs');
 
 
 //Respuestas
@@ -14,6 +15,7 @@ const mensajes = require('../../utils/mensajes');
 const pool = require('../../utils/conexion');
 const req = require('express/lib/request');
 const res = require('express/lib/response');
+const { on } = require('events');
 
 function verifyToken(token){
     var statusCode = 0;
@@ -37,7 +39,7 @@ function verifyToken(token){
 
 const multerUpload = multer({storage:multer.memoryStorage(), limits:{fileSize:8*1024*1024*10}})
 
-path.post('/v1/perfilAspirantes/:idPerfilAspirante/video', (req, res) => {
+path.post('/v1/perfilAspirantes/:idPerfilAspirante/video', multerUpload.single("video"),(req, res) => {
     var query = "UPDATE perfil_usuario SET video = ? WHERE id_perfil_usuario = ?;"
     const { idPerfilUsuario } = req.params
 
@@ -53,6 +55,53 @@ path.post('/v1/perfilAspirantes/:idPerfilAspirante/video', (req, res) => {
         }
     })
 });
+
+path.get('/v1/perfilAspirantes/:idPerfilAspirante/video', (req, res) => {
+    const token = req.headers['x-access-token']
+    var respuesta = GestionToken.ValidarToken(token)
+    var query = 'SELECT video FROM perfil_aspirante WHERE id_perfil_aspirante = ?'
+    const { idPerfilAspirante } = req.params
+
+    mysqlConnection.query(query, [idPerfilAspirante], (error, video) =>{
+        if (error){
+            console.log('error de consulta')
+        }else if (video.length == 0){
+            console.log('no encontrado')
+        }else{
+            var arrayVideo = null
+            arrayVideo = Uint8Array.from(Buffer.from(video[0]['video'].buffer, 'base64'))
+            var rutaVideo = __dirname+ruta.sep+'video'+idPerfilAspirante+'.mp4'
+            var stream = fileSystem.createWriteStream(rutaVideo, {
+                flags: "w"
+            })
+            stream.write(arrayVideo)
+            stream.on('finish', function(){
+
+                console.log('aqui entra y da error')
+                console.log(fileSystem.existsSync(rutaVideo))
+                
+
+                res.status(200)
+                res.sendFile(rutaVideo, function(error){
+                    if (error){
+                        console.log(error)
+                    }else{
+                        fileSystem.unlink(rutaVideo, (error) => {
+                            if (error){
+                                console.log(error)
+                            }else{
+                                console.log('archivo eliminado')
+                            }
+                        })
+                    }
+                })
+            })
+
+            stream.end('end')
+            
+        }
+    })
+})
 
 function agregarOficiosAspirante(datoAspirante, callback){
     getOficios(datoAspirante['id_perfil_aspirante'], function(arregloOficios) {
@@ -109,7 +158,7 @@ function getAspirante(datoAspirante, callback){
 
 path.get('/v1/perfilAspirantes', (req, res) => {
     const token = req.headers['x-access-token']
-    var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Demandante")
+    var respuesta = GestionToken.ValidarToken(token)
     var query = 'SELECT * FROM perfil_aspirante;'
     try {
         if (respuesta.statusCode == 200){
@@ -132,13 +181,38 @@ path.get('/v1/perfilAspirantes', (req, res) => {
 path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
     const token = req.headers['x-access-token'];
     const { idPerfilUsuarioAspirante } = req.params;
-
     var validacionToken = GestionToken.ValidarToken(token);
 
     if ( validacionToken.statusCode == 200) {
-        GestionUsuarios.getAspirante(idPerfilUsuarioAspirante, (codigoRespuesta, cuerpoRespuesta) => {
-            res.status(codigoRespuesta).send(cuerpoRespuesta);
-        });
+        var query = 'SELECT * FROM perfil_aspirante WHERE id_perfil_usuario_aspirante = ?;'
+        mysqlConnection.query(query, [idPerfilUsuarioAspirante], (error, resultadoAspirante) =>{
+            if (error){
+                console.log(error)
+            }else{
+                const idPerfilAspirante = resultadoAspirante[0]['id_perfil_aspirante']
+                const aspirante = {}
+                var arregloOficios = []
+                var getAspirante = resultadoAspirante[0]
+
+                getOficios(idPerfilAspirante, function(oficios){
+                    aspirante['application/json'] = {
+        
+                        'direccion': getAspirante['direccion'],
+                        'fechaNacimiento': getAspirante['fecha_nacimiento'],
+                        'idPerfilAspirante': getAspirante['id_perfil_aspirante'],
+                        'nombre': getAspirante['nombre'],
+                        'idPerfilUsuario': getAspirante['id_perfil_usuario_aspirante'],
+                        'oficios': oficios,
+                        'telefono': getAspirante['telefono']
+                    }
+        
+                    res.status(200)
+                    res.json(aspirante['application/json'])
+                })
+            }
+        })
+        const aspirante = {}
+        var arregloOficios = []
     } else {
         res.status(401)
         res.json(mensajes.tokenInvalido)

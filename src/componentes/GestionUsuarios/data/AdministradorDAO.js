@@ -38,7 +38,7 @@ exports.AdministradorDAO = class AdministradorDAO {
             if (error){
                 callback(500, mensajes.errorInterno)
             }else{
-                callback(200, resultadoAdministrador)
+                callback(200, resultadoAdministrador[0])
             }
         })
     }

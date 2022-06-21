@@ -61,15 +61,6 @@ function verifyTokenUser(token){
     }
 }
 
-/*var almacenFotoPerfil = multer.diskStorage({
-    destination: function(request,file, callback){
-        callback(null, __dirname+'./../../utils/almacenFotografias')
-    },
-    filename:function(request, file, callback){
-        console.log(file)
-        callback(null, file.fieldname+'-'+Date.now()+ruta.extname(file.originalname))
-    }
-})*/
 
 function consoleError(error, ubicacion){
     console.log('--------------------------------------------------------------------------------------')
@@ -222,11 +213,6 @@ path.get('/v1/PerfilUsuarios/:idPerfilUsuario',(req, res) => {  // listo api
         res.json(mensajes.errorInterno)
     }
 });
-
-path.patch('/v1/restablecer', (req, res) => {
-    //UNDER CONSTRUCTION
-});
-
 
 path.patch('/v1/perfilUsuarios/:idPerfilUsuario/habilitar', (req, res) => {  // listo api
     try{
