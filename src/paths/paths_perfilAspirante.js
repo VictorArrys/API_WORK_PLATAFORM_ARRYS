@@ -39,22 +39,32 @@ function verifyToken(token){
 
 const multerUpload = multer({storage:multer.memoryStorage(), limits:{fileSize:8*1024*1024*10}})
 
-path.post('/v1/perfilAspirantes/:idPerfilAspirante/video', multerUpload.single("video"),(req, res) => {
-    var query = "UPDATE perfil_usuario SET video = ? WHERE id_perfil_usuario = ?;"
-    const { idPerfilUsuario } = req.params
+path.patch('/v1/perfilAspirantes/:idPerfilAspirante/video', multerUpload.single('video'), (req, res) => {
+    var query = "UPDATE perfil_aspirante SET video = ? WHERE id_perfil_aspirante = ?;"
+    const { idPerfilAspirante } = req.params
 
-    mysqlConnection.query(query, [req.file.buffer, idPerfilUsuario], (error, resultadoVideo) => {
-        if (error){
-            res.status(500)
-            res.json(mensajes.errorInterno)
-        }else if(resultadoVideo.length == 0){
-            //
-        }else{
-            res.status(200)
-            res.json(mensajes.actualizacionExitosa)
-        }
-    })
+
+    try{
+        mysqlConnection.query(query, [req.file.buffer, idPerfilAspirante], (error, resultadoVideo) => {
+            if (error){
+                console.log(error)
+                res.status(500)
+                res.json(mensajes.errorInterno)
+            }else if(resultadoVideo.length == 0){
+                //
+            }else{
+                console.log(resultadoVideo)
+                res.status(200)
+                res.json(mensajes.actualizacionExitosa)
+            }
+        })
+    }catch (error){
+        console.log(error)
+    }
+    
+    
 });
+
 
 path.get('/v1/perfilAspirantes/:idPerfilAspirante/video', (req, res) => {
     const token = req.headers['x-access-token']
