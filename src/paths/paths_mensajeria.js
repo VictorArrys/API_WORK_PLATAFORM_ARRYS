@@ -1,57 +1,17 @@
 const { Router } = require('express');
 const path = Router();
-var mysqlConnection = require('../../utils/conexion');
-const keys = require('../../settings/keys');
-const jwt = require('jsonwebtoken');
 const mensajes = require('../../utils/mensajes');
 
 const GestionToken = require('../utils/GestionToken');
+
 const { Mensajeria } = require('../componentes/Mensajeria/Mensajeria');
 const { MensajeDAO } = require('../componentes/Mensajeria/data/MensajeDAO');
 const { ConversacionDAO } = require('../componentes/Mensajeria/data/ConversacionDAO');
 
-
-//Valida que el token le pertenezca al administrador
-function verifyTokenEmpleador(token, idPerfilEmpleador) {
-    try{
-        const tokenData = jwt.verify(token, keys.key);
-        if (tokenData['tipo'] == "Empleador")
-            return true;
-        else
-            return false;
-    } catch (error) {
-        return false;
-    }
-}
-
-//Verfica que el token le pertenest
-function verifyTokenDemandante(token, idPerfilDemandante) {
-    try{
-        const tokenData = jwt.verify(token, keys.key);
-        if (tokenData['tipo'] == "Demandante")
-            return true;
-        else
-            return false;
-    } catch (error) {
-        return false;
-    }
-}
-
-function verifyTokenAspirante(token, idPerfilAspirante) {
-    try{
-        const tokenData = jwt.verify(token, keys.key);
-        if (tokenData['tipo'] == "Aspirante")
-            return true;
-        else
-            return false;
-    } catch (error) {
-        return false;
-    }
-}
-
+const { ConversacionesEmpleaodor, ConversacionDemandante, ConversacionesDemandante, MensajeDemandante, ConversacionEmpleador, MensajeEmpleaodor } = require('../../utils/validaciones/mesajeria')
 
 //Consulta de conversaciones
-path.get('/v1/perfilDemandantes/:idPerfilDemandante/conversaciones', (req, res) => {
+path.get('/v1/perfilDemandantes/:idPerfilDemandante/conversaciones', ConversacionesDemandante, (req, res) => {
     const token = req.headers['x-access-token'];
     const idPerfilDemandante = req.params['idPerfilDemandante']
 
@@ -68,7 +28,7 @@ path.get('/v1/perfilDemandantes/:idPerfilDemandante/conversaciones', (req, res) 
 });
 
 //Consulta de una conversación
-path.get("/v1/perfilDemandantes/:idPerfilDemandante/conversaciones/:idConversacion",(req, res) => {
+path.get("/v1/perfilDemandantes/:idPerfilDemandante/conversaciones/:idConversacion", ConversacionDemandante ,(req, res) => {
     const token = req.headers['x-access-token'];
     const idPerfilDemandante = req.params['idPerfilDemandante']
     const idConversacion = req.params['idConversacion']
@@ -85,7 +45,7 @@ path.get("/v1/perfilDemandantes/:idPerfilDemandante/conversaciones/:idConversaci
     }
 });
 
-path.post("/v1/perfilDemandantes/:idPerfilDemandante/conversaciones/:idConversacion", (req, res) => {
+path.post("/v1/perfilDemandantes/:idPerfilDemandante/conversaciones/:idConversacion", MensajeDemandante ,(req, res) => {
     const token = req.headers['x-access-token'];
     const idPerfilDemandante = req.params['idPerfilDemandante']
     const idConversacion = req.params['idConversacion']
@@ -103,7 +63,7 @@ path.post("/v1/perfilDemandantes/:idPerfilDemandante/conversaciones/:idConversac
     }
 });
 
-path.get("/v1/perfilEmpleadores/:idPerfilEmpleador/conversaciones", (req, res) => {
+path.get("/v1/perfilEmpleadores/:idPerfilEmpleador/conversaciones", ConversacionesEmpleaodor, (req, res) => {
     const token = req.headers['x-access-token'];
     const idPerfilEmpleador = req.params['idPerfilEmpleador'];
     var validacionToken = GestionToken.ValidarTokenTipoUsuario(token, "Empleador");
@@ -118,7 +78,7 @@ path.get("/v1/perfilEmpleadores/:idPerfilEmpleador/conversaciones", (req, res) =
     }
 });
 
-path.get("/v1/perfilEmpleadores/:idPerfilEmpleador/conversaciones/:idConversacion", (req, res) => {
+path.get("/v1/perfilEmpleadores/:idPerfilEmpleador/conversaciones/:idConversacion", ConversacionEmpleador, (req, res) => {
     const token = req.headers['x-access-token'];
     const idPerfilEmpleador = req.params['idPerfilEmpleador'];
     const idConversacion = req.params['idConversacion'];
@@ -135,7 +95,7 @@ path.get("/v1/perfilEmpleadores/:idPerfilEmpleador/conversaciones/:idConversacio
     }
 });
 
-path.post("/v1/perfilEmpleadores/:idPerfilEmpleador/conversaciones/:idConversacion", (req, res)=>{
+path.post("/v1/perfilEmpleadores/:idPerfilEmpleador/conversaciones/:idConversacion", MensajeEmpleaodor, (req, res)=>{
     const token = req.headers['x-access-token'];
     const idPerfilEmpleador = req.params['idPerfilEmpleador']
     const idConversacion = req.params['idConversacion']
