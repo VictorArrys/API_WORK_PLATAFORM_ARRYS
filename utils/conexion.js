@@ -22,9 +22,10 @@ pool.getConnection((err, connection)=>{
             console.error('DATABASE CONNECTION WAS REFUSED');
         }
     }
-    if(connection) connection.release();
-    console.log('Base de datos conectada');
-    return;
+    if(connection){ connection.release();
+        console.log('Base de datos conectada');
+        return;
+    }
 });
 
 pool.query = promisify(pool.query);

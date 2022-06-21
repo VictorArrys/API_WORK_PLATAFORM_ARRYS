@@ -38,15 +38,17 @@ path.get('/v1/reportesEmpleo', (req, res) => {
 
     if(respuesta == 200){
         var pool = mysqlConnection;
-
-        pool.query('SELECT * FROM reporte_empleo WHERE estatus = 1;', (error, resultadoReportesEmpleo)=>{
+ 
+        pool.query('SELECT reporte_empleo.*, perfil_aspirante.nombre as aspirante, oferta_empleo.nombre, oferta_empleo.descripcion, perfil_empleador.id_perfil_empleador as idEmpleador, perfil_empleador.nombre as empleador FROM reporte_empleo INNER JOIN perfil_aspirante ON perfil_aspirante.id_perfil_aspirante = reporte_empleo.id_perfil_aspirante_re INNER JOIN oferta_empleo ON reporte_empleo.id_oferta_empleo_re = oferta_empleo.id_oferta_empleo INNER JOIN perfil_empleador ON perfil_empleador.id_perfil_empleador = oferta_empleo.id_perfil_oe_empleador WHERE estatus = 1;', (error, resultadoReportesEmpleo)=>{
             if(error){ 
-                res.json(mensajes.errorInterno);
                 res.status(500)
+                res.json(mensajes.errorInterno);
+                
             }else if(resultadoReportesEmpleo.length == 0){
     
-                res.status(404)
-                res.json(mensajes.peticionNoEncontrada);
+                res.status(200)
+                const reportesVacios = []
+                res.json(reportesVacios);  
      
             }else{
                 
@@ -76,7 +78,7 @@ path.get('/v1/reportesEmpleo/:idReporteEmpleo', (req, res) => {
     if(respuesta == 200){
         var pool = mysqlConnection;
 
-        pool.query('SELECT * FROM reporte_empleo WHERE id_reporte_empleo = ?;',[req.params.idReporteEmpleo] , (error, resultadoReporteEmpleo)=>{
+        pool.query('SELECT * FROM WHERE id_reporte_empleo = ?;',[req.params.idReporteEmpleo] , (error, resultadoReporteEmpleo)=>{
             if(error){ 
                 res.json(mensajes.errorInterno);
                 res.status(500)
@@ -99,6 +101,7 @@ path.get('/v1/reportesEmpleo/:idReporteEmpleo', (req, res) => {
                     res.json(mensajes.peticionIncorrecta);
                 //El reporte esta pendiente
                 }else if(reporteEmpleo['estatus'] == 1){
+
                     res.status(200);                  
                     res.json(reporteEmpleo);  
 
@@ -121,6 +124,42 @@ path.get('/v1/reportesEmpleo/:idReporteEmpleo', (req, res) => {
 
 });
 
+function amonestarEmpleador(idEmpleador, callback){
+    var pool = mysqlConnection
+    console.log(idEmpleador)
+    pool.query('SELECT amonestaciones FROM perfil_empleador WHERE id_perfil_empleador = ?;',[idEmpleador] , (error, amonestarEmpleador)=>{
+        if(error){
+            console.log(error)
+            callback(500, mensajes.errorInterno)
+
+        }else if(amonestarEmpleador[0]['amonestaciones'] == 3){
+
+            callback(403, mensajes.prohibido)
+
+        }else{
+
+            mysqlConnection.query('UPDATE perfil_empleador SET amonestaciones = amonestaciones + 1 WHERE id_perfil_empleador = ?',[idEmpleador] , (error, resultadoAmonestar)=>{
+                if(error){
+                    console.log(error)
+                    callback(500, mensajes.errorInterno)
+        
+                }else if(resultadoAmonestar.length == 0){
+        
+                    callback(404, mensajes.peticionNoEncontrada)
+        
+                }else{
+        
+                    callback(200, resultadoAmonestar['changedRows'])
+        
+                }
+            })
+
+        }
+
+    })
+
+}
+
 path.patch('/v1/reportesEmpleo/:idReporteEmpleo/aceptado', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
@@ -129,10 +168,12 @@ path.patch('/v1/reportesEmpleo/:idReporteEmpleo/aceptado', (req, res) => {
     if(respuesta == 200){
         var pool = mysqlConnection;
 
-        pool.query('SELECT * FROM reporte_empleo WHERE id_reporte_empleo = ?;',[req.params.idReporteEmpleo] , (error, resultadoReporteEmpleo)=>{
+        pool.query('SELECT reporte_empleo.*, perfil_empleador.id_perfil_empleador as idEmpleador FROM reporte_empleo INNER JOIN perfil_aspirante ON perfil_aspirante.id_perfil_aspirante = reporte_empleo.id_perfil_aspirante_re INNER JOIN oferta_empleo ON reporte_empleo.id_oferta_empleo_re = oferta_empleo.id_oferta_empleo INNER JOIN perfil_empleador ON perfil_empleador.id_perfil_empleador = oferta_empleo.id_perfil_oe_empleador WHERE id_reporte_empleo = ?;',[req.params.idReporteEmpleo] , (error, resultadoReporteEmpleo)=>{
             if(error){ 
-                res.json(mensajes.errorInterno);
+                console.log(error)
                 res.status(500)
+                res.json(mensajes.errorInterno);
+                
             }else if(resultadoReporteEmpleo[0].length == 0){
     
                 res.status(404)
@@ -155,15 +196,21 @@ path.patch('/v1/reportesEmpleo/:idReporteEmpleo/aceptado', (req, res) => {
 
                     pool.query('UPDATE reporte_empleo SET estatus = 0 WHERE id_oferta_empleo_re = ?;',[reporteEmpleo['id_oferta_empleo_re']] , (error, resultadoReporteEmpleo)=>{
                         if(error){ 
-                            res.json(mensajes.errorInterno);
+                            console.log(error)
                             res.status(500)
+                            res.json(mensajes.errorInterno);
+                            
                         }else if(resultadoReporteEmpleo.length == 0){
                             res.status(404)
                             res.json(mensajes.peticionNoEncontrada);
                 
                         }else{
+                            amonestarEmpleador(reporteEmpleo['idEmpleador'], function(codigoRespuesta, resultados){
 
-                            res.sendStatus(204);                     
+                                res.status(codigoRespuesta)
+                                res.json(resultados)
+                            })
+                                               
                 
                         }
                     });
@@ -208,7 +255,7 @@ path.patch('/v1/reportesEmpleo/:idReporteEmpleo/rechazado', (req, res) => {
                 res.json(mensajes.peticionNoEncontrada);
      
             }else{
-                res.sendStatus(204);                     
+                res.sendStatus(200);                     
     
             }
         });

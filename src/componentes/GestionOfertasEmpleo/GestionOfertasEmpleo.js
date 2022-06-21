@@ -12,8 +12,10 @@ const { OfertaEmpleo } = require('./modelo/OfertaEmpleo')
 
 exports.GestionOfertasEmpleo = class GestionOfertasEmpleo {
     //Empleador
-    static getOfertasEmpleo(idEmpleador, callback) {
-        OfertaEmpleoDAO.getOfertasEmpleo(idEmpleador, callback);
+    static getOfertasEmpleo(idEmpleador, idUserToken, callback) {
+        OfertaEmpleoDAO.getOfertasEmpleo(idEmpleador, idUserToken, (codigoRespuesta, cuerpoRespuestaOfertas)=>{
+            callback(codigoRespuesta, cuerpoRespuestaOfertas)
+        });
     }
 
     static getOfertaEmpleo(idOfertaEmpleo, idUsuario, callback) {
@@ -22,12 +24,17 @@ exports.GestionOfertasEmpleo = class GestionOfertasEmpleo {
                 //CuerpoRespuesta es tipo OfertaEmpleo
                 ContratacionDAO.getContratacionEmpleo(cuerpoRespuestaOferta.idOfertaEmpleo, (codigoRespuesta, cuerpoRespuestaContratacion)=> {
                     if (codigoRespuesta == 200) {
-                        CategoriaEmpleoDAO.getCategoriaEmpleo(cuerpoRespuestaOferta.idOfertaEmpleo, (codigoRespuesta, cuerpoRespuestaCategoria) => {
+
+                        CategoriaEmpleoDAO.getCategoriaEmpleo(cuerpoRespuestaOferta['idCategoriaEmpleo'], (codigoRespuesta, cuerpoRespuestaCategoria) => {
                             if(codigoRespuesta == 200) {
+
                                 var ofertaEmpleo = new OfertaEmpleoDT();
+                                //Datos principales de la oferta de empleo
+                                ofertaEmpleo = cuerpoRespuestaOferta
+                                //Anexo de su contratacion y nombre de la categoria
                                 ofertaEmpleo.contratacion = cuerpoRespuestaContratacion;
-                                ofertaEmpleo.categoriaEmpleo = cuerpoRespuestaCategoria.nombre;
-                                //Falta agregar datos de oferta, contratacion y categoría
+                                ofertaEmpleo.categoriaEmpleo = cuerpoRespuestaCategoria;
+
                                 callback(200, ofertaEmpleo);
                             } else {
                                 callback(codigoRespuesta, cuerpoRespuestaCategoria);

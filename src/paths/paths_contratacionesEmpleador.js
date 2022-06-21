@@ -30,11 +30,12 @@ function verifyToken(token, tipoUsuario){
         }
 }
 
-function existeContratacion(solicitudEmpleo, res, callback){
+function existeContratacion(idOfertaEmpleo, res, callback){
     var pool = mysqlConnection
 
-    pool.query('SELECT * contratacion_empleo WHERE id_oferta_empleo_coe = ?;',[solicitudEmpleo['id_oferta_empleo_sa']] , (error, existeContratacion)=>{
+    pool.query('SELECT * FROM contratacion_empleo WHERE id_oferta_empleo_coe = ?;',[idOfertaEmpleo] , (error, existeContratacion)=>{
         if(error){
+            console.log(error)
             res.status(500) 
             res.json(mensajes.errorInterno);
 
@@ -45,7 +46,7 @@ function existeContratacion(solicitudEmpleo, res, callback){
             res.json(mensajes.peticionNoEncontrada);
 
         }else{ //En caso de existir la contratación solo agregamos el aspirante a ella
-            callback(existeContratacion)
+            callback(existeContratacion[0]['id_contratacion_empleo'])
             
         }
 
@@ -56,7 +57,7 @@ function existeContratacion(solicitudEmpleo, res, callback){
 function nombreAspirante(idAspirante, res, callback){
     var pool = mysqlConnection
 
-    pool.query('SELECT nombre perfil_aspirante WHERE id_perfil_aspirante = ?;',[idAspirante] , (error, resultadoNombreAspirante)=>{
+    pool.query('SELECT nombre FROM perfil_aspirante WHERE id_perfil_aspirante = ?;',[idAspirante] , (error, resultadoNombreAspirante)=>{
         if(error){
             res.status(500) 
             res.json(mensajes.errorInterno);
@@ -68,7 +69,7 @@ function nombreAspirante(idAspirante, res, callback){
             res.json(mensajes.peticionNoEncontrada);
 
         }else{ //En caso de existir la contratación solo agregamos el aspirante a ella
-            callback(resultadoNombreAspirante)
+            callback(resultadoNombreAspirante[0]['nombre'])
             
         }
 
@@ -86,8 +87,9 @@ path.get('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
         //Obtenemos la contratación
         var pool = mysqlConnection
 
-        pool.query('SELECT * contratacion_empleo WHERE id_oferta_empleo_coe = ?;',[req.params.idOfertaEmpleo] , (error, existeContratacion)=>{
+        pool.query('SELECT * FROM contratacion_empleo WHERE id_oferta_empleo_coe = ?;',[req.params.idOfertaEmpleo] , (error, existeContratacion)=>{
             if(error){
+                console.log(error);
                 res.status(500) 
                 res.json(mensajes.errorInterno);
 
@@ -99,12 +101,14 @@ path.get('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
 
             }else{ //Obtener la lista de las contrataciones de aspirantes
 
-                var idContratacion = existeContratacion['id_contratacion_empleo']
+                var idContratacion = existeContratacion[0]['id_contratacion_empleo']
                 
-                pool.query('SELECT * FROM contratacion_empleo_aspirante INNER JOIN perfil_aspirante ON perfil_aspirante.id_perfil_aspirante = contratacion_empleo_aspirante.id_aspirante_cea WHERE id_contratacion_empleo_cea = ?',[idContratacion] , (error, resultadoContratacionesAspirante)=>{
+                pool.query('SELECT contratacion_empleo_aspirante.id_perfil_aspirante_cea, perfil_aspirante.nombre as nombre_aspirante, perfil_aspirante.telefono, perfil_aspirante.direccion, perfil_aspirante.id_perfil_usuario_aspirante as idUser,contratacion_empleo_aspirante.valoracion_aspirante FROM contratacion_empleo_aspirante INNER JOIN perfil_aspirante ON perfil_aspirante.id_perfil_aspirante = contratacion_empleo_aspirante.id_perfil_aspirante_cea WHERE id_contratacion_empleo_cea = ?;',[idContratacion] , (error, resultadoContratacionesAspirante)=>{
                     if(error){ 
-                        res.json(mensajes.errorInterno);
+                        console.log(error)
                         res.status(500)
+                        res.json(mensajes.errorInterno);
+                       
                     }else if(resultadoContratacionesAspirante.length == 0){
             
                         console.log('No se pudo obtener la contratación aspirante')
@@ -140,27 +144,26 @@ path.get('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
 path.patch('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
-    var respuesta = verifyToken(token, 'Administrador')
+    var respuesta = verifyToken(token, 'Empleador')
 
     if(respuesta == 200){
        
         //Obtenemos la contratación
         existeContratacion(req.params.idOfertaEmpleo, res, function(contratacionEmpleo){
-            if(!contratacionEmpleo == null){
                 //Agregar valoración del aspirante en caso de existir la contratación
-                var pool = mysqlConnection
     
                 //Obtener datos del body
                 var idAspirante = req.query.idAspirante
                 var valoracionAspirante = req.body.valoracionAspirante
-                var idOfertaEmpleo = req.params.idOfertaEmpleo
-    
-                pool.query('UPDATE contratacion_empleo_aspirante SET valoracion_aspirante = ? WHERE id_perfil_aspirante_cea = ? AND id_contratacion_empleo_cea = ?;',[valoracionAspirante, idAspirante, idOfertaEmpleo] , (error, resultadoEvaluacionAspirante)=>{
+                console.log(contratacionEmpleo)
+                mysqlConnection.query('UPDATE contratacion_empleo_aspirante SET valoracion_aspirante = ? WHERE id_perfil_aspirante_cea = ? AND id_contratacion_empleo_cea = ?;',[req.body.valoracionAspirante, idAspirante, contratacionEmpleo] , (error, resultadoEvaluacionAspirante)=>{
                     if(error){ 
-                        
-                        res.json(mensajes.errorInterno);
+                        console.log(error)
                         res.status(500)
+                        res.json(mensajes.errorInterno);
+                        
                     }else if(resultadoEvaluacionAspirante.length == 0){
+                        console.log('No existe la contratación')
                         res.status(404)
                         res.json(mensajes.peticionNoEncontrada);
             
@@ -169,25 +172,21 @@ path.patch('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
                         nombreAspirante(idAspirante, res, function(nombreAspirante){
                             res.status(200)
     
-                            const valoracionAspirante = {}
+                            const valoracionAspiranteR = {}
     
-                            valoracionAspirante['application/json'] = {
-                                'idAspirante': ofertaEmpleo['id_perfil_aspirante_cea'],
-                                'valoracionAspirante': nombreAspirante,
-                                'nombreAspirante': ofertaEmpleo['dias_laborales']
+                            valoracionAspiranteR['application/json'] = {
+                                'idAspirante': idAspirante,
+                                'valoracionAspirante': valoracionAspirante,
+                                'nombreAspirante': nombreAspirante
                             }
     
-                            res.send(valoracionAspirante['application/json'])  
+                            res.send(valoracionAspiranteR['application/json'])  
 
                         })                 
             
                     }
                 });
-    
-            }else{
-                res.status(404)
-                res.json(mensajes.peticionNoEncontrada);
-            }
+
         })
 
         

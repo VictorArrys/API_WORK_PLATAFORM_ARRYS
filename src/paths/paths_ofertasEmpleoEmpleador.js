@@ -14,6 +14,9 @@ const { validarParamId } = require('../../utils/validaciones/validarParam')
 const mensajes = require('../../utils/mensajes');
 const { vary } = require('express/lib/response');
 const { json } = require('body-parser');
+const { GestionOfertasEmpleo } = require('../componentes/GestionOfertasEmpleo');
+const GestionToken = require('../utils/GestionToken');
+
 
 //Función para verificar el token
 function verifyToken(token){
@@ -72,61 +75,20 @@ path.get('/v1/ofertasEmpleo-E', validarQuery, (req, res) => {
 
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
-    var respuesta = verifyToken(token)
-
-    if(respuesta == 200){
-        var pool = mysqlConnection;
-
-        pool.query('SELECT oferta_empleo.*, categoria_empleo.nombre as categoria FROM oferta_empleo INNER JOIN categoria_empleo ON oferta_empleo.id_categoria_oe = categoria_empleo.id_categoria_empleo  WHERE id_perfil_oe_empleador= ?;', [req.query.idPerfilEmpleador], (error, resultadoOfertasEmpleo)=>{
-            if(error){ 
-                res.status(500)
-                res.json(mensajes.errorInterno);
-                
-            }else if(resultadoOfertasEmpleo.length == 0){
-                res.status(404)
-                res.json(mensajes.peticionNoEncontrada);
-     
-            }else{
-                var ofertaEmpleo = resultadoOfertasEmpleo[0];
-                var ofertasEmpleo = resultadoOfertasEmpleo;
-                const tokenData = jwt.verify(token, keys.key); 
-                
-
-                // IdUsuario del token
-                var idUserToken = tokenData['idUsuario']
-                var idUserMatch = ofertaEmpleo["id_perfil_oe_empleador"]
- 
-                //Verificación de autorización de token respecto al recurso solicitado
-                pool.query('SELECT id_perfil_usuario_empleador FROM perfil_empleador WHERE id_perfil_empleador = ?;', [idUserMatch], (error, result)=>{
-                    if(error){ 
-                        res.status(500)
-                    res.json(mensajes.errorInterno);
-                    }else{
-                        if(result.length > 0){
-                            const usuario = result[0]
-                            const idUsuario = usuario['id_perfil_usuario_empleador']
-                            
-                            //Id usuario es el mismo que el del token
-                            if(idUserToken == idUsuario){
-                                
-                                res.status(200);                  
-                                res.json(ofertasEmpleo);
-            
-                            }else{
-                                //Es un token valido pero no le pertenece estos recursos
-                                res.status(401)
-                                res.json(mensajes.tokenInvalido);
-                            }
-                           
-                        }
-                    }
-                    
-                });                
     
-            }
-        });
-    }else if(respuesta == 401){
-        res.status(respuesta)
+    var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Empleador")
+    
+    if(respuesta['statusCode'] == 200){
+        var idUsuario = respuesta['tokenData']['idUsuario']
+
+        GestionOfertasEmpleo.getOfertasEmpleo(req.query.idPerfilEmpleador, idUsuario, (codigoRespuesta, cuerpoRespuestaOferta)=>{
+            
+            res.status(codigoRespuesta)
+            res.json(cuerpoRespuestaOferta)
+
+        })
+    }else if(resprespuesta['statusCode'] == 401){
+        res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);
 
     }else{
@@ -142,112 +104,6 @@ function consoleError(error, ubicacion){
     console.log('Se ha presentado un problema en: ' + ubicacion)
     console.log('Error(es): ' + error)
     console.log('--------------------------------------------------------------------------------------')
-}
-
-function contratacionesEmpleo(idOfertaEmpleo, res, callback){
-    //Obtenemos la contratación
-    var pool = mysqlConnection
-    pool.query('SELECT * FROM contratacion_empleo WHERE id_oferta_empleo_coe = ?;',[idOfertaEmpleo] , (error, existeContratacion)=>{
-        if(error){
-
-            consoleError(error, 'Funcion: contratacionesEmpleo Paso: Consultar contratacion')
-
-            res.status(500) 
-            res.json(mensajes.errorInterno);
-
-        }else if(existeContratacion.length == 0){
-                   
-            console.log('No existe la contratación')
-            //Estructura JSON contración
-            const contratacion = {}
-            callback(contratacion) 
-
-        }else{ //Obtener la lista de las contrataciones de aspirantes
-            console.log('Muestra')
-            console.log(existeContratacion[0])
-            var idContratacion = existeContratacion[0]['id_contratacion_empleo']
-            const contratacionEmpleoDatos = existeContratacion[0]
-
-            pool.query('SELECT contratacion_empleo_aspirante.id_perfil_aspirante_cea, perfil_aspirante.nombre as nombre_aspirante,contratacion_empleo_aspirante.valoracion_aspirante FROM contratacion_empleo_aspirante INNER JOIN perfil_aspirante ON perfil_aspirante.id_perfil_aspirante = contratacion_empleo_aspirante.id_perfil_aspirante_cea WHERE id_contratacion_empleo_cea = ?',[idContratacion] , (error, resultadoContratacionesAspirante)=>{
-                if(error){ 
-                    consoleError(error, 'Funcion: contratacionesEmpleo Paso: Consultar contratacionesAspirantes')
-                    
-                    res.status(500)
-                    res.json(mensajes.errorInterno);
-            
-                }else if(resultadoContratacionesAspirante.length == 0){
-        
-                    console.log('No se pudo obtener la contratación aspirante') 
-                    //Estructura JSON contración
-                    const contratacion = {}
-
-                    contratacion['application/json'] = {
-                        'estatus': contratacionEmpleoDatos['estatus'],
-                        'fechaContratacion': contratacionEmpleoDatos['fecha_contratacion'],
-                        'idContratacionEmpleo': contratacionEmpleoDatos['id_contratacion_empleo'],                        
-                        'idOfertaEmpleo': contratacionEmpleoDatos['id_oferta_empleo_coe'],                                              
-                        'fechaFinalizacion': contratacionEmpleoDatos['fecha_finalizacion'],
-                        'contratados': null
-                    }
-                    console.log(contratacion)
-                    callback(contratacion)
-
-                }else{
-
-                    console.log('Segunda muestra')
-                    console.log(existeContratacion[0])
-
-                    const contratacionesEmpleoAspirante = resultadoContratacionesAspirante
-                    console.log(contratacionesEmpleoAspirante)
-
-                    //Estructura JSON contración
-                    const contratacion = {}
-
-
-                    contratacion['application/json'] = {
-                        'estatus': contratacionEmpleoDatos['estatus'],
-                        'fechaContratacion': contratacionEmpleoDatos['fecha_contratacion'],
-                        'idContratacionEmpleo': contratacionEmpleoDatos['id_contratacion_empleo'],                        
-                        'idOfertaEmpleo': contratacionEmpleoDatos['id_oferta_empleo_coe'],                                              
-                        'fechaFinalizacion': contratacionEmpleoDatos['fecha_finalizacion'],
-                        'contratados': contratacionesEmpleoAspirante
-                    }
-                    console.log('convertirJson')
-                    console.log(contratacion)
-                    
-                    callback(contratacion['application/json'])
-                }
-        
-            });
-
-
-        }
-
-    });  
-}
-
-function categoriaOferta(idCategoriaEmpleo, res, callback){
-    try {
-        var query = 'SELECT id_categoria_empleo, nombre as categoria FROM categoria_empleo WHERE id_categoria_empleo = ?'
-        var pool = mysqlConnection
-
-        pool.query(query,[idCategoriaEmpleo], (error, resultadoCategoria) => {
-            if(error){
-                res.status(500)
-                res.json(mensajes.errorInterno)
-            }else if (resultadoCategoria.length == 0){
-                res.status(404)
-                res.json(mensajes.peticionNoEncontrada)
-            }else{
-                console.log(resultadoCategoria[0]['categoria'])
-            
-                callback(resultadoCategoria[0]['categoria'])
-            }
-        })
-    } catch (error) {
-        res.status(500)
-        res.json(mensajes.errorInterno)
-    }
 }
 
 function getFotos(idOfertaEmpleo, res, callback){
@@ -328,82 +184,22 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', validarParamId, (req, res) => {
 
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
-    var respuesta = verifyToken(token)
- 
-    if(respuesta == 200){
-        var pool = mysqlConnection;
-
-        pool.query('SELECT * FROM oferta_empleo WHERE id_oferta_empleo= ?;', [req.params.idOfertaEmpleo], (error, resultadoOfertaEmpleo)=>{
-            
-            if(error){ 
-                consoleError(error, 'GET: ofertasEmpleo-E/:idOfertaEmpleo Paso: 1era query mysql')
-
-                res.status(500)
-                res.json(mensajes.errorInterno);
-                
-            }else if(resultadoOfertaEmpleo.length == 0){
-                
-                res.status(404)
-                res.json(mensajes.peticionNoEncontrada);
-     
-            }else{
-                
-                var ofertaEmpleo = resultadoOfertaEmpleo[0];
-                const tokenData = jwt.verify(token, keys.key); 
-                
-                // IdUsuario del token
-                var idUserToken = tokenData['idUsuario']
-                var idUserMatch = ofertaEmpleo["id_perfil_oe_empleador"]
-
-                //Verificación de autorización de token respecto al recurso solicitado
-                pool.query('SELECT id_perfil_usuario_empleador FROM perfil_empleador WHERE id_perfil_empleador = ?;', [idUserMatch], (error, result)=>{
-                    if(error){ 
-                        consoleError(error, 'GET: ofertasEmpleo-E/:idOfertaEmpleo Paso: 2da query mysql')
-                        
-                        res.status(500)
-                        res.json(mensajes.errorInterno);
-                    }else{
-                        if(result.length > 0){
-                            const usuario = result[0]
-                            const idUsuario = usuario['id_perfil_usuario_empleador']
-                            
-                            //Id usuario es el mismo que el del token
-                            if(idUserToken == idUsuario){
-                                contratacionesEmpleo(ofertaEmpleo['id_oferta_empleo'], res, function(contratacionesOfertaEmpleo){
-                                    
-                                    categoriaOferta(ofertaEmpleo['id_categoria_oe'], res, function(categoriaEmpleo){
-
-                                            const ofertaEmpleoJson = esctructurarJSON(ofertaEmpleo, categoriaEmpleo, contratacionesOfertaEmpleo)
-                                            res.status(200);
-                                            res.send(ofertaEmpleoJson['application/json']);                                     
-                                        
-                                        
-
-                                    })
-                                   
-                                })
-
-            
-                            }else{
-                                //Es un token valido pero no le pertenece ese recurso
-                                res.status(401)
-                                res.json(mensajes.tokenInvalido);
-                            }
-                           
-                        }else{
-                            res.status(404)
-                            res.json(mensajes.peticionNoEncontrada);
-                        }
-                    }
-                    
-                });
-            }
-
     
-        });
+    var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Empleador")
+    
+    if(respuesta['statusCode'] == 200){
+        var idOfertaEmpleo = req.params.idOfertaEmpleo
+        var idUsuario = respuesta['tokenData']['idUsuario']
 
-    }else if(respuesta == 401){
-        res.status(respuesta)
+        GestionOfertasEmpleo.getOfertaEmpleo(idOfertaEmpleo, idUsuario, function(codigoRespuesta, cuerpoRespuestaOferta){
+
+            res.status(codigoRespuesta)
+            res.json(cuerpoRespuestaOferta)
+
+        })
+
+    }else if(respuesta['statusCode'] == 401){
+        res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);
 
     }else{
@@ -417,11 +213,18 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', validarParamId, (req, res) => {
 
 path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo/fotografia', (req,res) => {
 
-    getFotos(req.params.idOfertaEmpleo, res, function(fotos){
+    var idOfertaEmpleo =req.params.idOfertaEmpleo
+    GestionOfertasEmpleo.getFotografiasOfertaEmpleo(idOfertaEmpleo, function(codigoRespuesta, cuerpoFotos){
+        res.status(codigoRespuesta)
+        res.json(cuerpoFotos)
+    })
+
+    /*getFotos(req.params.idOfertaEmpleo, res, function(fotos){
 
         res.status(200);
         res.json(fotos);
-    })         
+    })       */  
+
 });    
 
 
