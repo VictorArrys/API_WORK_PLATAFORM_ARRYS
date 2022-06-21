@@ -451,6 +451,7 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/conversaciones/:idConversacion
             }
         });*/
     } else {
+        console.log("token invalidado")
         res.status(401).send(mensajes.tokenInvalido);
     }
 });

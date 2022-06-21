@@ -9,7 +9,7 @@ exports.ConversacionDAO = class ConversacionDAO {
     }
 
     static getConversacionAspirante(idAspirante, idConversacion, callback){
-
+        
     }
 
     static getConversacionesDemandante(idDemandante, callback) {
