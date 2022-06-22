@@ -5,38 +5,31 @@ const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
 const mensajes = require('../../utils/mensajes');
 
-function verificarTokenAspirante(token, idPerfilAspirante) {
-    try{
-        const tokenData = jwt.verify(token, keys.key);
-        if (tokenData['tipo'] == "Aspirante")
-            return {"resultado":true, "datosToken": tokenData};
-        else
-            return {"resultado":false, "datosToken": tokenData};
-    } catch (error) {
-        return {"resultado":false, "datosToken": null};
-    }
-}
+const GestionToken = require('../utils/GestionToken');
+
 
 path.post("/v1/ofertasEmpleo-A/:idOfertaEmpleo/solicitarVacante", (req, res)=>{
     const token = req.headers['x-access-token'];
     
     var idPerfilAspirante = req.body['idPerfilAspirante'];
     var idOfertaEmpleo = req.params['idOfertaEmpleo'];
-    
-    var {tokenValido, datosToken} = verificarTokenAspirante(token);
+    console.log(idPerfilAspirante);
+    var validacionToken = GestionToken.ValidarTokenTipoUsuario(token, "Aspirante");
 
-    if (tokenValido) {
+    if (validacionToken.statusCode == 200) {
         var queryComprobacion = "SELECT COUNT(*) as numSolicitudes FROM solicitud_aspirante where id_perfil_aspirante_sa = ? and id_oferta_empleo_sa = ?;";
         mysqlConnection.query(queryComprobacion, [idPerfilAspirante,idOfertaEmpleo], (error, resultado) => {
             if (error) {
+                
                 res.status(500);
                 res.json(mensajes.errorInterno);
             } else {
                 var numSolicitud = resultado[0]['numSolicitudes'];
                 if (numSolicitud == 0) {
                     querySolicitud = "INSERT INTO solicitud_aspirante ( id_perfil_aspirante_sa, id_oferta_empleo_sa, estatus, fecha_registro) VALUES ( ?, ?, 1, NOW());";
-                    mysqlConnection.query(querySolicitud, [], (error, resultado) => {
+                    mysqlConnection.query(querySolicitud, [idPerfilAspirante, idOfertaEmpleo], (error, resultado) => {
                         if (error) {
+                            console.log(error)
                             res.status(500);
                             res.json(mensajes.errorInterno);
                         } else {
@@ -49,18 +42,18 @@ path.post("/v1/ofertasEmpleo-A/:idOfertaEmpleo/solicitarVacante", (req, res)=>{
                             }
 
                             res.status(201);
-                            res.send(solcitud);
+                            res.send(nuevaSolcitud);
                         }
                     });
                 } else {
-                    res.status(409);
+                    res.status(403);
                     res.send(mensajes.solicitudEmpleoRegistrada);
                 }
             }
         })
         mysqlConnection.query
     } else {
-        res.status(respuesta)
+        res.status(validacionToken.statusCode)
         res.json(mensajes.tokenInvalido);
     }
 

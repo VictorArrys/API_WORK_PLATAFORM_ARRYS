@@ -63,8 +63,8 @@ path.get("/v1/ofertasEmpleo-A", (req, res) => {
 
 path.get("/v1/ofertasEmpleo-A/:idOfertaEmpleo", (req, res) => {
     const token = req.headers['x-access-token'];
-    const idOfertaEmpleo = req.query['idOfertaEmpleo'];
-    var tokenValido = verificarTokenAspirante(token);
+    const idOfertaEmpleo = req.params['idOfertaEmpleo'];
+    var tokenValido = verifyTokenAspirante(token);
     if(tokenValido) {
         try {
             var queryOferta = "SELECT oe.* FROM oferta_empleo AS oe iNNER JOIN perfil_empleador AS pe ON pe.id_perfil_empleador = oe.id_perfil_oe_empleador INNER JOIN perfil_usuario AS pu ON pu.id_perfil_usuario = pe.id_perfil_usuario_empleador WHERE pu.estatus = 1 AND oe.id_oferta_empleo = ?;";
@@ -73,10 +73,11 @@ path.get("/v1/ofertasEmpleo-A/:idOfertaEmpleo", (req, res) => {
                     throw error;
                 }
                 if (resultadoOferta.length == 0){
+                    console.log(idOfertaEmpleo)
                     res.status(404).send(mensajes.peticionNoEncontrada);
                 } else {
                     ofertaEmpleo =  resultadoOferta[0];
-                    var queryFotos = "SELECT  FROM fotografia where id_oferta_empleo_fotografia = ?;"
+                    var queryFotos = "SELECT * FROM fotografia where id_oferta_empleo_fotografia = ?;"
                     mysqlConnection.query(queryFotos,[ofertaEmpleo['id_oferta_empleo']], (error, resultadoFotos) => {
                         if(error) {
                             throw error;
@@ -106,15 +107,14 @@ path.get("/v1/ofertasEmpleo-A/:idOfertaEmpleo", (req, res) => {
                             'horaFin': ofertaEmpleo['hora_fin'],
                             'horaInicio': ofertaEmpleo['hora_inicio'],
                             'idCategoriaEmpleo': ofertaEmpleo['id_categoria_oe'],
-                            'categoriaEmpleo': categoriaEmpleo,
                             'nombre': ofertaEmpleo['nombre'],
                             'tipoPago': ofertaEmpleo['tipo_pago'],
                             'vacantes': ofertaEmpleo['vacantes'],
                             'idOfertaEmpleo': ofertaEmpleo['id_oferta_empleo'],
                             'idPerfilEmpleador': ofertaEmpleo['id_perfil_oe_empleador'],
-                            'fotografias': listaFotos
+                            //'fotografias': listaFotos
                         };
-                        res.send(200).json(ofertaEmpleoConsultada);
+                        res.status(200).json(ofertaEmpleoConsultada);
                     })
                 }
             });
