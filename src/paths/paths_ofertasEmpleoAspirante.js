@@ -6,6 +6,8 @@ const jwt = require('jsonwebtoken');
 const { send, status } = require('express/lib/response');
 const mensajes = require('../../utils/mensajes');
 
+const GestionToken = require('../utils/GestionToken');
+
 function verifyTokenAspirante(token, idPerfilAspirante) {
     try{
         const tokenData = jwt.verify(token, keys.key);
@@ -21,14 +23,14 @@ function verifyTokenAspirante(token, idPerfilAspirante) {
 path.get("/v1/ofertasEmpleo-A", (req, res) => {
     const token = req.headers['x-access-token'];
     const categoriasEmpleo = req.query['categoriasEmpleo'];
-    var tokenValido = verificarTokenAspirante(token);
-    if(tokenValido) {
-        var queryConsulta = "SELECT ofEmp.id_oferta_empleo, ofEmp.fecha_inicio, ofEmp.nombre, ofEmp.direccion, ofEmp.cantidad_pago, ofEmp.tipo_pago, ofEmp.dias_laborales, " +
-                                    "ofEmp.vacantes - (SELECT COUNT(*) FROM contratacion_empleo_aspirante inner join contratacion_empleo ON id_contratacion_empleo = id_contratacion_empleo_cea WHERE id_oferta_empleo_coe = ofEmp.id_oferta_empleo) as vacantes_disponibles " +
+    var tokenValido = GestionToken.ValidarTokenTipoUsuario(token, "Aspirante");
+    if(tokenValido.statusCode == 200) {
+        var queryConsulta = "SELECT ofEmp.id_oferta_empleo, date_format(fecha_inicio, \"%Y-%m-%d\") as fecha_inicio, ofEmp.nombre, ofEmp.direccion, ofEmp.cantidad_pago, ofEmp.tipo_pago, ofEmp.dias_laborales, " +
+                                    "ofEmp.vacantes, date_format(fecha_finalizacion, \"%Y-%m-%d\") as fecha_finalizacion " +
                                 "FROM oferta_empleo AS ofEmp INNER JOIN perfil_empleador AS pefEmp " +
                                     "ON (pefEmp.id_perfil_empleador = ofEmp.id_perfil_oe_empleador) " +
                                 "INNER JOIN perfil_usuario as pefUs ON (pefUs.id_perfil_usuario = pefEmp.id_perfil_usuario_empleador) " +
-                            "WHERE id_categoria_oe IN (?) AND ofEmp.fecha_finalizacion < now();";
+                            "WHERE id_categoria_oe IN (?) AND ofEmp.fecha_finalizacion > now() AND pefUs.estatus = 1;";
         mysqlConnection.query(queryConsulta,[categoriasEmpleo], (error, resultadoConsulta) => {
             if (error) {
                 res.status(500);
@@ -39,13 +41,14 @@ path.get("/v1/ofertasEmpleo-A", (req, res) => {
                     var ofertaEmpleo = {};
                     ofertaEmpleo = {
                         "idOfertaEmpleo" : fila['id_oferta_empleo'],
-                        "fechaInicio" : fila['fecha_inicio'], 
+                        "fechaInicio" : fila['fecha_inicio'],
+                        "fechaFinalizacion" : fila['fecha_finalizacion'], 
                         "nombreEmpleo" : fila['nombre'], 
                         "direccion" : fila['direccion'], 
                         "cantidadPago" : fila['cantidad_pago'], 
                         "tipoPago" : fila['tipo_pago'], 
                         "diasLaborales" : fila['dias_laborales'], 
-                        "vacantesDisponibles" : fila['vacantes_disponibles']
+                        "vacantes" : fila['vacantes']
                     }
                     listaOfertas.push(ofertaEmpleo);
                 });

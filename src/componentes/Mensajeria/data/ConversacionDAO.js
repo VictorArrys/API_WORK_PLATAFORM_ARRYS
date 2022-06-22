@@ -14,8 +14,6 @@ exports.ConversacionDAO = class ConversacionDAO {
         mysqlConnection.query(queryConversaciones, [idAspirante], (error, resultado) => {
             if(error){ 
                 callback(500,mensajes.errorInterno)
-            } else if(resultado.length == 0){
-                callback(404, mensajes.peticionNoEncontrada)
             } else {
                 const conversaciones = [];
                 resultado.forEach(fila => {
@@ -69,8 +67,6 @@ exports.ConversacionDAO = class ConversacionDAO {
         mysqlConnection.query(query, [idDemandante], (error, resultado) => {
             if(error){ 
                 callback(500,mensajes.errorInterno);
-            } else if(resultado.length == 0){
-                callback(404,mensajes.peticionNoEncontrada);
             } else {
                 const conversaciones = [];
                 resultado.forEach(fila => {
