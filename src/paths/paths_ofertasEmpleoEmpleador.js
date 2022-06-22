@@ -15,6 +15,7 @@ const mensajes = require('../../utils/mensajes');
 const { vary } = require('express/lib/response');
 const { json } = require('body-parser');
 const { GestionOfertasEmpleo } = require('../componentes/GestionOfertasEmpleo');
+const { OfertaEmpleo } = require('../componentes/GestionOfertasEmpleo/modelo/OfertaEmpleo')
 const GestionToken = require('../utils/GestionToken');
 
 
@@ -192,7 +193,7 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', validarParamId, (req, res) => {
         var idUsuario = respuesta['tokenData']['idUsuario']
 
         GestionOfertasEmpleo.getOfertaEmpleo(idOfertaEmpleo, idUsuario, function(codigoRespuesta, cuerpoRespuestaOferta){
-
+            
             res.status(codigoRespuesta)
             res.json(cuerpoRespuestaOferta)
 
@@ -213,88 +214,71 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', validarParamId, (req, res) => {
 
 path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo/fotografia', (req,res) => {
 
-    var idOfertaEmpleo =req.params.idOfertaEmpleo
+    var idOfertaEmpleo = req.params.idOfertaEmpleo
     GestionOfertasEmpleo.getFotografiasOfertaEmpleo(idOfertaEmpleo, function(codigoRespuesta, cuerpoFotos){
         res.status(codigoRespuesta)
         res.json(cuerpoFotos)
     })
 
-    /*getFotos(req.params.idOfertaEmpleo, res, function(fotos){
-
-        res.status(200);
-        res.json(fotos);
-    })       */  
-
 });    
-
 
 const multerUpload = multer({storage:multer.memoryStorage(), limits:{fileSize:8*1024*1024*10}})
 
 path.post('/v1/ofertasEmpleo-E/:idOfertaEmpleo/fotografia', multerUpload.single("fotografia"), (req,res) => {
+    var fotografia = req.file.buffer
+    var idOfertaEmpleo = req.params.idOfertaEmpleo
 
-    var query = "INSERT INTO fotografia(id_oferta_empleo_fotografia, imagen) VALUES(?, ?);"
-    const idOfertaEmpleo = req.params.idOfertaEmpleo
-
-    mysqlConnection.query(query, [idOfertaEmpleo, req.file.buffer], (error, resultadoFotografia) => {
-        if (error){
-            console.log('Error debido a: ')
-            console.log(error.message)
-            res.status(500)
-            res.json(mensajes.errorInterno)
-        }else if(resultadoFotografia.length == 0){
-            res.status(404)
-            res.json(mensajes.peticionNoEncontrada)
-        }else{
-            console.log('Registro de foto de la oferta exitoso')
-            res.status(201)
-            res.json(mensajes.actualizacionExitosa)
-        }
+    GestionOfertasEmpleo.postFotografiaOfertaEmpleo(idOfertaEmpleo, fotografia, (codigoRespuesta, cuerpoRespuesta)=>{
+        res.status(codigoRespuesta)
+        res.json(cuerpoRespuesta)
     })
+    
 });     
 
 path.post('/v1/ofertasEmpleo-E', validarOfertaEmpleo, (req, res) => {
 
+    //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
-    var respuesta = verifyToken(token)
+    
+    var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Empleador")
+    
+    if(respuesta['statusCode'] == 200){
 
-    console.log(respuesta)
-        if(respuesta == 200){
+        console.log(req.body)
 
-            console.log(req.body)
+        var idEmpleador = req.body.idPerfilEmpleador
+        var ofertaEmpleoNueva = new OfertaEmpleo();
 
-            var query = `INSERT INTO oferta_empleo(id_perfil_oe_empleador, id_categoria_oe, nombre, descripcion, vacantes, dias_laborales, tipo_pago, cantidad_pago, direccion, hora_inicio, hora_fin, fecha_inicio, fecha_finalizacion)  VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-        
-            mysqlConnection.query(query, [req.body.idPerfilEmpleador, req.body.idCategoriaEmpleo, req.body.nombre, req.body.descripcion, 
-                    req.body.vacantes, req.body.diasLaborales, req.body.tipoPago, req.body.cantidadPago, req.body.direccion,
-                    req.body.horaInicio, req.body.horaFin, req.body.fechaDeIinicio, req.body.fechaDeFinalizacion], (err, rows, fields) => {
-                if (!err) {
-                    const resultCreated = {};
-                    resultCreated['application/json']={
-                    'idOfertaEmpleo': rows['insertId']
-                    }
+        ofertaEmpleoNueva.idCategoriaEmpleo = req.body.idCategoriaEmpleo 
+        ofertaEmpleoNueva.nombre = req.body.nombre
+        ofertaEmpleoNueva.descripcion = req.body.descripcion
+        ofertaEmpleoNueva.vacantes = req.body.vacantes
+        ofertaEmpleoNueva.diasLaborales = req.body.diasLaborales
+        ofertaEmpleoNueva.tipoPago = req.body.tipoPago
+        ofertaEmpleoNueva.cantidadPago = req.body.cantidadPago
+        ofertaEmpleoNueva.direccion = req.body.direccion
+        ofertaEmpleoNueva.horaInicio = req.body.horaInicio 
+        ofertaEmpleoNueva.horaFin = req.body.horaFin
+        ofertaEmpleoNueva.fechaDeIinicio = req.body.fechaDeIinicio 
+        ofertaEmpleoNueva.fechaDeFinalizacion = req.body.fechaDeFinalizacion
 
-                    res.status(201);
-                    console.log(mensajes.registroExitoso)
-                    res.send(resultCreated['application/json']);
-                } else {
-                    consoleError(error, 'POST: ofertasEmpleo-E Paso: 1era query mysql')                   
+        GestionOfertasEmpleo.postOfertaEmpleo(idEmpleador, ofertaEmpleoNueva, (codigoRespuesta, cuerpoRespuesta)=>{
+            
+            res.status(codigoRespuesta)
+            res.json(cuerpoRespuesta)
 
-                    res.status(500)
-                    res.json(mensajes.errorInterno);
+        })
 
-                }
-            }) 
+            
+    }else if(respuesta['statusCode'] == 401){
+        res.status(respuesta['statusCode'])
+        res.json(mensajes.tokenInvalido);
+    
+    }else{
+        res.status(500)
+        res.json(mensajes.errorInterno);
            
-
-        }else if(respuesta == 401){
-            res.status(respuesta)
-            res.json(mensajes.tokenInvalido);
-
-        }else{
-            res.json(mensajes.errorInterno);
-            res.status(500)
-        }
-
+    }
 });
 
 path.put('/v1/ofertasEmpleo-E/:idOfertaEmpleo/:idFotografia/fotografia', multerUpload.single("fotografia"), (req,res) => {

@@ -14,7 +14,6 @@ exports.CategoriaEmpleoDAO = class CategoriaEmpleoDAO {
                     callback(500, mensajes.errorInterno)
                     
                 }else if (resultadoCategoria.length == 0){
-
                     callback(404, mensajes.peticionNoEncontrada)
 
                     }else{

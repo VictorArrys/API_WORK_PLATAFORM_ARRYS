@@ -13,4 +13,5 @@ exports.OfertaEmpleo = class OfertaEmpleo {
     vacantes;
     idOfertaEmpleo;
     idPerfilEmpleador;
+
 }

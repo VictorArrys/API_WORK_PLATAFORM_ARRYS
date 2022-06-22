@@ -71,9 +71,9 @@ exports.GestionOfertasEmpleo = class GestionOfertasEmpleo {
         OfertaEmpleoDAO.putFotografiaOfertaEmpleo(idOfertaEmpleo, fotografia, callback);    
     }
 
-    static postOfertaEmpleo(idEmpleador, ofertaEmpleo, callback) {
+    static postOfertaEmpleo(idEmpleador, ofertaEmpleoNueva, callback) {
         //ofertaEmpleo debe ser de tipo <<OfertaEmpleo>>
-        OfertaEmpleo.postOfertaEmpleo(idEmpleador, ofertaEmpleoNueva, callback);
+        OfertaEmpleoDAO.postOfertaEmpleo(idEmpleador, ofertaEmpleoNueva, callback);
     }
 
     //Aspirante
