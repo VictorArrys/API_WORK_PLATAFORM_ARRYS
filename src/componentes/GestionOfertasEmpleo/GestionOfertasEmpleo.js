@@ -32,7 +32,8 @@ exports.GestionOfertasEmpleo = class GestionOfertasEmpleo {
                                 //Datos principales de la oferta de empleo
                                 ofertaEmpleo = cuerpoRespuestaOferta
                                 //Anexo de su contratacion y nombre de la categoria
-                                ofertaEmpleo.contratacion = cuerpoRespuestaContratacion;
+                                console.log(JSON.stringify(cuerpoRespuestaContratacion))
+                                ofertaEmpleo.contratacion = cuerpoRespuestaContratacion
                                 ofertaEmpleo.categoriaEmpleo = cuerpoRespuestaCategoria;
 
                                 callback(200, ofertaEmpleo);

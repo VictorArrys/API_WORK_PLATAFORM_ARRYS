@@ -69,6 +69,7 @@ function nombreAspirante(idAspirante, res, callback){
             res.json(mensajes.peticionNoEncontrada);
 
         }else{ //En caso de existir la contratación solo agregamos el aspirante a ella
+            console.log(resultadoNombreAspirante[0]['nombre'])
             callback(resultadoNombreAspirante[0]['nombre'])
             
         }
@@ -151,27 +152,12 @@ path.patch('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
         //Obtenemos la contratación
         existeContratacion(req.params.idOfertaEmpleo, res, function(contratacionEmpleo){
                 //Agregar valoración del aspirante en caso de existir la contratación
-    
                 //Obtener datos del body
                 var idAspirante = req.query.idAspirante
                 var valoracionAspirante = req.body.valoracionAspirante
-                console.log(contratacionEmpleo)
                 mysqlConnection.query('UPDATE contratacion_empleo_aspirante SET valoracion_aspirante = ? WHERE id_perfil_aspirante_cea = ? AND id_contratacion_empleo_cea = ?;',[req.body.valoracionAspirante, idAspirante, contratacionEmpleo] , (error, resultadoEvaluacionAspirante)=>{
-                    if(error){ 
-                        console.log(error)
-                        res.status(500)
-                        res.json(mensajes.errorInterno);
-                        
-                    }else if(resultadoEvaluacionAspirante.length == 0){
-                        console.log('No existe la contratación')
-                        res.status(404)
-                        res.json(mensajes.peticionNoEncontrada);
-            
-                    }else{
-
-                        nombreAspirante(idAspirante, res, function(nombreAspirante){
-                            res.status(200)
-    
+                    if(!error){ 
+                        nombreAspirante(idAspirante, res, function(nombreAspirante){          
                             const valoracionAspiranteR = {}
     
                             valoracionAspiranteR['application/json'] = {
@@ -179,10 +165,17 @@ path.patch('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
                                 'valoracionAspirante': valoracionAspirante,
                                 'nombreAspirante': nombreAspirante
                             }
-    
+                            res.status(200)
                             res.send(valoracionAspiranteR['application/json'])  
 
-                        })                 
+                        })    
+                        
+                    }
+                    else{
+
+                        console.log(error)
+                        res.status(500)
+                        res.json(mensajes.errorInterno);                                     
             
                     }
                 });

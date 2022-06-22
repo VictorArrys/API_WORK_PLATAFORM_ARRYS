@@ -232,7 +232,55 @@ exports.OfertaEmpleoDAO = class OfertaEmpleoDAO {
 
     }
 
-    static putOfertaEmpleo(ofertaEmpleo, idUsuario, callback) {
+    static putOfertaEmpleo(ofertaEmpleo, idUsuarioToken, callback) {        
+
+        var updateQuery = 'UPDATE oferta_empleo SET id_categoria_oe = ?, nombre = ?, descripcion = ?, vacantes = ?, dias_laborales = ?, tipo_pago = ?, cantidad_pago = ?, direccion = ?, hora_inicio = ?, hora_fin = ?, fecha_inicio = ?, fecha_finalizacion = ? WHERE id_oferta_empleo = ?;' 
+
+        var idEmpleador = ofertaEmpleo.idPerfilEmpleador
+
+        //Verificación de autorización de token respecto al recurso solicitado
+        mysqlConnection.query('SELECT id_perfil_usuario_empleador FROM perfil_empleador WHERE id_perfil_empleador = ?;', [idEmpleador], (error, result)=>{
+            if(error){ 
+                MostrarError.MostrarError(error, '| PUT: ofertaEmpleo | Paso: Verificación de autorización de token')
+
+                callback(500, mensajes.errorInterno)
+            }else{
+                if(result.length > 0){
+                    const usuario = result[0]
+                    const idUsuario = usuario['id_perfil_usuario_empleador']
+                    
+                    //Id usuario es el mismo que el del token
+                    if(idUsuarioToken == idUsuario){
+                        mysqlConnection.query(updateQuery, [ofertaEmpleo.idCategoriaEmpleo, ofertaEmpleo.nombre, ofertaEmpleo.descripcion, 
+                            ofertaEmpleo.vacantes, ofertaEmpleo.diasLaborales, ofertaEmpleo.tipoPago, ofertaEmpleo.cantidadPago, ofertaEmpleo.direccion,
+                            ofertaEmpleo.horaInicio, ofertaEmpleo.horaFin, ofertaEmpleo.fechaDeIinicio, ofertaEmpleo.fechaDeFinalizacion, ofertaEmpleo.idOfertaEmpleo], (error, rows, fields) => {
+                            if (!error) {
+                                const updated = {}
+
+                                updated['application/json'] = {
+                                    'cambios': rows['changedRows']
+                                }
+                                callback(200, updated)
+
+                            } else {
+                                MostrarError.MostrarError(error, '| PUT: oferta Empleo | Paso: update query mysql')
+                                callback(500, mensajes.errorInterno)
+                            
+                            }
+                        }); 
+    
+                    }else{
+                        //Es un token valido pero no le pertenece ese recurso
+                        callback(401, mensajes.tokenInvalido)
+                    }
+                   
+                }else{
+                    
+                    callback(404, mensajes.peticionNoEncontrada)
+                }
+            }
+            
+        });
 
     }
 
