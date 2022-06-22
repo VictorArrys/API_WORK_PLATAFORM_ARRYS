@@ -181,6 +181,24 @@ exports.OfertaEmpleoDAO = class OfertaEmpleoDAO {
 
     static postFotografiaOfertaEmpleo(idOfertaEmpleo, fotografia, callback) {
 
+        var query = "INSERT INTO fotografia(id_oferta_empleo_fotografia, imagen) VALUES(?, ?);"
+
+        mysqlConnection.query(query, [idOfertaEmpleo, fotografia], (error, resultadoFotografia) => {
+            if (error){
+                MostrarError.MostrarError(error, 'PostFotografiaOfertaEmpleo')
+
+                callback(500, mensajes.errorInterno)
+
+            }else if(resultadoFotografia.length == 0){
+
+                callback(404, mensajes.peticionIncorrecta)
+            }else{
+                console.log('Registro de foto de la oferta exitoso')
+                callback(201, mensajes.registroExitoso)
+            }
+        })
+
+
     }
 
     static putFotografiaOfertaEmpleo(idOfertaEmpleo, fotografia, callback) {
@@ -190,6 +208,27 @@ exports.OfertaEmpleoDAO = class OfertaEmpleoDAO {
     }
 
     static postOfertaEmpleo(idEmpleador, ofertaEmpleo, callback) {
+        var query = `INSERT INTO oferta_empleo(id_perfil_oe_empleador, id_categoria_oe, nombre, descripcion, vacantes, dias_laborales, tipo_pago, cantidad_pago, direccion, hora_inicio, hora_fin, fecha_inicio, fecha_finalizacion)  VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        
+        mysqlConnection.query(query, [idEmpleador, ofertaEmpleo.idCategoriaEmpleo, ofertaEmpleo.nombre, ofertaEmpleo.descripcion, 
+            ofertaEmpleo.vacantes, ofertaEmpleo.diasLaborales, ofertaEmpleo.tipoPago, ofertaEmpleo.cantidadPago, ofertaEmpleo.direccion,
+            ofertaEmpleo.horaInicio, ofertaEmpleo.horaFin, ofertaEmpleo.fechaDeIinicio, ofertaEmpleo.fechaDeFinalizacion], (error, rows, fields) => {
+        if (!error) {
+            console.log(mensajes.registroExitoso)
+            const resultCreated = {};
+            resultCreated['application/json']={
+            'idOfertaEmpleo': rows['insertId']
+            }
+
+            callback(201, resultCreated)
+            
+        } else {
+            MostrarError.MostrarError(error, 'POST: ofertasEmpleo-E Paso: 1era query mysql')         
+
+            callback(500, mensajes.errorInterno)
+
+        }
+    }) 
 
     }
 
