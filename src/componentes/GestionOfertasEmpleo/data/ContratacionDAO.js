@@ -17,7 +17,7 @@ exports.ContratacionDAO = class ContratacionDAO {
                     
                 console.log('No existe la contratación')
                 
-                callback(200, 'empty') 
+                callback(200, null) 
 
             }else{ //Obtener la lista de las contrataciones de aspirantes
                 console.log('Muestra')
