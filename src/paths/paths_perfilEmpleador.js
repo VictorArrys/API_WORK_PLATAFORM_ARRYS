@@ -177,8 +177,6 @@ path.get('/v1/perfilEmpleadores', (req, res) => {
 path.post('/v1/perfilEmpleadores', (req, res) => { // listo en api
     var queryThree = 'INSERT INTO perfil_empleador (id_perfil_usuario_empleador, nombre_organizacion, nombre, direccion, fecha_nacimiento, telefono, amonestaciones) VALUES (?, ?, ?, ?, ?, ?, ?);'
     const { clave, correoElectronico, direccion, estatus, fechaNacimiento, nombre, nombreOrganizacion, telefono, nombreusuario } = req.body
-    console.log(req.body)
-
     try {
         comprobarRegistro(nombreusuario, correoElectronico, res, function(resultado) {
             if (resultado >= 1){
@@ -212,7 +210,7 @@ path.post('/v1/perfilEmpleadores', (req, res) => { // listo en api
                                     const nuevoEmpleador = {}
                                     nuevoEmpleador['application/json'] = {
                                         'idPerfilUsuario': registroUempleador['application/json']['idPerfilUsuario'],
-                                        'idPerfilAspirante': idEmpleador
+                                        'idPerfilEmpleador': idEmpleador
                                     }
     
                                     res.status(201)

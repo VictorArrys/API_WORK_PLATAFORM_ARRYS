@@ -37,6 +37,57 @@ function verifyToken(token){
         }
 }
 
+function ComprobarRegistro(nombreUsuario, correoElectronico, res, resultado){
+    var queryOne = 'SELECT count(id_perfil_usuario) as Comprobacion FROM perfil_usuario WHERE nombre_usuario = ? OR  correo_electronico = ? ;'
+    mysqlConnection.query(queryOne, [nombreUsuario, correoElectronico], (error, comprobacion) =>{
+        if (error){
+            console.log(error)
+            res.status(500)
+            res.json(mensajes.errorInterno)
+        }else{
+            resultado(comprobacion[0]['Comprobacion'])
+        }
+    })
+}
+
+function registrarUsuarioAspirante(datoAspirante, res, callback){
+    var queryTwo = 'INSERT INTO perfil_usuario (nombre_usuario, estatus, clave, correo_electronico, tipo_usuario) VALUES (?, ?, ?, ?, ?);'
+
+    var nombreU = datoAspirante['nombreUsuario']
+    var estatus = datoAspirante['estatus']
+    var clave = datoAspirante['clave']
+    var correoElectronico = datoAspirante['correoElectronico']
+    var tipo = 'Aspirante'
+
+    mysqlConnection.query(queryTwo, [nombreU, estatus, clave, correoElectronico, tipo], (error, registro) =>{
+        if (error){
+            console.log(error)
+            res.status(500)
+            res.json(mensajes.errorInterno)
+        }else if (registro.length == 0){
+            console.log('404 de la funcion')
+            res.status(404)
+            res.json(mensajes.peticionNoEncontrada)
+        }else{
+            if (registro['affectedRows'] == 1){
+                const registroUsuario = {}
+                var id = registro.insertId
+
+                registroUsuario['application/json'] = {
+                    'clave': clave,
+                    'correoElectronico': correoElectronico,
+                    'estatus': estatus,
+                    'idPerfilUsuario': id,
+                    'nombreUsuario': nombreU
+                };
+
+                callback(registroUsuario)
+            }
+        }
+    })
+
+}
+
 const multerUpload = multer({storage:multer.memoryStorage(), limits:{fileSize:8*1024*1024*10}})
 
 path.patch('/v1/perfilAspirantes/:idPerfilAspirante/video', multerUpload.single('video'), (req, res) => {
@@ -87,7 +138,6 @@ path.get('/v1/perfilAspirantes/:idPerfilAspirante/video', (req, res) => {
             stream.write(arrayVideo)
             stream.on('finish', function(){
 
-                console.log('aqui entra y da error')
                 console.log(fileSystem.existsSync(rutaVideo))
                 
 
@@ -231,9 +281,84 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
 
 path.post('/v1/perfilAspirantes', (req, res) => {
     var idDeUsuario = 0
-    const {clave, correoElectronico, direccion, estatus, fechaNacimiento, nombre, nombreUsuario, oficios,
-        telefono } = req.body
+    const {clave, correoElectronico, direccion, estatus, fechaNacimiento, nombre, nombreUsuario, oficios, telefono } = req.body
+    var queryThree = 'INSERT INTO perfil_aspirante ( id_perfil_usuario_aspirante, nombre, direccion, fecha_nacimiento, telefono) VALUES (?, ?, ?, ?, ?); '
+    var queryFour = 'INSERT INTO categoria_aspirante (id_aspirante_ca, id_categoria_ca, experiencia) VALUES ? ;'
+    
     try {
+        ComprobarRegistro(nombreUsuario, correoElectronico, res, function(resultado) {
+            if (resultado >= 1){
+                res.status(422)
+                res.json(mensajes.instruccionNoProcesada)
+            }else{
+                registrarUsuarioAspirante(req.body, res, function(registroUAspirante){
+                    if (res.error){
+                        console.log(res.error)
+                        res.status(500)
+                        res.json(mensajes.errorInterno)
+                    }else{
+                        var idDeUsuario = 0;
+                        idDeUsuario = registroUAspirante['application/json']['idPerfilUsuario']
+
+                        mysqlConnection.query(queryThree, [idDeUsuario, nombre, direccion, fechaNacimiento, telefono], (error, registroPerfil) =>{
+                            if (error){
+                                console.log(error)
+                                res.status(500)
+                                res.json(mensajes.errorInterno)
+                            }else if (registroPerfil.length == 0){
+                                console.log('404 perfil')
+                                res.status(404)
+                                res.json(mensajes.peticionNoEncontrada)
+                            }else{
+                                var idPerfil = registroPerfil.insertId
+
+                                var cont = 0
+
+                                var valores = []
+
+                                for(var i = 0; i < oficios.length; i++){
+                                    valores.push(i)
+                                }
+
+                                do{
+                                    valores[cont] = [idPerfil, oficios[cont].idCategoria, oficios[cont].experiencia]
+                                    cont ++
+                                }while(cont != oficios.length)
+
+                                mysqlConnection.query(queryFour, [valores], (error, registroOficios) =>{
+                                    if (error){
+                                        console.log(error)
+                                        res.status(500)
+                                        res.json(mensajes.errorInterno)
+                                    }else if(registroOficios.length == 0){
+                                        res.status(403)
+                                        res.json(mensajes.prohibido)
+                                    }else{
+                                        if (registroPerfil['affectedRows'] == 1){
+                                            const nuevoEmpleador = {}
+
+                                            nuevoEmpleador['application/json'] ={
+                                                'idPerfilUsuario': registroUAspirante['application/json']['idPerfilUsuario'],
+                                                'idPerfilAspirante': idPerfil
+                                            }
+
+                                            res.status(201)
+                                            res.json(nuevoEmpleador['application/json'])
+                                        }
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
+            }
+        })
+    } catch (error) {
+        res.status(500)
+        res.json(mensajes.errorInterno)
+    }
+
+    /*try {
         var queryOne = 'INSERT INTO perfil_usuario (nombre_usuario, estatus, clave, correo_electronico, tipo_usuario) VALUES (?, ?, ?, ?, ?);'
         var queryTwo = 'INSERT INTO perfil_aspirante ( id_perfil_usuario_aspirante, nombre, direccion, fecha_nacimiento, telefono) VALUES (?, ?, ?, ?, ?); '
         var querythree = 'INSERT INTO categoria_aspirante (id_aspirante_ca, id_categoria_ca, experiencia) VALUES ? ;'
@@ -318,7 +443,7 @@ path.post('/v1/perfilAspirantes', (req, res) => {
     } catch (error) {
         res.status(500)
         res.json(mensajes.errorInterno)
-    }
+    }*/
 
 
 });
