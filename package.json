@@ -4,8 +4,9 @@
   "description": "",
   "main": "ElCamelloAPI.js",
   "scripts": {
+    "devtest" : "node ElCamelloAPI.js",
     "dev": "nodemon src/ElCamelloAPI.js",
-    "test": "newman -c Test/ElCamelloAPITest.json -e Test/ElCamelloEnvironment.json"
+    "test": "newman run Test/ElCamelloAPITest.json -e Test/ElCamelloEnvironment.json"
   },
   "keywords": [],
   "author": "",
