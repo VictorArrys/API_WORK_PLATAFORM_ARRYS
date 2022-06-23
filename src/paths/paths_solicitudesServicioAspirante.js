@@ -38,13 +38,13 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios", (req, r
         var filtroEstatus = "";
         var idAspirante = req.params['idPerfilAspirante'];
         switch(estatus) {
-            case "Pendiente":
+            case "Pendientes":
                 filtroEstatus = "AND estatus = 0";
                 break;
-            case "Aceptado":
+            case "Aceptadas":
                 filtroEstatus = "AND estatus = 1";
                 break;
-            case "Rechazado":
+            case "Rechazadas":
                 filtroEstatus = "AND estatus = -1";
                 break;
             default:
@@ -58,7 +58,7 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios", (req, r
                 res.send(mensajes.errorInterno)
             } else {
                 var listaSolicitudes = [];
-                resultadoresultado.forEach(fila => {
+                resultado.forEach(fila => {
                     var solicitud = {};
                     solicitud = {
                         "idSolicitudServicio": fila['id_solicitud_servicio'],
@@ -89,7 +89,7 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSolici
         var idAspirante = req.params['idPerfilAspirante'];
         var idSolicitudServicio = req.params['idSolicitudServicio'];
 
-        var query = "SELECT * FROM deser_el_camello.solicitud_servicio where id_perfil_ss_aspirante = ? AND id_solicitud_servicio = ?;";
+        var query = "SELECT ss.*, pd.nonbre as nombre FROM solicitud_servicio as ss inner join perfil_demandante as pd ON (ss.id_perfil_ss_demandante = pd.id_perfil_demandante) where id_perfil_ss_aspirante = ? AND id_solicitud_servicio = ?;";
         mysqlConnection.query(query, [idAspirante, idSolicitudServicio], (error, resultado) => {
             if(error){ 
                 res.status(500);
@@ -105,8 +105,10 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSolici
                         "estatus": solicitudServicio['estatus'],
                         "fechaRegistro": solicitudServicio['registro'],
                         "idPerfilDemandante": solicitudServicio['id_perfil_ss_demandante'],
-                        "idPerfilAspirante": solicitudServicio['id_perfil_ss_aspirante']
+                        "idPerfilAspirante": solicitudServicio['id_perfil_ss_aspirante'],
+                        "nombreDemandante": solicitudServicio['nombre']
                     }
+                    console.log(solicitud )
                     res.status(200);
                     res.send(solicitud);
                 } else {
@@ -158,7 +160,7 @@ path.patch("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSoli
                                         var queryConversacion = "INSERT INTO conversacion (nombre_empleo , nombre, fecha_contratacion) " +
                                                                 "VALUES ( " +
                                                                     "(SELECT titulo FROM solicitud_servicio WHERE id_solicitud_servicio = ?), " +
-                                                                    "(SELECT nombre FROM perfil_demandante INNER JOIN solicitud_servicio ON (id_perfil_demandante = id_perfil_ss_demandante) WHERE id_solicitud_servicio = ?), " +
+                                                                    "(SELECT nonbre FROM perfil_demandante INNER JOIN solicitud_servicio ON (id_perfil_demandante = id_perfil_ss_demandante) WHERE id_solicitud_servicio = ?), " +
                                                                     "date_format(NOW(), \"%Y-%m-%d\") " +
                                                                 ");";
                                         conexion.query(queryConversacion, [idSolicitudServicio, idSolicitudServicio], (error, resultadoConversacion) => {
@@ -180,16 +182,25 @@ path.patch("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSoli
                                                             throw error;
                                                         });
                                                     } else {
-                                                        //Guardar cambios de la base de datos
-                                                        conexion.commit(function(error) {
-                                                            if (error) {
-                                                              return connection.rollback(function() {
-                                                                console.log
-                                                                throw error;
-                                                              });
+                                                        
+                                                        var queryParticipantes = "INSERT INTO participacion_conversacion (id_conversacion_participacion, id_perfil_usuario_participacion ) VALUES (?, ?), (?, (SELECT pd.id_perfil_usuario_demandante FROM solicitud_servicio as ss inner join perfil_demandante as pd on pd.id_perfil_demandante = ss.id_perfil_ss_demandante where ss.id_solicitud_servicio = ?))";
+                                                        conexion.query(queryParticipantes, [resultadoConversacion.insertId, idAspirante, resultadoConversacion.insertId, idSolicitudServicio], (error) => {
+                                                            if(error) {
+                                                                conexion.rollback(function(error) {
+                                                                    console.log("No se pudo registrar la contratación")
+                                                                    throw error;
+                                                                });
+                                                            } else { 
+                                                                conexion.commit(function(error) {
+                                                                    if (error) {
+                                                                      return connection.rollback(function() {
+                                                                        throw error;
+                                                                      });
+                                                                    }
+                                                                    res.status(200).json(mensajes.solicitudServicioAceptada)
+                                                                });
                                                             }
-                                                            res.status(204).json(mensajes.solicitudServicioAceptada)
-                                                        });
+                                                        })
                                                     }
                                                 });
                                             }
@@ -237,7 +248,7 @@ path.patch("/v1/perfilAspirantes/{idPerfilAspirante}/solicitudesServicios/{idSol
                         res.send(mensajes.errorInterno);
                     } else {
                         if(resultadoAceptar.affectedRows == 1) {
-                            res.status(204).send(mensajes.solicitudServicioRechazada);
+                            res.status(200).send(mensajes.solicitudServicioRechazada);
                         }
                     }
                 });
