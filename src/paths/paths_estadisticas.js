@@ -5,7 +5,9 @@ const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
 
 //Respuestas
-const mensajes = require('../../utils/mensajes')
+const mensajes = require('../../utils/mensajes');
+const { Estadisticas } = require('../componentes/Estadisticas/Estadisticas');
+const GestionToken = require('../utils/GestionToken');
 
 //Función para verificar el token
 function verifyToken(token){
@@ -34,31 +36,19 @@ function verifyToken(token){
 path.get('/v1/estadisticas/estadisticasUsoPlataforma', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
-    var respuesta = verifyToken(token)
-
-    if(respuesta == 200){
-        var pool = mysqlConnection;
-
-        pool.query('SELECT * FROM deser_el_camello.estadisticas_uso_plataforma;', (error, resultadoEstadisticasUso)=>{
-            if(error){ 
-                res.status(500)
-                res.json(mensajes.errorInterno);
-                
-            }else if(resultadoEstadisticasUso.length == 0){
     
-                res.status(404)
-                res.json(mensajes.peticionNoEncontrada);
-     
-            }else{
-                var estadisticas_uso_plataforma = resultadoEstadisticasUso;
-                
-                res.status(200);                  
-                res.json(estadisticas_uso_plataforma);
-          
-            }
-        });
-    }else if(respuesta == 401){
-        res.status(respuesta)
+    var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador")
+    
+    if(respuesta['statusCode'] == 200){
+
+        Estadisticas.estadisticaUsoPlataforma((codigoRespuesta, cuerpoEstadisticasPlataforma)=>{
+            
+            res.status(codigoRespuesta)
+            res.json(cuerpoEstadisticasPlataforma)
+
+        })
+    }else if(respuesta['statusCode'] == 401){
+        res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);
 
     }else{
@@ -66,37 +56,25 @@ path.get('/v1/estadisticas/estadisticasUsoPlataforma', (req, res) => {
         res.json(mensajes.errorInterno);
         
     }
-
 });
 
 //Solicitudes de empleos por categoria y por fecha
 path.get('/v1/estadisticas/estadisiticasEmpleos', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
-    var respuesta = verifyToken(token)
-
-    if(respuesta == 200){
-        var pool = mysqlConnection;
-
-        pool.query('SELECT * FROM deser_el_camello.estadisticas_empleos;', (error, resultadoEstadisticasEmpleos)=>{
-            if(error){ 
-                res.status(500)
-                res.json(mensajes.errorInterno);
-                
-            }else if(resultadoEstadisticasEmpleos.length == 0){
     
-                res.status(404)
-                res.json(mensajes.peticionNoEncontrada);
-     
-            }else{
-                var estadisticas_empleos = resultadoEstadisticasEmpleos;
-                res.status(200);                  
-                res.json(estadisticas_empleos);
-          
-            }
-        });
-    }else if(respuesta == 401){
-        res.status(respuesta)
+    var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador")
+    
+    if(respuesta['statusCode'] == 200){
+
+        Estadisticas.estadisticaEmpleos((codigoRespuesta, cuerpoEstadisticasEmpleo)=>{
+            
+            res.status(codigoRespuesta)
+            res.json(cuerpoEstadisticasEmpleo)
+
+        })
+    }else if(respuesta['statusCode'] == 401){
+        res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);
 
     }else{
@@ -111,30 +89,19 @@ path.get('/v1/estadisticas/estadisiticasEmpleos', (req, res) => {
 path.get('/v1/estadisticas/valoracionesAspirantes', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
-    var respuesta = verifyToken(token)
-
-    if(respuesta == 200){
-        var pool = mysqlConnection;
-
-        pool.query('SELECT * FROM deser_el_camello.valoraciones_aspirantes;', (error, resultadoValoracionesAspirantes)=>{
-            if(error){ 
-                res.status(500)
-                res.json(mensajes.errorInterno);
-                
-            }else if(resultadoValoracionesAspirantes.length == 0){
     
-                res.status(404)
-                res.json(mensajes.peticionNoEncontrada);
-     
-            }else{
-                var valoraciones_aspirantes = resultadoValoracionesAspirantes;
-                res.status(200);                  
-                res.json(valoraciones_aspirantes);
-          
-            }
-        });
-    }else if(respuesta == 401){
-        res.status(respuesta)
+    var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador")
+    
+    if(respuesta['statusCode'] == 200){
+
+        Estadisticas.valoracionesAspirante((codigoRespuesta, cuerpoValoracionesAspirantes)=>{
+            
+            res.status(codigoRespuesta)
+            res.json(cuerpoValoracionesAspirantes)
+
+        })
+    }else if(respuesta['statusCode'] == 401){
+        res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);
 
     }else{
@@ -146,77 +113,54 @@ path.get('/v1/estadisticas/valoracionesAspirantes', (req, res) => {
 });
 
 path.get('/v1/estadisticas/valoracionesEmpleadores', (req, res) => {
-      //Creamos la constante del token que recibimos
-      const token = req.headers['x-access-token'];
-      var respuesta = verifyToken(token)
-  
-      if(respuesta == 200){
-          var pool = mysqlConnection;
-  
-          pool.query('SELECT * FROM deser_el_camello.valoraciones_empleadores;', (error, resultadoValoracionesEmpleadores)=>{
-              if(error){ 
-                  res.status(500)
-                  res.json(mensajes.errorInterno);
-                  
-              }else if(resultadoValoracionesEmpleadores.length == 0){
-      
-                  res.status(404)
-                  res.json(mensajes.peticionNoEncontrada);
-       
-              }else{
-                  var valoraciones_empleadores = resultadoValoracionesEmpleadores;
-                  res.status(200);                  
-                  res.json(valoraciones_empleadores);
+    //Creamos la constante del token que recibimos
+    const token = req.headers['x-access-token'];
+    
+    var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador")
+    
+    if(respuesta['statusCode'] == 200){
+
+        Estadisticas.valoracionesEmpleador((codigoRespuesta, cuerpoValoracionesEmpleadores)=>{
             
-              }
-          });
-      }else if(respuesta == 401){
-          res.status(respuesta)
-          res.json(mensajes.tokenInvalido);
-  
-      }else{
-          res.status(500)
-          res.json(mensajes.errorInterno);
-          
-      }
+            res.status(codigoRespuesta)
+            res.json(cuerpoValoracionesEmpleadores)
+
+        })
+    }else if(respuesta['statusCode'] == 401){
+        res.status(respuesta['statusCode'])
+        res.json(mensajes.tokenInvalido);
+
+    }else{
+        res.status(500)
+        res.json(mensajes.errorInterno);
+        
+    }
 
 });
 
 path.get('/v1/estadisticas/ofertasEmpleo', (req, res) => {
-        //Creamos la constante del token que recibimos
-        const token = req.headers['x-access-token'];
-        var respuesta = verifyToken(token)
+    //Creamos la constante del token que recibimos
+    const token = req.headers['x-access-token'];
     
-        if(respuesta == 200){
-            var pool = mysqlConnection;
+    var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador")
     
-            pool.query('SELECT * FROM deser_el_camello.estadisticas_ofertas_empleo;', (error, resultadoEstadisticasOfertasEmpleo)=>{
-                if(error){ 
-                    res.status(500)
-                    res.json(mensajes.errorInterno);
-                    
-                }else if(resultadoEstadisticasOfertasEmpleo.length == 0){
-        
-                    res.status(404)
-                    res.json(mensajes.peticionNoEncontrada);
-         
-                }else{
-                    var estadisticas_ofertas_empleo = resultadoEstadisticasOfertasEmpleo;
-                    res.status(200);                  
-                    res.json(estadisticas_ofertas_empleo);
-              
-                }
-            });
-        }else if(respuesta == 401){
-            res.status(respuesta)
-            res.json(mensajes.tokenInvalido);
-    
-        }else{
-            res.status(500)
-            res.json(mensajes.errorInterno);
-            
-        }
+    if(respuesta['statusCode'] == 200){
 
+        Estadisticas.estadisticasOfertasEmpleo((codigoRespuesta, cuerpoEstadisticasOfertas)=>{
+            
+            res.status(codigoRespuesta)
+            res.json(cuerpoEstadisticasOfertas)
+
+        })
+    }else if(respuesta['statusCode'] == 401){
+        res.status(respuesta['statusCode'])
+        res.json(mensajes.tokenInvalido);
+
+    }else{
+        res.status(500)
+        res.json(mensajes.errorInterno);
+        
+    }
 });
 
 module.exports = path;
