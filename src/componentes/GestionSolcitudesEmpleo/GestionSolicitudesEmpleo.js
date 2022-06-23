@@ -8,6 +8,17 @@ const { UsuarioDAO } = require('./data/UsuarioDAO');
 
 exports.GestionSolicitudesEmpleo =  class {
     //Demandante
+
+
+    //Empleador
+    static getSolicitudesEmpleo(idOfertaEmpleo, callback){
+        SolicitudDAO.getSolicitudesEmpleo(idOfertaEmpleo, callback)
+    }
+
+    static getSolicitudEmpleo(idSolicitudEmpleo, callback) {
+        SolicitudDAO.getSolicitudEmpleo(idSolicitudEmpleo, callback)
+    }
+
     static patchAceptarSolicitud(idSolicitudEmpleo, callback){
         // Existe la solicitud que se quiere aprobar o cuenta con estado valido {1: pendiente}
         SolicitudDAO.existeSolicitud(idSolicitudEmpleo, (codigoRespuesta, existeSolicitudEmpleo)=>{
@@ -169,6 +180,10 @@ exports.GestionSolicitudesEmpleo =  class {
             }
         })
 
+    }
+
+    static patchRechazarSolicitud(idSolicitudEmpleo, callback){
+        SolicitudDAO.rechazarSolicitud(idSolicitudEmpleo, callback)
     }
 
     //Aspirante

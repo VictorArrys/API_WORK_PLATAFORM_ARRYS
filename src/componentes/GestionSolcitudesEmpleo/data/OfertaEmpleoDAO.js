@@ -12,7 +12,7 @@ exports.OfertaEmpleoDAO = class OfertaEmpleoDAO {
                 console.log(rows['changedRows'])
                 callback(200, rows['changedRows'])
             } else {
-                consoleError(err, 'Reducir vacantes')
+                MostrarError.MostrarError(err, 'OfertaEmpleoDAO | Metodo: reducirVacante')
                 callback(500, mensajes.errorInterno)
             }
         }); 
