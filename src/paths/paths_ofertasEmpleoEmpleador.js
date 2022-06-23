@@ -12,7 +12,7 @@ const mensajes = require('../../utils/mensajes');
 
 const { vary } = require('express/lib/response');
 const { json } = require('body-parser');
-const { GestionOfertasEmpleo } = require('../componentes/GestionOfertasEmpleo');
+const { GestionOfertasEmpleo } = require('../componentes/GestionOfertasEmpleo/GestionOfertasEmpleo');
 const { OfertaEmpleo } = require('../componentes/GestionOfertasEmpleo/modelo/OfertaEmpleo')
 const GestionToken = require('../utils/GestionToken');
 

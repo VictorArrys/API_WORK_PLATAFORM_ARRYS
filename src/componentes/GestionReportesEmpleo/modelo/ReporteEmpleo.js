@@ -1,5 +1,5 @@
 exports.ReporteEmpleo = class ReporteEmpleo {
-    idReporteRmpleo; 
+    idReporteEmpleo; 
     idPerfilAspirante;
     idOfertaEmpleo; 
     motivo;
