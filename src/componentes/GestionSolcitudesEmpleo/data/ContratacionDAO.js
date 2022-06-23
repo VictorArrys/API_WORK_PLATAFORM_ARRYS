@@ -21,19 +21,20 @@ exports.ContratacionDAO = class ContratacionDAO {
 
     static existeContratacion(solicitudEmpleo, callback){
         var pool = mysqlConnection
-    
+        console.log(solicitudEmpleo)
         pool.query('SELECT * FROM contratacion_empleo WHERE id_oferta_empleo_coe = ?;',[solicitudEmpleo['id_oferta_empleo_sa']] , (error, existeContratacion)=>{
             if(error){
-                console.log('Error en existe contratacion')
+                MostrarError.MostrarError(error, 'ContratacionDAO | Metodo: existeContratacion')
                 callback(500, mensajes.errorInterno)
     
-            }else if(existeContratacion.length == 0){
+            }else if(existeContratacion[0].length == 0){
                 
                 console.log('No existe la contratación')
                 callback(200, 0)
 
             }else{ //En caso de existir la contratación solo agregamos el aspirante a ella
-                callback(200,existeContratacion[0]['id_contratacion_empleo'])
+                console.log('Contratacion: ' +existeContratacion[0]['id_contratacion_empleo'])
+                callback(200,existeContratacion[0])
                 
             }
     
@@ -48,7 +49,7 @@ exports.ContratacionDAO = class ContratacionDAO {
     
         pool.query('SELECT * FROM oferta_empleo WHERE id_oferta_empleo= ?;',[solicitudEmpleo['id_oferta_empleo_sa']] , (error, resultadoOfertaEmpleo)=>{
             if(error){ 
-                console.log('Error: ')
+                cMostrarError.MostrarError(error, 'ContratacionDAO | Metodo: crearContratacion | Paso: existeOfertaEmpleo')
                 callback(500, mensajes.errorInterno)
             }else if(resultadoOfertaEmpleo.length == 0){
                 
@@ -64,7 +65,7 @@ exports.ContratacionDAO = class ContratacionDAO {
                 //Estatus de la contratación {1: En curso, 0: Terminada}
                 mysqlConnection.query('INSERT INTO contratacion_empleo(id_oferta_empleo_coe, fecha_contratacion, fecha_finalizacion, estatus, id_conversacion_coe) VALUES(?, ? ,? , ?, ?);',[solicitudEmpleo['id_oferta_empleo_sa'], fechaContratacion, fechaFinalizacion, 1, idConversacion] , (error, resultadoContratacion)=>{
                     if(error){ 
-                        console.log('Error: ')
+                        MostrarError.MostrarError(error, 'ContratacionDAO | Metodo: crearContratacion | Paso: crear nueva conversacion')
                         callback(500, mensajes.errorInterno)
                     }else if(resultadoContratacion.length == 0){  
                         console.log('No se creo la contratación')
@@ -90,7 +91,7 @@ exports.ContratacionDAO = class ContratacionDAO {
 
         mysqlConnection.query('INSERT INTO contratacion_empleo_aspirante(id_contratacion_empleo_cea, id_perfil_aspirante_cea, id_perfil_empleador_cea, valoracion_aspirante, valoracion_empleador) VALUES(?, ?, ?, ?, ?)',[contratacion ,idAspirante, idEmpleador, 0, 0] , (error, resultadoContratacionAspirante)=>{
             if(error){ 
-                console.log('Error: ')
+                MostrarError.MostrarError(error, 'ContratacionDAO | Metodo: crearContratacionAspirante')
                 callback(500, mensajes.errorInterno)
             }else if(resultadoContratacionAspirante.length == 0){
     

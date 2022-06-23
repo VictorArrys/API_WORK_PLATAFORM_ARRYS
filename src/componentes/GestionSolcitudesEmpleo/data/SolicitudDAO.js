@@ -9,7 +9,7 @@ exports.SolicitudDAO = class SolicitudDAO {
     
         pool.query('SELECT * FROM solicitud_aspirante WHERE id_solicitud_aspirante = ?;',[idSolicitudEmpleo] , (error, resultadoSolicitudEmpleo)=>{
             if(error){ 
-                console.log('Error: ')
+                MostrarError.MostrarError(error, 'SolicitudDAO | Metodo: existeSolicitud')
                 callback(500, mensajes.errorInterno)
                 
             }else if(resultadoSolicitudEmpleo.length == 0){
@@ -51,7 +51,7 @@ exports.SolicitudDAO = class SolicitudDAO {
         pool.query('UPDATE solicitud_aspirante SET estatus = 0 WHERE id_solicitud_aspirante = ?;',[idSolicitudEmpleo] , (error, resultadoSolicitudEmpleo)=>{
             if(error){ 
                     
-                console.log('Error: ')
+                MostrarError.MostrarError(error, 'SolicitudDAO | Metodo: aceptarSolicitud')
                 callback(500, mensajes.errorInterno)
             }else if(resultadoSolicitudEmpleo.length == 0){
                 console.log('No se acepto la solicitud')
@@ -59,7 +59,7 @@ exports.SolicitudDAO = class SolicitudDAO {
                 
     
             }else{
-                console.log(resultadoSolicitudEmpleo['changedRows'])
+                console.log('Se proceso correctamente la acción aceptar solicitud: ' + idSolicitudEmpleo)
                 callback(200, resultadoSolicitudEmpleo['changedRows'])
     
             }
