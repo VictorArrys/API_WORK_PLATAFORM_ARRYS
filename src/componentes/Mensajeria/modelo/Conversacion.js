@@ -1,6 +1,6 @@
 exports.Conversacion = class Conversacion {
-    idConversacion;
-    titulo;
-    fechaContratacion;
-    categoria;
-}
+  idConversacion;
+  titulo;
+  fechaContratacion;
+  categoria;
+};

@@ -1,8 +1,8 @@
 exports.Mensaje = class Mensaje {
-    idMensaje;
-    idUsuarioRemitente;
-    fechaRegistro;
-    remitente;
-    contenidoMensaje;
-    tipoUsuario;
-}
+  idMensaje;
+  idUsuarioRemitente;
+  fechaRegistro;
+  remitente;
+  contenidoMensaje;
+  tipoUsuario;
+};
