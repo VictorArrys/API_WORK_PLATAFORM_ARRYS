@@ -8,16 +8,34 @@ Para verificar parametros se utiliza param
 */
 
 // Verificar que no esten vacios los parametros
-const validarParamId = [
+const validarParamOferta = [
 
-    param()
+    param('idOfertaEmpleo')
         .exists()
         .not()
-        .isEmpty(),
+        .isEmpty()
+        .isInt(),
     (req, res, next) => {
         validateResult(req, res, next)
     }
 
 ]
 
-module.exports = { validarParamId }
+const validarParam = [
+
+    param('idOfertaEmpleo')
+        .exists()
+        .not()
+        .isEmpty()
+        .isInt(),
+    (req, res, next) => {
+        validateResult(req, res, next)
+    }
+
+]
+
+module.exports = {
+    validarParamOferta,
+    validarParam
+}
+

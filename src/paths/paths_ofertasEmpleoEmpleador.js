@@ -4,8 +4,8 @@ const multer = require('multer');
 
 //Validaciones
 const { validarOfertaEmpleo } = require('../../utils/validaciones/validarBody')
-const { validarQuery } = require('../../utils/validaciones/validarQuery')
-const { validarParamId } = require('../../utils/validaciones/validarParam')
+const { validarQueryOferta } = require('../../utils/validaciones/validarQuery')
+const { validarParamOferta } = require('../../utils/validaciones/validarParam')
 
 //Respuestas
 const mensajes = require('../../utils/mensajes');
@@ -16,7 +16,7 @@ const { GestionOfertasEmpleo } = require('../componentes/GestionOfertasEmpleo/Ge
 const { OfertaEmpleo } = require('../componentes/GestionOfertasEmpleo/modelo/OfertaEmpleo')
 const GestionToken = require('../utils/GestionToken');
 
-path.get('/v1/ofertasEmpleo-E', validarQuery, (req, res) => {
+path.get('/v1/ofertasEmpleo-E', validarQueryOferta, (req, res) => {
 
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
@@ -44,7 +44,7 @@ path.get('/v1/ofertasEmpleo-E', validarQuery, (req, res) => {
 
 });
 
-path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', validarParamId, (req, res) => {
+path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', validarParamOferta, (req, res) => {
 
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
@@ -75,10 +75,10 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', validarParamId, (req, res) => {
 
 });
 
-path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo/fotografia', (req,res) => {
-
+path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo/fotografia', validarParamOferta, (req,res) => {
+    console.log(req.params.idOfertaEmpleo)
     var idOfertaEmpleo = req.params.idOfertaEmpleo
-    GestionOfertasEmpleo.getFotografiasOfertaEmpleo(idOfertaEmpleo, function(codigoRespuesta, cuerpoFotos){
+    GestionOfertasEmpleo.getFotografiasOfertaEmpleo(idOfertaEmpleo, (codigoRespuesta, cuerpoFotos)=>{
         res.status(codigoRespuesta)
         res.json(cuerpoFotos)
     })
@@ -144,7 +144,7 @@ path.post('/v1/ofertasEmpleo-E/:idOfertaEmpleo/fotografia', multerUpload.single(
     
 }); 
 
-path.put('/v1/ofertasEmpleo-E/:idOfertaEmpleo', (req, res) => {
+path.put('/v1/ofertasEmpleo-E/:idOfertaEmpleo', validarParamOferta, (req, res) => {
 
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];

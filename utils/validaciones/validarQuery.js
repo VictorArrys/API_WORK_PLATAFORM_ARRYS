@@ -5,17 +5,16 @@ const { query } = require('express-validator')
 Para verificar la query se utiliza la palabra predefinida query
 */
 
-const validarQuery = [
+const validarQueryOferta = [
 
-    query()
-        .exists()
-        .not()
-        .isEmpty()
-        .isLength({min: 5, max: 20}),
+    query('idPerfilEmpleador')
+        .notEmpty()
+        .isInt()
+        .isLength({min: 1}),
     (req, res, next) => {
         validateResult(req, res, next)
     }
 
 ]
 
-module.exports = { validarQuery }
+module.exports = { validarQueryOferta }

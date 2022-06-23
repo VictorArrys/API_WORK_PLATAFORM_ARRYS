@@ -1,27 +1,6 @@
 const { check } = require('express-validator')
 const { validateResult } = require('./validatorHelper')
 
-/*
-const validacion = [
-    check('propiedad')
-        .exists()
-        .not()
-        .isEmpty()
-        .isLength({min: 5}) 
-        .custom((value, {req}) =>{
-            //Validaciión personalizada
-            //Condición
-                //Regresar true si se cumplio y paso la prueba
-            // 
-            throw new Error('Descripción detallada del error')
-        }),
-    (req, res, next) => {
-        validateResult(req, res, next)
-    }
-
-]
-*/
-
 const validarOfertaEmpleo = [
 
     check('cantidadPago')

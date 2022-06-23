@@ -16,6 +16,7 @@ const pool = require('../../utils/conexion');
 const req = require('express/lib/request');
 const res = require('express/lib/response');
 const { on } = require('events');
+const { body } = require('express-validator');
 
 function verifyToken(token){
     var statusCode = 0;
@@ -46,6 +47,65 @@ function ComprobarRegistro(nombreUsuario, correoElectronico, res, resultado){
             res.json(mensajes.errorInterno)
         }else{
             resultado(comprobacion[0]['Comprobacion'])
+        }
+    })
+}
+
+function actualizarUsuarioAspirante(registroAspirante, res, callback){
+    var queryOne = 'UPDATE perfil_usuario SET nombre_usuario = ?, clave = ?, correo_electronico = ? WHERE id_perfil_usuario = ?;'
+
+    var idUsuario = registroAspirante['idPerfilUsuario']
+    var nombre = registroAspirante['nombreUsuario']
+    var clave = registroAspirante['clave']
+    var correoElectronico = registroAspirante['correoElectronico']
+
+    mysqlConnection.query(queryOne, [nombre, clave, correoElectronico, idUsuario], (error, actualizacion) =>{
+        if (error){
+            console.log(error)
+            res.status(500)
+            res.json(mensajes.errorInterno)
+        }else if (actualizacion.length == 0){
+            res.status(404)
+            res.json(mensajes.peticionNoEncontrada)
+        }else{
+            if (actualizacion['affectedRows'] >= 0){
+
+                const modificacionUsuario = {}
+                var id = actualizacion.insertId
+
+                modificacionUsuario['application/json'] = {
+                    'clave': clave,
+                    'correoElectronico': correoElectronico,
+                    'idPerfilUsuario': idUsuario,
+                    'nombreUsuario': nombre
+                }
+
+                callback(modificacionUsuario['application/json'])
+            }else{
+                res.status(500)
+                console.log('error actualizar despues de callback')
+                res.json(mensajes.errorInterno)
+            }
+        }
+    })
+
+}
+
+function borrarOficios(idAspirtante, res, callback){
+    var queryTwo = 'DELETE FROM categoria_aspirante WHERE id_aspirante_ca = ?;'
+    var resultado = false
+    mysqlConnection.query(queryTwo, [idAspirtante], (error, suprimir) =>{
+        if (error){
+            console.log(error)
+            res.status(500)
+            res.json(mensajes.errorInterno)
+        }else if (suprimir.length == 0){
+            res.status(404)
+            res.json(mensajes.peticionNoEncontrada)
+        }else{
+            resultado = true
+            console.log('elimino con éxito')
+            callback(resultado)
         }
     })
 }
@@ -324,7 +384,7 @@ path.post('/v1/perfilAspirantes', (req, res) => {
                                 do{
                                     valores[cont] = [idPerfil, oficios[cont].idCategoria, oficios[cont].experiencia]
                                     cont ++
-                                }while(cont != oficios.length)
+                                }while(cont < oficios.length)
 
                                 mysqlConnection.query(queryFour, [valores], (error, registroOficios) =>{
                                     if (error){
@@ -332,19 +392,19 @@ path.post('/v1/perfilAspirantes', (req, res) => {
                                         res.status(500)
                                         res.json(mensajes.errorInterno)
                                     }else if(registroOficios.length == 0){
-                                        res.status(403)
+                                        res.status(404)
                                         res.json(mensajes.prohibido)
                                     }else{
                                         if (registroPerfil['affectedRows'] == 1){
-                                            const nuevoEmpleador = {}
+                                            const edicionAspirante = {}
 
                                             nuevoEmpleador['application/json'] ={
                                                 'idPerfilUsuario': registroUAspirante['application/json']['idPerfilUsuario'],
                                                 'idPerfilAspirante': idPerfil
                                             }
 
-                                            res.status(201)
-                                            res.json(nuevoEmpleador['application/json'])
+                                            res.status(200)
+                                            res.json(nuev['application/json'])
                                         }
                                     }
                                 })
@@ -363,113 +423,88 @@ path.post('/v1/perfilAspirantes', (req, res) => {
 
 });
 
-/*path.get('/v1', (req, res) => {
-    console.log('jala')
-    var arraycategorias = []
-    arraycategorias.push(13)
-    arraycategorias.push(13)
-    arraycategorias.push(13)
-
-    
-    var arrayOficios = []
-
-    arrayOficios.push(1)
-    arrayOficios.push(10)
-    arrayOficios.push(13)
-
-    /*arrayOficios.push('fontaneria')
-    arrayOficios.push('albañileria')
-    arrayOficios.push('plomeria')
-    arrayOficios.push('kotlin')
-
-    for (var i = 0; i < 3; i++){
-        console.log(arraycategorias[i])
-        console.log(arrayOficios[i])
-        var query1 = 'UPDATE categoria_aspirante SET id_categoria_ca = ?, experiencia = ?  WHERE id_aspirante_ca = ? AND id_categoria_ca = ? ;'
-        mysqlConnection.query(query1, [arrayOficios[i], "1 a 6 meses", 60, arraycategorias[i]], (err, rows) => {
-            if (err){
-                console.log(err)
-            }else if (rows.length == 0){
-                
-            }else{
-                console.log(rows)
-            }
-        })
-
-    }
-
-});*/
-
 path.put('/v1/perfilAspirantes/:idPerfilAspirante', (req, res) => {
     const token = req.headers['x-access-token']
-    var respuesta = verifyToken(token)
+    var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Aspirante")
     const { idPerfilAspirante } = req.params
-    const {clave, correoElectronico, direccion, estatus, fechaNacimiento, nombre, nombreUsuario, oficios,
-        telefono } = req.body
+    const {clave, correoElectronico, direccion, estatus, fechaNacimiento, idPerfilUsuario, nombre, nombreUsuario, telefono,
+        oficios } = req.body
+    var queryThree = 'UPDATE perfil_aspirante SET nombre = ?, direccion = ?, fecha_nacimiento = ?, telefono = ? WHERE id_perfil_aspirante = ?;'
+    var queryFour = 'INSERT INTO categoria_aspirante (id_aspirante_ca, id_categoria_ca, experiencia) VALUES ? ;'
     
     try {
-        if (respuesta == 200){
-            var queryOne = 'UPDATE perfil_usuario SET nombre_usuario = ?, estatus = ?, clave = ?, correo_electronico = ? WHERE id_perfil_usuario = ?;' 
-            var queryTwo = 'UPDATE perfil_aspirante SET nombre = ?, direccion = ?, fecha_nacimiento = ?, telefono = ? WHERE id_perfil_aspirante = ?;'
-            var querythree = 'aqui podriamos borrar la tabla y volverla a insertar'
+        if (respuesta.statusCode == 200){
+            actualizarUsuarioAspirante(req.body, res, function(actualizacionAspirante){
+                if (res.error){
+                    consoleError(error, 'Funcion: actualizar usuario. Paso: error al actualizar usuario aspirante')
 
-            mysqlConnection.query(queryOne, [], (error, actualizarUsuarioAspirante) => {
-                if (error){
                     res.status(500)
                     res.json(mensajes.errorInterno)
-                }else if (actualizarUsuarioAspirante.length == 0){
-                    //
                 }else{
-                    mysqlConnection.query(queryTwo, [], (error, actualizarPerfilAspirante) => {
-                        if (error){
+                    borrarOficios(idPerfilAspirante, res, function(resultado) {
+                        if (res.error){
                             res.status(500)
                             res.json(mensajes.errorInterno)
-                        }else if (actualizarPerfilAspirante.length == 0){
-                            //
                         }else{
-                            mysqlConnection.query(querythree, [], (error, actualizaroficios) => {
+
+                            console.log(idPerfilAspirante)
+                            mysqlConnection.query(queryThree, [nombre, direccion, fechaNacimiento, telefono, idPerfilAspirante], (error, actualizacionPerfil) => {
                                 if (error){
+                                    consoleError(error, 'Funcion: actualizar aspirante. Paso: error al actualizar perfil aspirante')
+
                                     res.status(500)
                                     res.json(mensajes.errorInterno)
-                                }else if(actualizaroficios.length == 0){
-                                    //
+                                }else if (actualizacionPerfil.length == 0){
+                                    console.log('no encuentra en aspirante')
+                                    res.status(404)
+                                    res.json(mensajes.peticionNoEncontrada)
                                 }else{
-                                    var modificarUsuarioAspirante = actualizarUsuarioAspirante
-                                    var modificarPerfilAspirante = actualizarPerfilAspirante
-                                    var arrayFotografia = Uint8ClampedArray.from(Buffer.from(modificarUsuarioAspirante.fotografia, 'base64'))
+                                    var cont = 0
 
-                                    const actualizarPerfilAspirante = {}
-                                    actualizarPerfilAspirante['application/json'] = {
-                                        'clave': modificarUsuarioAspirante['clave'],
-                                        'correoElectronico': modificarUsuarioAspirante['correo_electronico'],
-                                        'direccion': modificarPerfilAspirante['direccion'],
-                                        'estatus': modificarUsuarioAspirante['estatus'],
-                                        'fechaNacimiento': modificarPerfilAspirante['fecha_nacimiento'],
-                                        'idPerfilUsuario': modificarUsuarioAspirante['id_perfil_usuario'],
-                                        'nombre': modificarPerfilAspirante['nombre'],
-                                        'nombreUsuario': modificarUsuarioAspirante['nombre_usuario'],
-                                        //'oficios': ,
-                                        'telefono': modificarPerfilAspirante['telefono'],
-                                        //'video': perfilAspirante['video'],
-                                        'idPerfilAspirante': modificarPerfilAspirante['id_perfil_aspirante'],
-                                        'fotografia': arrayFotografia
-                                        //'curriculum': perfilAspirante['curriculum']
+                                    var valores = []
+
+                                    for (var i = 0; i < oficios.length; i++){
+                                        valores.push(i)
                                     }
 
-                                    res.status(200)
-                                    res.json(actualizarPerfilAspirante['application/json'])
+                                    do{
+                                        valores[cont] = [idPerfilAspirante, oficios[cont].idCategoria, oficios[cont].experiencia]
+                                        cont ++
+                                    }while(cont < oficios.length)
+
+                                    mysqlConnection.query(queryFour, [valores], (error, actualizaroficios) =>{
+                                        if (error){
+                                            console.log(error)
+                                            res.status(500)
+                                            res.json(mensajes.errorInterno)
+                                        }else if (actualizaroficios.length == 0){
+                                            console.log('no encuentra en oficios')
+                                            res.status(404)
+                                            res.json(mensajes.peticionNoEncontrada)
+                                        }else{
+                                            if (actualizacionPerfil['affectedRows'] >= 0){
+                                                const edicionAspirante = {}
+    
+                                                edicionAspirante['application/json'] ={
+                                                    'idPerfilUsuario': idPerfilUsuario,
+                                                    'idPerfilAspirante': idPerfilAspirante
+                                                }
+    
+                                                res.status(200)
+                                                res.json(edicionAspirante['application/json'])
+                                            }
+                                        }
+                                    })
                                 }
                             })
-
                         }
                     })
                 }
             })
-        }else if (respuesta == 401){
-            res.status(respuesta)
+        }else if (respuesta.statusCode == 401){
+            res.status(respuesta.statusCode)
             res.json(mensajes.tokenInvalido)
         }else{
-            console.log(respuesta)
             res.status(500)
             res.json(mensajes.errorInterno)
         }
@@ -477,6 +512,7 @@ path.put('/v1/perfilAspirantes/:idPerfilAspirante', (req, res) => {
         res.status(500)
         res.json(mensajes.errorInterno)
     }
+    
 })
 
 module.exports = path;
