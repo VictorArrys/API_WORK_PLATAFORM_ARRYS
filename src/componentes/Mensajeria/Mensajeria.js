@@ -12,8 +12,8 @@ exports.Mensajeria = class Mensajeria {
         MensajeDAO.postMensajeAspirante(idAspirante, idConversacion, mensaje, callback);
     }
 
-    static postMensajeEmpleador(idAspirante, idConversacion, mensaje, callback) {
-        MensajeDAO.postMensajeEmpleador(idAspirante, idConversacion, mensaje, callback)
+    static postMensajeEmpleador(idEmpleador, idConversacion, mensaje, callback) {
+        MensajeDAO.postMensajeEmpleador(idEmpleador, idConversacion, mensaje, callback)
     }
 
     //Consulta de conversaciones

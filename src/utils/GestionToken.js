@@ -41,7 +41,6 @@ exports.ValidarTokenTipoUsuario = function(token, tipoUsuario) {
 
         if(tokenData["tipo"] == tipoUsuario){
             statusCode = 200;
-            console.log(tokenData);
             return {"statusCode": statusCode, "tokenData": tokenData};;
         }else{
             statusCode = 401;

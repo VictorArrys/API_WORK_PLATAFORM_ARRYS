@@ -11,5 +11,7 @@ exports.ConversacionEmpleador = class  {
 }
 
 exports.ConversacionAspirante = class {
-    
+    idConversacion;
+    tituloEmpleo;
+    mensajes;
 }
