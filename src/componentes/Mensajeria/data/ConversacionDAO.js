@@ -179,7 +179,7 @@ exports.ConversacionDAO = class ConversacionDAO {
       "SELECT conEmp.id_conversacion_coe AS idConversacion, ofEmp.nombre as nombreEmpleo, ofEmp.id_perfil_oe_empleador as idEmpleador " +
       "FROM contratacion_empleo AS conEmp INNER JOIN oferta_empleo AS ofEmp " +
       "ON ofEmp.id_oferta_empleo = conEmp.id_oferta_empleo_coe " +
-      ") AS empleo ON empleo.idEmpleador = conv.id_conversacion WHERE empleo.idEmpleador = ? AND conv.id_conversacion = ?;";
+      ") AS empleo ON empleo.idConversacion = conv.id_conversacion WHERE empleo.idEmpleador = ? AND conv.id_conversacion = ?;";
 
     mysqlConnection.query(
       queryConversacion,
