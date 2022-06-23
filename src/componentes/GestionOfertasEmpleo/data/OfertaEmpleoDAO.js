@@ -170,7 +170,7 @@ exports.OfertaEmpleoDAO = class OfertaEmpleoDAO {
                     foto2,
                     foto3
                 ]
-                callback(200,fotografiasJson)
+                callback(200, fotografiasJson)
             }
 
     

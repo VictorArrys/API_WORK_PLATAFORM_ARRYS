@@ -4,6 +4,9 @@ var mysqlConnection = require('../../utils/conexion');
 const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
 
+const { GestionSolicitudesEmpleo } = require('../componentes/GestionSolcitudesEmpleo/GestionSolicitudesEmpleo');
+const GestionToken = require('../utils/GestionToken');
+
 //Respuestas
 const mensajes = require('../../utils/mensajes')
 
@@ -395,8 +398,6 @@ function reducirVacante(idOfertaEmpleo,res, callback){
     
     }
 }); 
-          
-    
 
 }
 
@@ -404,98 +405,20 @@ path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/aceptada', (req, res) => {
 
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
-    var respuesta = verifyToken(token)
+    
+    var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Empleador")
+    
+    if(respuesta['statusCode'] == 200){
+        var idSolicitudEmpleo = req.params.idSolicitudEmpleo
 
-    if(respuesta == 200){
-         
-        // Existe la solicitud que se quiere aprobar o cuenta con estado valido {1: pendiente}
-        existeSolicitud(req.params.idSolicitudEmpleo, res, function (existeSolicitudEmpleo){
-
-            console.log(existeSolicitudEmpleo)
-            if(existeSolicitudEmpleo['id_solicitud_aspirante'] > 0){
-
-                // Se acepta la solicitud solo en caso de que haya recibido que existe la solicitud
-                aceptarSolicitud(existeSolicitudEmpleo["id_solicitud_aspirante"], res, function (solicitudAceptada){
-                    if(solicitudAceptada > 0){
-        
-                        //Obtenemos el id del empleador de la oferta
-                        obtenerIdEmpleador(existeSolicitudEmpleo, res, function(ofertaEmpleo){
-
-                            if(ofertaEmpleo > 0){
-
-                                //Verificamos si existe la contratación de la solicitud
-                                existeContratacion(existeSolicitudEmpleo, res, function(contratacionEmpleo){
-
-                                    if(contratacionEmpleo == 0){
-                                        console.log(contratacionEmpleo)
-                                        //Se crea una nueva conversación de la solicitud
-                                        crearConversacion(existeSolicitudEmpleo, res, function(conversacionNueva){
-                                            if(conversacionNueva > 0){
-                                            
-                                                //Se crea una contratación nueva de la solicitud
-                                                crearContratacion(existeSolicitudEmpleo,conversacionNueva , res, function(contratacionNueva){
-                                                    if(contratacionNueva > 0){
-                                                        
-                                                        console.log('Id del empleador')
-                                                        console.log(ofertaEmpleo)
-
-                                                        crearContratacionAspirante(contratacionNueva ,existeSolicitudEmpleo['id_perfil_aspirante_sa'], ofertaEmpleo, res, function(contratacionEmpleoAspirante){
-                                                            if(contratacionEmpleoAspirante == 1){
-                                                                reducirVacante(existeSolicitudEmpleo['id_oferta_empleo_sa'],res, function(reducirVacante){
-                                                                    if(reducirVacante >= 1){
-                                                                        res.sendStatus(204)
-                                                                    }
-                                                                    
-                                                                })
-                                                                
-                                                            }else{
-                
-                                                            }
-                            
-                                                        })
-                                                        
-                                                    }
-
-                                                })
-                                                
-                                            }
-
-                                        })                
-                
-                                    }else{
-                                        //Solo se agrega al aspirante a la contratación
-                                        crearContratacionAspirante(contratacionEmpleo ,existeSolicitudEmpleo['id_perfil_aspirante_sa'], ofertaEmpleo, res, function(contratacionEmpleoAspirante){
-                                            if(contratacionEmpleoAspirante == 1){
-                                                reducirVacante(existeSolicitudEmpleo['id_oferta_empleo_sa'],res, function(reducirVacante){
-                                                    if(reducirVacante >= 0){
-                                                        res.sendStatus(204)
-                                                    }
-                                                    
-                                                })
-                                            }else{
-
-                                            }
+        GestionSolicitudesEmpleo.patchAceptarSolicitud(idSolicitudEmpleo, (codigoRespuesta, cuerpoRespuestaSolicitud)=>{
             
-                                        })
-                                    }
-                                })                            
-                            
-                            }
-
-                        })
-                    
-                }
-
-                })
-                    
-                
-                    
-                }
+            res.status(codigoRespuesta)
+            res.json(cuerpoRespuestaSolicitud)
 
         })
-        
-    }else if(respuesta == 401){
-        res.status(respuesta)
+    }else if(resprespuesta['statusCode'] == 401){
+        res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);
 
     }else{
