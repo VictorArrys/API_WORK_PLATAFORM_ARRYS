@@ -3,9 +3,11 @@ const path = Router();
 var mysqlConnection = require('../../utils/conexion');
 const keys = require('../../settings/keys');
 const jwt = require('jsonwebtoken');
-const { send, status } = require('express/lib/response');
 const mensajes = require('../../utils/mensajes');
 
+const {GestionServicios} = require('../componentes/GestionServicios')
+
+const GestionToken = require('../utils/GestionToken');
 
 function verifyTokenAspirante(token, idPerfilAspirante) {
     try{
@@ -22,36 +24,16 @@ function verifyTokenAspirante(token, idPerfilAspirante) {
 
 path.get("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesServicios", (req, res) => {
     var idAspirante = req.params['idPerfilAspirante'];
-    var query = "select * FROM contratacion_servicio where id_perfil_aspirante_cs = ?;"
+    
     const token = req.headers['x-access-token'];
-    var tokenValido = verifyTokenAspirante(token);
+    var validacionToken = GestionToken.ValidarTokenTipoUsuario(token, "Aspirante");
 
-    if (tokenValido) {
-        mysqlConnection.query(query, [idAspirante], (error, resultado) => {
-            if(error){ 
-                res.status(500)
-                res.send({msg: error.message})
-            } else {
-                contratacionesServicio = [];
-                resultado.forEach(fila => {
-                    contratacion = {
-                        "estatus": fila['estatus'],
-                        "fechaContratacion": fila['fecha_contratacion'],
-                        "valoracionDemandante": fila['valoracion_aspirante'],
-                        "idPerfilAspirante": fila['id_perfil_aspirante_cs'],
-                        "idPErfilDemandante": fila['id_perfil_demandante_cs'],
-                        "idContratacionServicio": fila['id_contratacion_servicio'],
-                        "fechaFinalizacion": fila['fecha_finalizacion']
-                    }
-                    contratacionesServicio.push(contratacion);
-                });
-                res.status(200)
-                res.send(contratacionesServicio)
-            }
+    if (validacionToken.statusCode == 200) {
+        GestionServicios.getContratacionesServicioAspirante(idAspirante, (codigoRespuesta, cuerpoRespuesta) => {
+            res.status(codigoRespuesta).json(cuerpoRespuesta);
         });
     } else {
-        res.status(401)
-        res.send(mensajes.tokenInvalido);
+        res.status(validacionToken.statusCode).send(mensajes.tokenInvalido);
     }
 });
 
@@ -60,7 +42,12 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesServicios", (req
 path.get("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo", (req, res) => {
     var idAspirante = req.params['idPerfilAspirante'];
     const token = req.headers['x-access-token'];
-    var query = "select conEmp.id_contratacion_empleo as idContratacionEmpleo, conEmp.estatus, date_format(conEmp.fecha_contratacion, \"%Y-%m-%d\") as fechaContratacion, date_format(conEmp.fecha_finalizacion, \"%Y-%m-%d\") as fechaFinalizacion ,  ofertaEmp.* " +
+    
+
+    var tokenValido = verifyTokenAspirante(token);
+
+    if (tokenValido) {
+        var query = "select conEmp.id_contratacion_empleo as idContratacionEmpleo, conEmp.estatus, date_format(conEmp.fecha_contratacion, \"%Y-%m-%d\") as fechaContratacion, date_format(conEmp.fecha_finalizacion, \"%Y-%m-%d\") as fechaFinalizacion ,  ofertaEmp.* " +
                 "from contratacion_empleo as conEmp inner join contratacion_empleo_aspirante as conEmpAsp  " +
                 "on conEmp.id_contratacion_empleo = conEmpAsp.id_contratacion_empleo_cea " +
                 "inner join  " +
@@ -70,10 +57,6 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo", (req, r
                     "on ofEmp.id_perfil_oe_empleador = pefEmp.id_perfil_empleador " +
                 ") as ofertaEmp  " +
                 "on ofertaEmp.idOfertaEmpleo = conEmp.id_oferta_empleo_coe where conEmpAsp.id_perfil_aspirante_cea = ?;";
-
-    var tokenValido = verifyTokenAspirante(token);
-
-    if (tokenValido) {
         mysqlConnection.query(query, [idAspirante], (error, resultadoConsulta) => {
             if(error){ 
                 res.status(500)

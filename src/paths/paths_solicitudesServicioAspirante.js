@@ -38,13 +38,13 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios", (req, r
         var filtroEstatus = "";
         var idAspirante = req.params['idPerfilAspirante'];
         switch(estatus) {
-            case "Pendiente":
+            case "Pendientes":
                 filtroEstatus = "AND estatus = 0";
                 break;
-            case "Aceptado":
+            case "Aceptadas":
                 filtroEstatus = "AND estatus = 1";
                 break;
-            case "Rechazado":
+            case "Rechazadas":
                 filtroEstatus = "AND estatus = -1";
                 break;
             default:
