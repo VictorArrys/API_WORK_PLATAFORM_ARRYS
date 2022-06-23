@@ -56,9 +56,22 @@ exports.instruccionNoProcesada = {
         }
 }
 
-exports.solicitudEmpleoRegistrada = {
+//Solicitud empleo
+exports.solicitudEmpleoPendiente = {
     "type error" : {
     "message" : "Ya registraste una solicitud, espera que sea atendida"
+    }
+}
+
+exports.solicitudEmpleoAceptada = {
+    "type error" : {
+    "message" : "Ya registraste una solicitud y fue aceptada"
+    }
+}
+
+exports.solicitudEmpleoRechazada = {
+    "type error" : {
+    "message" : "Ya registraste una solicitud, pero desafortunadamente fue rechzada"
     }
 }
 

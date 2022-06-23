@@ -13,7 +13,6 @@ path.post("/v1/ofertasEmpleo-A/:idOfertaEmpleo/solicitarVacante", (req, res)=>{
     
     var idPerfilAspirante = req.body['idPerfilAspirante'];
     var idOfertaEmpleo = req.params['idOfertaEmpleo'];
-    console.log(idPerfilAspirante);
     var validacionToken = GestionToken.ValidarTokenTipoUsuario(token, "Aspirante");
 
     if (validacionToken.statusCode == 200) {
@@ -29,7 +28,6 @@ path.post("/v1/ofertasEmpleo-A/:idOfertaEmpleo/solicitarVacante", (req, res)=>{
                     querySolicitud = "INSERT INTO solicitud_aspirante ( id_perfil_aspirante_sa, id_oferta_empleo_sa, estatus, fecha_registro) VALUES ( ?, ?, 1, NOW());";
                     mysqlConnection.query(querySolicitud, [idPerfilAspirante, idOfertaEmpleo], (error, resultado) => {
                         if (error) {
-                            console.log(error)
                             res.status(500);
                             res.json(mensajes.errorInterno);
                         } else {
@@ -46,8 +44,20 @@ path.post("/v1/ofertasEmpleo-A/:idOfertaEmpleo/solicitarVacante", (req, res)=>{
                         }
                     });
                 } else {
+                    var mensajeRespuesta;
+                    switch(numSolicitud["estatus"]) {
+                        case 0:
+                            mensajeRespuesta = mensajes.solicitudEmpleoAceptada
+                            break;
+                        case 1:
+                            mensajeRespuesta = mensajes.solicitudEmpleoRegistrada
+                            break;
+                        case -1:
+                            mensajeRespuesta = mensajes.solicitudEmpleoRechazada
+                            break;    
+                    }
                     res.status(403);
-                    res.send(mensajes.solicitudEmpleoRegistrada);
+                    res.send(mensajeRespuesta);
                 }
             }
         })
