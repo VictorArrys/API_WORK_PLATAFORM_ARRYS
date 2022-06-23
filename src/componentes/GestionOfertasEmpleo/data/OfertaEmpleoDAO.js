@@ -202,9 +202,20 @@ exports.OfertaEmpleoDAO = class OfertaEmpleoDAO {
     }
 
     static putFotografiaOfertaEmpleo(idOfertaEmpleo, fotografia, callback) {
-        //mysql.query
-            //if error
-                //callback(mense)
+        var query = "UPDATE fotografia SET imagen = ? WHERE id_oferta_empleo_fotografia = ? AND id_fotografia = ?;"
+
+        mysqlConnection.query(query, [fotografia.fotografia, idOfertaEmpleo, fotografia.idFoto], (error, resultadoFotografia) => {
+            if (error){
+                MostrarError.MostrarError(error, 'putFotografiaOfertaEmpleo')
+                
+                callback(500, mensajes.errorInterno)
+            }else if(resultadoFotografia.length == 0){
+                callback(404, mensajes.peticionNoEncontrada)
+            }else{
+                console.log('Actualización de foto de la oferta exitoso')
+                callback(200, mensajes.actualizacionExitosa)
+            }
+        })
     }
 
     static postOfertaEmpleo(idEmpleador, ofertaEmpleo, callback) {
