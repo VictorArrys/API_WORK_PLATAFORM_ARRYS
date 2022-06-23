@@ -1,0 +1,16 @@
+{
+  "name": "gestionsolcitudesempleo",
+  "version": "1.0.0",
+  "description": "Modulo que gestiona la ofertas de empleo y sus solicitudes",
+  "main": "GestionSolicitudesEmpleo.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "solicitud",
+    "empleador",
+    "demandante"
+  ],
+  "author": "Victor",
+  "license": "ISC"
+}
