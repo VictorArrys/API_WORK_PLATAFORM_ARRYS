@@ -110,10 +110,10 @@ path.get('/v1/iniciarSesion', (req, res) => { // listo en api
 
 path.get('/v1/perfilUsuarios', (req, res) => { // listo en api
     const token = req.headers['x-access-token'];
-    var respuesta = verifyToken(token)
+    var respuesta = GestionToken.ValidarToken(token)
 
     try{
-        if (respuesta == 200){
+        if (respuesta.statusCode == 200){
             var query = 'SELECT * FROM perfil_usuario;'
 
             mysqlConnection.query(query, (error, resultadoUsuarios) =>{
@@ -147,8 +147,8 @@ path.get('/v1/perfilUsuarios', (req, res) => { // listo en api
                     res.json(usuarios)
                 }
             })
-        }else if (respuesta == 401){
-            res.status(respuesta)
+        }else if (respuesta.statusCode == 401){
+            res.status(respuesta.statusCode)
             res.json(mensajes.tokenInvalido)
         }else{
             res.status(500)
@@ -165,11 +165,11 @@ path.get('/v1/perfilUsuarios', (req, res) => { // listo en api
 
 path.get('/v1/PerfilUsuarios/:idPerfilUsuario',(req, res) => {  // listo api
     const token = req.headers['x-access-token']
-    var respuesta = verifyTokenUser(token)
+    var respuesta = GestionToken.ValidarToken(token)
 
     const { idPerfilUsuario } = req.params
 
-    if(respuesta == 200){
+    if(respuesta.statusCode == 200){
         var query = 'SELECT * FROM perfil_usuario WHERE id_perfil_usuario = ?;'
 
         mysqlConnection.query(query, [idPerfilUsuario], (error, resultadoUsuario) => {
@@ -205,8 +205,8 @@ path.get('/v1/PerfilUsuarios/:idPerfilUsuario',(req, res) => {  // listo api
                 res.json(getUsuario['application/json'])
             }
         })
-    }else if (respuesta == 401){
-        res.status(respuesta)
+    }else if (respuesta.statusCode == 401){
+        res.status(respuesta.statusCode)
         res.json(mensajes.tokenInvalido)
     }else{
         res.status(500)

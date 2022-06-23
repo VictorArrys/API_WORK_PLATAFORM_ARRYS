@@ -65,11 +65,11 @@ path.get('/v1/categoriasEmpleo', (req, res) => { // listo api
 
 path.post('/v1/categoriasEmpleo', (req, res) => { 
     const token = req.headers['x-access-token']
-    var respuesta = verifyToken(token)
+    var respuesta = GestionToken.ValidarTokenTipoUsuario(token, 'Administrador')
     const { nombre } = req.body
-
+    console.log(token)
     try{
-        if (respuesta == 200){
+        if (respuesta.statusCode == 200){
             var queryTwo = 'INSERT INTO categoria_empleo (nombre) VALUES(?);'
 
             comprobarRegistro(nombre, res, function(resultado) {
@@ -100,7 +100,7 @@ path.post('/v1/categoriasEmpleo', (req, res) => {
                     })
                 }
             })
-        }else if (respuesta == 401){
+        }else if (respuesta.statusCode == 401){
             res.status(respuesta)
             res.json(mensajes.tokenInvalido)
         }else{
@@ -119,13 +119,13 @@ path.post('/v1/categoriasEmpleo', (req, res) => {
 
 path.patch('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => { // listo api
     const token = req.headers['x-access-token']
-    var respuesta = verifyToken(token)
+    var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador")
 
     const { idCategoriaEmpleo } = req.params
     const { nombre } = req.body
 
     try{
-        if (respuesta == 200){
+        if (respuesta.statusCode == 200){
             var queryTwo = 'UPDATE categoria_empleo SET nombre = ? WHERE id_categoria_empleo = ?;'
 
             comprobarModificacion(nombre, idCategoriaEmpleo, res, function(resultado) {
@@ -155,7 +155,7 @@ path.patch('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => { // listo a
                     })
                 }
             })
-        }else if (respuesta == 401){
+        }else if (respuesta.statusCode == 401){
             res.status(respuesta)
             res.json(mensajes.tokenInvalido)
         }else{

@@ -88,7 +88,7 @@ function registrarUsuarioAspirante(datoAspirante, res, callback){
 
 }
 
-const multerUpload = multer({storage:multer.memoryStorage(), limits:{fileSize:8*1024*1024*10}})
+const multerUpload = multer({storage:multer.memoryStorage(), limits:{fileSize:8*1024*1024*3}})
 
 path.patch('/v1/perfilAspirantes/:idPerfilAspirante/video', multerUpload.single('video'), (req, res) => {
     var query = "UPDATE perfil_aspirante SET video = ? WHERE id_perfil_aspirante = ?;"
@@ -249,12 +249,13 @@ path.get('/v1/perfilAspirantes/:idPerfilUsuarioAspirante', (req, res) => {
             if (error){
                 console.log(error)
             }else{
-                const idPerfilAspirante = resultadoAspirante[0]['id_perfil_aspirante']
+                
                 const aspirante = {}
                 var arregloOficios = []
                 var getAspirante = resultadoAspirante[0]
+                console.log(resultadoAspirante[0]['id_perfil_aspirante'])
 
-                getOficios(idPerfilAspirante, function(oficios){
+                getOficios(resultadoAspirante[0]['id_perfil_aspirante'], function(oficios){
                     aspirante['application/json'] = {
         
                         'direccion': getAspirante['direccion'],
@@ -358,92 +359,6 @@ path.post('/v1/perfilAspirantes', (req, res) => {
         res.json(mensajes.errorInterno)
     }
 
-    /*try {
-        var queryOne = 'INSERT INTO perfil_usuario (nombre_usuario, estatus, clave, correo_electronico, tipo_usuario) VALUES (?, ?, ?, ?, ?);'
-        var queryTwo = 'INSERT INTO perfil_aspirante ( id_perfil_usuario_aspirante, nombre, direccion, fecha_nacimiento, telefono) VALUES (?, ?, ?, ?, ?); '
-        var querythree = 'INSERT INTO categoria_aspirante (id_aspirante_ca, id_categoria_ca, experiencia) VALUES ? ;'
-        const tipo = 'Aspirante'
-
-        mysqlConnection.query(queryOne, [nombreUsuario, estatus, clave, correoElectronico, tipo], (error, registroUsuarioAspirante) => {
-            if (error){
-                console.log(error)
-                res.status(500)
-                res.json(mensajes.errorInterno)
-            }else if(registroUsuarioAspirante.length == 0){
-                res.status(404)
-                res.json(mensajes.peticionNoEncontrada)
-            }else{
-                console.log('exito al registrar un aspirante')
-                idDeUsuario = registroUsuarioAspirante.insertId
-                    
-                mysqlConnection.query(queryTwo, [idDeUsuario, nombre, direccion, fechaNacimiento, telefono], (error, registroPerfilAspirante) => {
-                    if (error){
-                        console.log(error)
-                        res.status(500)
-                        res.json(mensajes.errorInterno)
-                    }else if(registroPerfilAspirante == 0){
-                        res.status(403)
-                        res.json(mensajes.prohibido)
-                    }else{
-                        var idUsuario = registroUsuarioAspirante.insertId
-
-                        idAspirante = registroPerfilAspirante.insertId
-
-                        var cont = 0
-
-                        var valores = []
-
-                        for(let i = 0; i < oficios.length; i++){
-                            valores.push(i);
-                        }
-
-                        do{
-                            valores[cont] = [idAspirante, oficios[cont].idCategoria, oficios[cont].experiencia]
-                            cont = cont + 1
-                        }while(cont != oficios.length)
-
-                        mysqlConnection.query(querythree, [valores], (error, registroOficios) => {
-                            if (error){
-                                console.log(error)
-                                res.status(500)
-                                res.json(mensajes.errorInterno)
-                            }else if(registroOficios.length == 0){
-                                res.status(403)
-                                res.json(mensajes.prohibido)
-                            }else{
-                                console.log("exito, oficios insertados: " + registroOficios.affectedRows);
-
-                                const PerfilAspirante = {}
-                                PerfilAspirante['application/json'] = {
-                                    'clave': clave,
-                                    'correoElectronico': correoElectronico,
-                                    'direccion': direccion,
-                                    'estatus': estatus,
-                                    'fechaNacimiento': fechaNacimiento,
-                                    'idPerfilUsuario': idUsuario,
-                                    'nombre': nombre,
-                                    'nombreUsuario': nombreUsuario,
-                                    'oficios': valores,
-                                    'telefono': telefono,
-                                    'idPerfilAspirante': idAspirante,
-                                    }
-
-                                    console.log(PerfilAspirante)
-                                    res.status(201)
-                                    res.json(PerfilAspirante['application/json'])
-
-                                }
-                             })
-
-
-                        }
-                    })
-                }
-            })
-    } catch (error) {
-        res.status(500)
-        res.json(mensajes.errorInterno)
-    }*/
 
 
 });
