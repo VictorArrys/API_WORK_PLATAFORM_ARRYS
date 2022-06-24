@@ -231,7 +231,7 @@ exports.OfertaEmpleoDAO = class OfertaEmpleoDAO {
             'idOfertaEmpleo': rows['insertId']
             }
 
-            callback(201, resultCreated)
+            callback(201, resultCreated['application/json'])
             
         } else {
             MostrarError.MostrarError(error, 'POST: ofertasEmpleo-E Paso: 1era query mysql')         

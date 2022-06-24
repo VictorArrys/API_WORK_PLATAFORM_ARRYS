@@ -27,14 +27,14 @@ exports.ContratacionDAO = class ContratacionDAO {
                 MostrarError.MostrarError(error, 'ContratacionDAO | Metodo: existeContratacion')
                 callback(500, mensajes.errorInterno)
     
-            }else if(existeContratacion[0].length == 0){
+            }else if(existeContratacion.length == 0){
                 
                 console.log('No existe la contratación')
                 callback(200, 0)
 
             }else{ //En caso de existir la contratación solo agregamos el aspirante a ella
                 console.log('Contratacion: ' +existeContratacion[0]['id_contratacion_empleo'])
-                callback(200,existeContratacion[0])
+                callback(200,existeContratacion[0]['id_contratacion_empleo'])
                 
             }
     

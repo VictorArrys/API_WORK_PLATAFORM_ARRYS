@@ -113,7 +113,7 @@ path.post('/v1/ofertasEmpleo-E', validarOfertaEmpleo, (req, res) => {
         ofertaEmpleoNueva.fechaDeFinalizacion = req.body.fechaDeFinalizacion
 
         GestionOfertasEmpleo.postOfertaEmpleo(idEmpleador, ofertaEmpleoNueva, (codigoRespuesta, cuerpoRespuesta)=>{
-            
+            console.log(cuerpoRespuesta)
             res.status(codigoRespuesta)
             res.json(cuerpoRespuesta)
 
