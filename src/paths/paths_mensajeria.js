@@ -5,10 +5,6 @@ const mensajes = require("../../utils/mensajes");
 const GestionToken = require("../utils/GestionToken");
 
 const { Mensajeria } = require("../componentes/Mensajeria/Mensajeria");
-const { MensajeDAO } = require("../componentes/Mensajeria/data/MensajeDAO");
-const {
-  ConversacionDAO,
-} = require("../componentes/Mensajeria/data/ConversacionDAO");
 
 const {
   ConversacionesEmpleaodor,
@@ -117,7 +113,7 @@ path.get(
     );
 
     if (validacionToken.statusCode == 200) {
-      ConversacionDAO.getConversacionesEmpleador(
+      Mensajeria.getConversacionesEmpleador(
         idPerfilEmpleador,
         (codigoRespuesta, cuerpoRespuesta) => {
           res.status(codigoRespuesta).json(cuerpoRespuesta);
@@ -144,7 +140,7 @@ path.get(
     );
 
     if (validacionToken.statusCode == 200) {
-      ConversacionDAO.getConversacionEmpleador(
+      Mensajeria.getConversacionEmpleador(
         idPerfilEmpleador,
         idConversacion,
         (codigoRespuesta, cuerpoRespuesta) => {
@@ -172,7 +168,7 @@ path.post(
       "Empleador"
     );
     if (validacionToken.statusCode == 200) {
-      MensajeDAO.postMensajeEmpleador(
+      Mensajeria.postMensajeEmpleador(
         idPerfilEmpleador,
         idConversacion,
         mensaje,
@@ -250,7 +246,7 @@ path.post(
       "Aspirante"
     );
     if (validacionToken.statusCode == 200) {
-      MensajeDAO.postMensajeAspirante(
+      Mensajeria.postMensajeAspirante(
         idPerfilAspirante,
         idConversacion,
         mensaje,

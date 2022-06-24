@@ -6,6 +6,8 @@ const jwt = require('jsonwebtoken');
 const { send, status } = require('express/lib/response');
 const mensajes = require('../../utils/mensajes');
 
+const {ValidarCategorias} = require('../../utils/validaciones/ofertaEmpleoAspirante')
+
 const GestionToken = require('../utils/GestionToken');
 
 function verifyTokenAspirante(token, idPerfilAspirante) {
@@ -20,18 +22,13 @@ function verifyTokenAspirante(token, idPerfilAspirante) {
     }
 }
 
-path.get("/v1/ofertasEmpleo-A", (req, res) => {
+path.get("/v1/ofertasEmpleo-A", ValidarCategorias, (req, res) => {
     const token = req.headers['x-access-token'];
     const categoriasEmpleo = req.query['categoriasEmpleo'];
     var tokenValido = GestionToken.ValidarTokenTipoUsuario(token, "Aspirante");
     if(tokenValido.statusCode == 200) {
-        var queryConsulta = "SELECT ofEmp.id_oferta_empleo, date_format(fecha_inicio, \"%Y-%m-%d\") as fecha_inicio, ofEmp.nombre, ofEmp.direccion, ofEmp.cantidad_pago, ofEmp.tipo_pago, ofEmp.dias_laborales, " +
-                                    "ofEmp.vacantes, date_format(fecha_finalizacion, \"%Y-%m-%d\") as fecha_finalizacion " +
-                                "FROM oferta_empleo AS ofEmp INNER JOIN perfil_empleador AS pefEmp " +
-                                    "ON (pefEmp.id_perfil_empleador = ofEmp.id_perfil_oe_empleador) " +
-                                "INNER JOIN perfil_usuario as pefUs ON (pefUs.id_perfil_usuario = pefEmp.id_perfil_usuario_empleador) " +
-                            "WHERE id_categoria_oe IN (?) AND ofEmp.fecha_finalizacion > now() AND pefUs.estatus = 1;";
-        mysqlConnection.query(queryConsulta,[categoriasEmpleo], (error, resultadoConsulta) => {
+        var queryConsulta = `SELECT ofEmp.id_oferta_empleo, date_format(fecha_inicio, \"%Y-%m-%d\") as fecha_inicio, ofEmp.nombre, ofEmp.direccion, ofEmp.cantidad_pago, ofEmp.tipo_pago, ofEmp.dias_laborales, ofEmp.vacantes, date_format(fecha_finalizacion, \"%Y-%m-%d\") as fecha_finalizacion FROM oferta_empleo AS ofEmp INNER JOIN perfil_empleador AS pefEmp ON (pefEmp.id_perfil_empleador = ofEmp.id_perfil_oe_empleador) INNER JOIN perfil_usuario as pefUs ON (pefUs.id_perfil_usuario = pefEmp.id_perfil_usuario_empleador) WHERE id_categoria_oe IN ( ${categoriasEmpleo} ) AND ofEmp.fecha_finalizacion > now() AND pefUs.estatus = 1;`;
+        mysqlConnection.query(queryConsulta, (error, resultadoConsulta) => {
             if (error) {
                 res.status(500);
                 res.send(mensajes.errorInterno);
