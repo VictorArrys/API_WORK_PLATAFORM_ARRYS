@@ -1,6 +1,7 @@
 const { EstadisticasDAO } = require("./data/EstadisticasDAO")
 
 exports.Estadisticas = class Estadisticas {
+
     static estadisticaUsoPlataforma(callback) {
         EstadisticasDAO.estadisticaUsoPlataforma(callback)
     }
