@@ -8,6 +8,7 @@ const { GestionCategoriasEmpleo } = require('../componentes/GestionCategoriasEmp
 
 //Respuestas
 const mensajes = require('../../utils/mensajes');
+const { CategoriaEmpleo } = require('../componentes/GestionCategoriasEmpleo/modelo/CategoriaEmpleo');
 
 
 function consoleError(error, ubicacion){
@@ -17,35 +18,6 @@ function consoleError(error, ubicacion){
     console.log('--------------------------------------------------------------------------------------')
 }
 
-function comprobarRegistro(nombre, res, resultado){
-    var queryOne = 'SELECT count(nombre) as Comprobacion FROM categoria_empleo WHERE nombre = ? ;'
-
-    mysqlConnection.query(queryOne, [nombre], (error, comprobacion) => {
-        if (error){
-            consoleError(error, 'Funcion: comprobar registro. Paso: consultar repetido')
-
-            res.status(500)
-            res.json(mensajes.errorInterno)
-        }else{
-            resultado(comprobacion[0]['Comprobacion'])
-        }
-    })
-}
-
-function comprobarModificacion(nombre, idCategoriaEmpleo, res, resultado){
-    var queryOne = 'SELECT count(nombre) as Comprobacion FROM categoria_empleo WHERE nombre = ? AND id_categoria_empleo = ?;'
-
-    mysqlConnection.query(queryOne, [nombre, idCategoriaEmpleo], (error, comprobacion) =>{
-        if (error){
-            consoleError(error, 'Funcion: comprobar actualizacion. Paso: consultar repetido')
-
-            res.status(500)
-            res.json(mensajes.errorInterno)
-        }else{
-            resultado(comprobacion[0]['Comprobacion'])
-        }
-    })
-}
 
 path.get('/v1/categoriasEmpleo', (req, res) => { // listo api
     try{
@@ -66,49 +38,31 @@ path.get('/v1/categoriasEmpleo', (req, res) => { // listo api
 path.post('/v1/categoriasEmpleo', (req, res) => { 
     const token = req.headers['x-access-token']
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, 'Administrador')
-    const { nombre } = req.body
-    console.log(token)
-    try{
-        if (respuesta.statusCode == 200){
-            var queryTwo = 'INSERT INTO categoria_empleo (nombre) VALUES(?);'
 
-            comprobarRegistro(nombre, res, function(resultado) {
-                if (resultado == 1){
-                    res.status(422)
-                    res.json(mensajes.instruccionNoProcesada)
-                }else{
-                    mysqlConnection.query(queryTwo, [nombre], (error, registrarCategoria) => {
-                        if (error){
-                            consoleError(error, 'Funcion: registrar categoria empleo. Paso: registrar categoria')
-        
-                            res.status(500)
-                            res.json(mensajes.errorInterno)
-                        }else if (registrarCategoria.length == 0){
-                            res.status(404)
-                            res.json(mensajes.peticionNoEncontrada)
-                        }else{
-                            const registroCategoria = {}
-        
-                            registroCategoria['application/json'] = {
-                                'idCategoriaEmpleo': registrarCategoria.insertId,
-                                "nombre": nombre
-                            }
-        
-                            res.status(201)
-                            res.json(registroCategoria['application/json'])
-                        }
-                    })
-                }
+    try {
+
+        if (respuesta.statusCode == 200){
+
+            var categoria = new CategoriaEmpleo()
+
+            categoria.nombre = req.body.nombre
+
+            console.log(categoria.nombre)
+
+            GestionCategoriasEmpleo.postCategoriaEmpleo(categoria.nombre, function(codigoRespuesta, cuerpoRespuesta){
+                res.status(codigoRespuesta)
+                res.json(cuerpoRespuesta)
             })
+
         }else if (respuesta.statusCode == 401){
-            res.status(respuesta)
+            res.status(401)
             res.json(mensajes.tokenInvalido)
         }else{
             res.status(500)
             res.json(mensajes.errorInterno)
         }
-    }catch (error){
-        consoleError(error, 'funcion:  registrar categoria de empleo. Paso: excepcion cachada')
+    } catch (error) {
+        consoleError(error, 'Funcion: registrar categoria. Paso: Excepcion cachada')
 
         res.status(500)
         res.json(mensajes.errorInterno)
@@ -117,44 +71,24 @@ path.post('/v1/categoriasEmpleo', (req, res) => {
 });
 
 
-path.patch('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => { // listo api
+path.patch('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => { 
     const token = req.headers['x-access-token']
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador")
 
-    const { idCategoriaEmpleo } = req.params
-    const { nombre } = req.body
-
-    try{
+    try {
         if (respuesta.statusCode == 200){
-            var queryTwo = 'UPDATE categoria_empleo SET nombre = ? WHERE id_categoria_empleo = ?;'
+            var edicionCategoria = new CategoriaEmpleo()
 
-            comprobarModificacion(nombre, idCategoriaEmpleo, res, function(resultado) {
-                if (resultado >= 1){
-                    res.status(422)
-                    res.json(mensajes.instruccionNoProcesada)
-                }else{
-                    mysqlConnection.query(queryTwo, [nombre, idCategoriaEmpleo], (error, modificarCategoria) =>{
-                        if (error){
-                            consoleError(error, 'Funcion: modificar categoria empleo. Paso: modificar categoria')
+            edicionCategoria.idCategoriaEmpleo = req.params.idCategoriaEmpleo
+            edicionCategoria.nombre = req.body.nombre
 
-                            res.status(500)
-                            res.json(mensajes.errorInterno)
-                        }else if (modificarCategoria.length == 0){
-                            res.status(404)
-                            res.json(mensajes.peticionNoEncontrada)
-                        }else{
-                            const registroCategoria = {}
-        
-                            registroCategoria['application/json'] = {
-                                'idCategoriaEmpleo': idCategoriaEmpleo,
-                            }
-        
-                            res.status(200)
-                            res.json(registroCategoria['application/json'])
-                        }
-                    })
-                }
+            console.log(edicionCategoria)
+
+            GestionCategoriasEmpleo.patchCategoriaEmpleo(edicionCategoria.idCategoriaEmpleo, edicionCategoria.nombre, function(codigoRespuesta, cuerpoRespuesta){
+                res.status(codigoRespuesta)
+                res.json(cuerpoRespuesta)
             })
+
         }else if (respuesta.statusCode == 401){
             res.status(respuesta)
             res.json(mensajes.tokenInvalido)
@@ -162,7 +96,7 @@ path.patch('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => { // listo a
             res.status(500)
             res.json(mensajes.errorInterno)
         }
-    }catch (error){
+    } catch (error) {
         consoleError(error, 'funcion:  modificar categoria de empleo. Paso: excepcion cachada')
 
         res.status(500)
@@ -171,12 +105,11 @@ path.patch('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => { // listo a
 
 });
 
-path.delete('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => { // listo api
+path.delete('/v1/categoriasEmpleo/:idCategoriaEmpleo', (req, res) => { 
     const token = req.headers['x-access-token']
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador");
     const { idCategoriaEmpleo } = req.params
     
-
     try{
         if (respuesta.statusCode == 200){
             GestionCategoriasEmpleo.deleteCategoriaEmpleo(idCategoriaEmpleo, function(codigoRespuesta, cuerpoRespuesta) {

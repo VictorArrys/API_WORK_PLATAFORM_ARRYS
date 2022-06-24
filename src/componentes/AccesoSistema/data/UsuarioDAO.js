@@ -37,20 +37,15 @@ exports.UsuarioDAO = class UsuarioDAO {
     }
 
     static restablecerContraseña(correoElectronico, callback) {
+        //en construccion futuras reunion 
         callback(null,{});
-    }
-
-    static cerrarSesion(idUsuario, callback) {
-
-        callback(null, {});
     }
 
     static habilitarPerfil(idUsuario, callback) {
         var query = 'UPDATE perfil_usuario SET estatus = 1 WHERE id_perfil_usuario = ?;'
 
-        mysqlConnection.query(query, [ idUsuario], (error, resultadoHabilitar) => {
+        mysqlConnection.query(query, [idUsuario], (error, resultadoHabilitar) => {
             if(error){
-                //consoleError(error, 'Funcion: Habilitar perfil. Paso: error al habilitar perfil')
                 callback(500, mensajes.errorInterno);
             }else if(resultadoHabilitar.changedRows == 1){//Se modifico el registro de usuario
                 var idPerfilHabilitado = {}
@@ -66,7 +61,24 @@ exports.UsuarioDAO = class UsuarioDAO {
         })
     }
 
-    static deshabilitarPerfil(idUsuario, funcionRespuesta) {
-        
+    static deshabilitarPerfil(idUsuario, callback) {
+        var query = 'UPDATE perfil_usuario SET estatus = 2 WHERE id_perfil_usuario = ?;'
+
+        mysqlConnection.query(query, [idUsuario], (error, resultadoDeshabilitar) =>{
+            if (error){
+                callback(500, mensajes.errorInterno)
+            }else if (resultadoDeshabilitar.length == 0){
+                callback(404, mensajes.peticionNoEncontrada)
+            }else if (resultadoDeshabilitar.changedRows == 1){
+                const idPerfilDeshabilitado = {}
+
+                idPerfilDeshabilitado['application/json'] = {
+                    'idPerfilusuario' : idPerfilUsuario,
+                    'estatus' : 2
+                }
+
+                callback(200, idPerfilDeshabilitado['application/json'])
+            }
+        })
     }
 }

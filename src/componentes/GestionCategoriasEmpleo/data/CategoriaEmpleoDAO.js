@@ -25,12 +25,56 @@ exports.CategoriaEmpleoDAO = class CategoriaEmpleoDAO{
             }
         })
     }
+    
     static postCategoriaEmpleo(nombre, callback) {
+        var queryTwo = 'INSERT INTO categoria_empleo (nombre) VALUES(?);'
+
+        this.#comprobarRegistro(nombre, function(codigoRespuesta, cuerpoRespuestaCateogira){
+            if (codigoRespuesta == 500){
+                callback(500, mensajes.errorInterno)
+            }else if (cuerpoRespuestaCateogira >= 1){
+                callback(422, mensajes.instruccionNoProcesada)
+            }else{
+
+                mysqlConnection.query(queryTwo, [nombre], (error, registroCategoria) => {
+                    if (error){
+                        callback(500, mensajes.errorInterno)
+                    }else if (registroCategoria.length == 0){
+                        callback(404, mensajes.peticionNoEncontrada)
+                    }else{
+                        const nuevaCategoria = {}
         
+                        nuevaCategoria['application/json'] = {
+                            'idCategoriaEmpleo': registroCategoria.insertId,
+                            'nombre': nombre
+                        }
+
+                        callback(201, nuevaCategoria['application/json'])
+                    }
+                })
+            }
+        })
     }
 
     static patchCategoriaEmpleo(idCategoriaEmpleo, nombre, callback) {
-        
+        var query = 'UPDATE categoria_empleo SET nombre = ? WHERE id_categoria_empleo = ?;'
+
+        mysqlConnection.query(query, [nombre, idCategoriaEmpleo], (error, actualizacionCategoria) =>{
+            if (error){
+                console.log(error)
+                callback(500, mensajes.errorInterno)
+            }else if (actualizacionCategoria.length == 0){
+                callback(404, mensajes.peticionNoEncontrada)
+            }else{
+                const edicionCategoria = {}
+
+                edicionCategoria['application/json'] = {
+                    'idCategoriaEmpleo': idCategoriaEmpleo
+                }
+
+                callback(200, edicionCategoria['application/json'])
+            }
+        })
     }
 
     static deleteCategoriaEmpleo(idCategoriaEmpleo, callback) {
@@ -38,9 +82,21 @@ exports.CategoriaEmpleoDAO = class CategoriaEmpleoDAO{
 
         mysqlConnection.query(query, [idCategoriaEmpleo], (error, eliminarCategoria) => {
             if (error){
-                callback(500, error)
+                callback(500, mensajes.errorInterno)
             }else{
-                callback(204, eliminarCategoria)
+                callback(204, mensajes.eliminarCategoria)
+            }
+        })
+    }
+
+    static #comprobarRegistro(nombre, callback){
+        var queryOne = 'SELECT count(nombre) as Comprobacion FROM categoria_empleo WHERE nombre = ? ;'
+
+        mysqlConnection.query(queryOne, [nombre], (error, comprobacion) => {
+            if (error){
+                callback(500, mensajes.errorInterno)
+            }else{
+                callback(200, comprobacion[0]['Comprobacion'])
             }
         })
     }

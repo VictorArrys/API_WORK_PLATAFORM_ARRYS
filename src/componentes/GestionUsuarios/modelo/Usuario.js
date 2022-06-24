@@ -3,7 +3,6 @@ exports.Usuario = class Usuario {
     estatus;
     idPerfilUsuario;
     correoElectronico;
-    fotografia;
     nombreUsuario;
-    tipoUsuario
+    tipoUsuario;
 }

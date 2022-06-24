@@ -8,6 +8,7 @@ const { validarParamIdUsuario } = require('../../utils/validaciones/validarParam
 const { send, status, json } = require('express/lib/response');
 
 const {AccesoSistema} = require('../componentes/accesosistema');
+const { GestionUsuarios } = require('../componentes/GestionUsuarios')
 const GestionToken = require('../utils/GestionToken');
 
 //Respuestas
@@ -72,23 +73,18 @@ function consoleError(error, ubicacion){
 const multerUpload = multer({storage:multer.memoryStorage(), limits:{fileSize:8*1024*1024*10}})
 
 path.patch('/v1/PerfilUsuarios/:idPerfilUsuario/fotografia', multerUpload.single("fotografia"), (req,res) => {
-    var query = "UPDATE perfil_usuario SET fotografia = ? WHERE id_perfil_usuario = ?;"
     const { idPerfilUsuario } = req.params
+     try {
+        GestionUsuarios.patchFotografiaUsuario(req.file.buffer, idPerfilUsuario, function(codigoRespuesta, cuerpoRespuesta){
+            res.status(codigoRespuesta)
+            res.json(cuerpoRespuesta)
+        })
+     } catch (error) {
+        consoleError(error, 'Funcion: registrar fotografia. Paso: excepcion cachada')
 
-
-    mysqlConnection.query(query, [req.file.buffer, idPerfilUsuario], (error, resultadoFotografia) => {
-        if (error){
-            console.log(error)
-            res.status(500)
-            res.json(mensajes.errorInterno)
-        }else if(resultadoFotografia.length == 0){
-            res.status(404)
-            res.json(mensajes.peticionNoEncontrada)
-        }else{
-            res.status(200)
-            res.json(mensajes.actualizacionExitosa)
-        }
-    })
+        res.status(500)
+        res.json(mensajes.errorInterno)
+     }
 });
 
 path.get('/v1/iniciarSesion', (req, res) => { // listo en api
@@ -108,53 +104,25 @@ path.get('/v1/iniciarSesion', (req, res) => { // listo en api
     });
 });
 
-path.get('/v1/perfilUsuarios', (req, res) => { // listo en api
+path.get('/v1/perfilUsuarios', (req, res) => { 
     const token = req.headers['x-access-token'];
     var respuesta = GestionToken.ValidarToken(token)
 
-    try{
+    try {
         if (respuesta.statusCode == 200){
-            var query = 'SELECT * FROM perfil_usuario;'
+            GestionUsuarios.getUsuarios(function(codigoRespuesta, cuerpoRespuesta) {
+                res.status(codigoRespuesta)
+                res.json(cuerpoRespuesta)
+            }) 
 
-            mysqlConnection.query(query, (error, resultadoUsuarios) =>{
-                if (error){
-                    consoleError(error, 'funcion: catalogo usuarios. Paso: consultar todos los usuarios')
-
-                    res.status(500)
-                    res.json(mensajes.errorInterno)
-                }else if (resultadoUsuarios.length == 0){
-                    res.status(404)
-                    res.json(mensajes.peticionNoEncontrada)
-                }else{
-                    var cont = 0 
-                    var usuarios = []
-    
-                    do{
-                        usuarios.push(cont)
-    
-                        usuarios[cont] = {
-                            'idPerfilUsuario' : resultadoUsuarios[cont]['id_perfil_usuario'],
-                            'nombreUsuario': resultadoUsuarios[cont]['nombre_usuario'],
-                            'estatus': resultadoUsuarios[cont]['estatus'],
-                            'clave': resultadoUsuarios[cont]['clave'],
-                            'correoElectronico' : resultadoUsuarios[cont]['correo_electronico'],
-                            'tipoUsuario' : resultadoUsuarios[cont]['tipo_usuario']
-                        }
-                        cont ++;
-                    } while(cont < resultadoUsuarios.length)
-    
-                    res.status(200)
-                    res.json(usuarios)
-                }
-            })
         }else if (respuesta.statusCode == 401){
-            res.status(respuesta.statusCode)
-            res.json(mensajes.tokenInvalido)
+            res.status(401)
+            res.json(mensajes.peticionNoEncontrada)
         }else{
             res.status(500)
             res.json(mensajes.errorInterno)
         }
-    }catch (error){
+    } catch (error) {
         consoleError(error, 'funcion: catalogo usuarios. Paso: excepcion cachada')
 
         res.status(500)
@@ -163,55 +131,32 @@ path.get('/v1/perfilUsuarios', (req, res) => { // listo en api
 
 });
 
-path.get('/v1/PerfilUsuarios/:idPerfilUsuario',(req, res) => {  // listo api
+path.get('/v1/PerfilUsuarios/:idPerfilUsuario',(req, res) => { 
     const token = req.headers['x-access-token']
     var respuesta = GestionToken.ValidarToken(token)
-
     const { idPerfilUsuario } = req.params
 
-    if(respuesta.statusCode == 200){
-        var query = 'SELECT * FROM perfil_usuario WHERE id_perfil_usuario = ?;'
+    try {
+        if (respuesta.statusCode == 200){
+            GestionUsuarios.getUsuario(idPerfilUsuario, function(codigoRespuesta, cuerpoRespuesta) {
+                res.status(codigoRespuesta)
+                res.json(cuerpoRespuesta)
+            })
 
-        mysqlConnection.query(query, [idPerfilUsuario], (error, resultadoUsuario) => {
-            if(error){ 
-                res.status(500)
-                res.json(mensajes.errorInterno)
-            }else if(resultadoUsuario.length == 0){
-    
-                res.status(404)
-                res.json(mensajes.peticionNoEncontrada)
-     
-            }else{
-                var arrayFotografia = null
-                if (resultadoUsuario[0].fotografia == null){
-                    console.log('Fotografia vacia, se procede a poner null')
-                }else{
-                    arrayFotografia = Uint8ClampedArray.from(Buffer.from(resultadoUsuario[0].fotografia.buffer, 'base64'))
-                }
-                var usuario = resultadoUsuario[0]
+        }else if (respuesta.statusCode == 401){
+            res.status(401)
+            res.json(mensajes.peticionNoEncontrada)
+        }else{
+            res.status(500)
+            res.json(mensajes.errorInterno)
+        }
+    } catch (error) {
+        consoleError(error, 'Funcion: consultar un usuario. Paso: Excepcion cachada')
 
-                const getUsuario = {};
-                getUsuario['application/json'] = {
-                    "clave" : usuario['clave'],
-                    "estatus" : usuario['estatus'],
-                    "idPerfilusuario" : usuario['id_perfil_usuario'],
-                    "correoElectronico" : usuario['correo_electronico'],
-                    "fotografia" : arrayFotografia,
-                    "nombre": usuario['nombre_usuario'],
-                    "tipoUsuario" : usuario['tipo_usuario'],
-                };
-
-                res.status(200);
-                res.json(getUsuario['application/json'])
-            }
-        })
-    }else if (respuesta.statusCode == 401){
-        res.status(respuesta.statusCode)
-        res.json(mensajes.tokenInvalido)
-    }else{
         res.status(500)
         res.json(mensajes.errorInterno)
     }
+
 });
 
 path.patch('/v1/perfilUsuarios/:idPerfilUsuario/habilitar', (req, res) => {  // listo api

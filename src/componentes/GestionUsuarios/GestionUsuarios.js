@@ -40,6 +40,14 @@ exports.GestionUsuarios = class {
         AspiranteDAO.putAspirante(aspirante, callback);
     }
 
+    static getVideo(idAspirante, callback){
+        AspiranteDAO.getVideoAspirante(idAspirante, callback);
+    }
+
+    static patchVideo(video, idAspirante, callback){
+        AspiranteDAO.patchVideoAspirante(video, idAspirante,callback);
+    }
+
     //Demandante
     static getDemandantes(callback) {
         DemandanteDAO.getDemandantes(callback);
