@@ -31,9 +31,9 @@ exports.AspiranteDAO = class AspiranteDAO {
                         aspirante.telefono = elemento['telefono']
                         aspirante.idPerfilUsuario = elemento['id_perfil_usuario_aspirante']
                         OficioDAO.getOficios(aspirante.idPerfilAspirante, (codigoRespuesta, resultadoOficios)=> {
-                            if(errorOficios) {
-                                callback(errorOficios)
-                            } else {
+                            if(codigoRespuesta == 500) {
+                                callback(500, mensajes.errorInterno);
+                            } else if (codigoRespuesta == 200) {
                                 aspirante.oficios = resultadoOficios;
                                 listaAspirantes.push(aspirante);
                                 if (listaAspirantes.length == resultadoConsulta.length) {

@@ -44,29 +44,36 @@ path.post("/v1/ofertasEmpleo-A/:idOfertaEmpleo/solicitarVacante", (req, res)=>{
                         }
                     });
                 } else {
-                    var mensajeRespuesta;
-                    switch(numSolicitud["estatus"]) {
-                        case 0:
-                            mensajeRespuesta = mensajes.solicitudEmpleoAceptada
-                            break;
-                        case 1:
-                            mensajeRespuesta = mensajes.solicitudEmpleoRegistrada
-                            break;
-                        case -1:
-                            mensajeRespuesta = mensajes.solicitudEmpleoRechazada
-                            break;    
-                    }
-                    res.status(403);
-                    res.send(mensajeRespuesta);
+                    var queryEstatus = "Select estatus FROM solicitud_aspirante where id_perfil_aspirante_sa = ? and id_oferta_empleo_sa = ?;";
+                    mysqlConnection.query(queryEstatus, [idPerfilAspirante, idOfertaEmpleo], (error, resultadoConsulta) => {
+                        if(error) {
+                            res.status(500);
+                            res.json(mensajes.errorInterno);
+                        } else {
+                            var mensajeRespuesta = "";
+                            var estatus = resultadoConsulta[0]['estatus']
+                            switch(estatus) {
+                                case 0:
+                                    mensajeRespuesta = mensajes.solicitudEmpleoAceptada
+                                    break;
+                                case 1:
+                                    mensajeRespuesta = mensajes.solicitudEmpleoPendiente
+                                    break;
+                                case -1:
+                                    mensajeRespuesta = mensajes.solicitudEmpleoRechazada
+                                    break;    
+                            }
+                            res.status(422);
+                            res.send(mensajeRespuesta);
+                        }
+                    })
                 }
             }
         })
-        mysqlConnection.query
     } else {
         res.status(validacionToken.statusCode)
         res.json(mensajes.tokenInvalido);
-    }
-
+    }    
 });
 
 module.exports = path;

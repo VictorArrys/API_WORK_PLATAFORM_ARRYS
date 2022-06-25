@@ -1,24 +1,24 @@
 const {SolicitudServicioDAO} = require('./data/SolicitudServicioDAO')
-const {ContratacionesServicioDAO} = require('./data/ContratacionServicioDAO')
+const {ContratacionServicioDAO} = require('./data/ContratacionServicioDAO')
 const {SolicitudServicio} = require('./modelo/SolicitudServicio');
 
 exports.GestionServicios = class GestionServicios {
     
     //Acciones de demandante
     static getContratacionesServicioDemandante(idDemandante, callback){
-        ContratacionesServicioDAO.getContratacionesServicioDemandante(idDemandante, callback);
+        ContratacionServicioDAO.getContratacionesServicioDemandante(idDemandante, callback);
     }
 
     static getContratacionesServicioAspirante(idAspirante, callback) {
-        ContratacionesServicioDAO.getContratacionesServicioAspirante(idAspirante, callback);
+        ContratacionServicioDAO.getContratacionesServicioAspirante(idAspirante, callback);
     }
 
     static finalizarContratacionServicio(idDemandante, idContratacionServicio, callback) {
-        ContratacionesServicioDAO.finalizarContratacionServicio(idDemandante, idContratacionServicio, callback);
+        ContratacionServicioDAO.finalizarContratacionServicio(idDemandante, idContratacionServicio, callback);
     }
     
     static evaluarAspirante(idDemandante, idContratacionServicio, puntuacion, callback) {
-        ContratacionesServicioDAO.evaluarAspirante(idDemandante, idContratacionServicio, puntuacion, callback);
+        ContratacionServicioDAO.evaluarAspirante(idDemandante, idContratacionServicio, puntuacion, callback);
     }
 
     static postSolicitudServicio(idAspirante, idDemandante, titulo, descripcion, callback) {

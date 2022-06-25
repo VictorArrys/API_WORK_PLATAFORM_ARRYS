@@ -51,7 +51,7 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios", (req, r
                 filtroEstatus = "";
         }
 
-        var query = "SELECT * FROM deser_el_camello.solicitud_servicio where id_perfil_ss_aspirante = ? " + filtroEstatus + ";";
+        var query = "SELECT ss.*, pd.nonbre FROM solicitud_servicio as ss inner join perfil_demandante as pd ON ss.id_perfil_ss_demandante = pd.id_perfil_demandante where id_perfil_ss_aspirante = ? " + filtroEstatus + ";";
         mysqlConnection.query(query, [idAspirante], (error, resultado) => {
             if(error){ 
                 res.status(500)
@@ -63,10 +63,13 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios", (req, r
                     solicitud = {
                         "idSolicitudServicio": fila['id_solicitud_servicio'],
                         "titulo": fila['titulo'],
-                        "descripcion": fila['descripcion'],                  
+                        //"descripcion": fila['descripcion'],                  
                         "estatus": fila['estatus'],
                         "fechaRegistro": fila['registro'],
-                        "idPerfilDemandante": fila['id_perfil_ss_demandante'],
+                        "demandante" : {
+                            "idPerfilDemandante" : fila['id_perfil_ss_demandante'],
+                            "nombre" : fila["nombre"],
+                        },
                         "idPerfilAspirante": fila['id_perfil_ss_aspirante']
                     }
                     listaSolicitudes.push(solicitud);
@@ -101,14 +104,15 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSolici
                     solicitud = {
                         "idSolicitudServicio": solicitudServicio['id_solicitud_servicio'],
                         "titulo": solicitudServicio['titulo'],
-                        "descripcion": solicitudServicio['descripcion'],                  
                         "estatus": solicitudServicio['estatus'],
                         "fechaRegistro": solicitudServicio['registro'],
-                        "idPerfilDemandante": solicitudServicio['id_perfil_ss_demandante'],
-                        "idPerfilAspirante": solicitudServicio['id_perfil_ss_aspirante'],
-                        "nombreDemandante": solicitudServicio['nombre']
+                        "descripcion": solicitudServicio['descripcion'],
+                        "demandante" : {
+                            "idPerfilDemandante" : solicitudServicio['id_perfil_ss_demandante'],
+                            "nombre" : solicitudServicio["nombre"],
+                        },
+                        "idPerfilAspirante": solicitudServicio['id_perfil_ss_aspirante']
                     }
-                    console.log(solicitud )
                     res.status(200);
                     res.send(solicitud);
                 } else {
@@ -157,12 +161,7 @@ path.patch("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSoli
                                             throw error;
                                         });
                                     } else {
-                                        var queryConversacion = "INSERT INTO conversacion (nombre_empleo , nombre, fecha_contratacion) " +
-                                                                "VALUES ( " +
-                                                                    "(SELECT titulo FROM solicitud_servicio WHERE id_solicitud_servicio = ?), " +
-                                                                    "(SELECT nonbre FROM perfil_demandante INNER JOIN solicitud_servicio ON (id_perfil_demandante = id_perfil_ss_demandante) WHERE id_solicitud_servicio = ?), " +
-                                                                    "date_format(NOW(), \"%Y-%m-%d\") " +
-                                                                ");";
+                                        var queryConversacion = "INSERT INTO conversacion (nombre_empleo , nombre, fecha_contratacion) VALUES ( (SELECT titulo FROM solicitud_servicio WHERE id_solicitud_servicio = ?), (SELECT nonbre FROM perfil_demandante INNER JOIN solicitud_servicio ON (id_perfil_demandante = id_perfil_ss_demandante) WHERE id_solicitud_servicio = ?), date_format(NOW(), \"%Y-%m-%d\") );";
                                         conexion.query(queryConversacion, [idSolicitudServicio, idSolicitudServicio], (error, resultadoConversacion) => {
                                             if(error) {
                                                 conexion.rollback(function() {
@@ -183,7 +182,7 @@ path.patch("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSoli
                                                         });
                                                     } else {
                                                         
-                                                        var queryParticipantes = "INSERT INTO participacion_conversacion (id_conversacion_participacion, id_perfil_usuario_participacion ) VALUES (?, ?), (?, (SELECT pd.id_perfil_usuario_demandante FROM solicitud_servicio as ss inner join perfil_demandante as pd on pd.id_perfil_demandante = ss.id_perfil_ss_demandante where ss.id_solicitud_servicio = ?))";
+                                                        var queryParticipantes = "INSERT INTO participacion_conversacion (id_conversacion_participacion, id_perfil_usuario_participacion ) VALUES (?, (SELECT id_perfil_usuario_aspirante FROM deser_el_camello.perfil_aspirante where id_perfil_aspirante = ?)), (?, (SELECT pd.id_perfil_usuario_demandante FROM solicitud_servicio as ss inner join perfil_demandante as pd on pd.id_perfil_demandante = ss.id_perfil_ss_demandante where ss.id_solicitud_servicio = ?))";
                                                         conexion.query(queryParticipantes, [resultadoConversacion.insertId, idAspirante, resultadoConversacion.insertId, idSolicitudServicio], (error) => {
                                                             if(error) {
                                                                 conexion.rollback(function(error) {
@@ -196,8 +195,9 @@ path.patch("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSoli
                                                                       return connection.rollback(function() {
                                                                         throw error;
                                                                       });
+                                                                    } else {
+                                                                        res.status(200).json(mensajes.solicitudServicioAceptada)
                                                                     }
-                                                                    res.status(200).json(mensajes.solicitudServicioAceptada)
                                                                 });
                                                             }
                                                         })
@@ -226,10 +226,10 @@ path.patch("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSoli
     }
 });
 
-path.patch("/v1/perfilAspirantes/{idPerfilAspirante}/solicitudesServicios/{idSolicitudServicio}/rechazada",(req, res) => {
+path.patch("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSolicitudServicio/rechazada",(req, res) => {
     const token = req.headers['x-access-token'];
     tokenValido = verificarTokenAspirante(token);
-
+    console.log("hola")
     if (tokenValido) {
         var idAspirante = req.params['idPerfilAspirante'];
         var idSolicitudServicio = req.params['idSolicitudServicio'];
@@ -253,7 +253,7 @@ path.patch("/v1/perfilAspirantes/{idPerfilAspirante}/solicitudesServicios/{idSol
                     }
                 });
             } else {
-                res.status(409).send(mensajes.solicitudServicioAtendida);
+                res.status(422).send(mensajes.solicitudServicioAtendida);
             }
         } )
         
