@@ -13,11 +13,13 @@ exports.UsuarioDAO = class UsuarioDAO {
       (error, resultadoInicio) => {
         if (error) {
           callback(500, mensajes.errorInterno);
-        } else if (resultadoInicio.length == 0) {
+        }else if (resultadoInicio.length == 0) {
           console.log(
             "¡Credenciales incorrectas! Probablemente el usuario no exista o estan mal sus credenciales"
           );
           callback(404, mensajes.peticionNoEncontrada);
+        }else if (resultadoInicio[0]['tipo_usuario'] == 'Empleador' && resultadoInicio[0]['estatus'] == 3){
+          callback(403, mensajes.prohibido)
         } else {
           console.log("¡Inicio de sesión exitosa!");
           var usuario = resultadoInicio[0];
