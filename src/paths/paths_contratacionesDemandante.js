@@ -34,7 +34,7 @@ path.get("/v1/perfilDemandantes/:idPerfilDemandante/contratacionesServicios", (r
     const idDemandante = req.params['idPerfilDemandante'];
     if (tokenValido) {
         var query = "SELECT * FROM deser_el_camello.contratacion_servicio where id_perfil_demandante_cs = ?;"
-        mysqlConnection.query(query, [puntuacion, idDemandante, idContratacion], (error, resultadoConsulta)=> {
+        mysqlConnection.query(query, [idDemandante], (error, resultadoConsulta)=> {
             if(error){ 
                 res.status(500)
                 res.send(mensajes.errorInterno);

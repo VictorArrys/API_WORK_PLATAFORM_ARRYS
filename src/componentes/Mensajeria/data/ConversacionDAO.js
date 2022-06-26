@@ -15,10 +15,7 @@ const { MensajeDAO } = require("./MensajeDAO");
 exports.ConversacionDAO = class ConversacionDAO {
   static getConversacionesAspirante(idAspirante, callback) {
     var queryConversaciones =
-      'select id_conversacion, nombre_empleo, date_format(fecha_contratacion, "%Y-%m-%d") as fecha_contratacion from ' +
-      "conversacion as conv inner join participacion_conversacion as parConv " +
-      "on parConv.id_conversacion_participacion = conv.id_conversacion " +
-      "where parConv.id_perfil_usuario_participacion = (select id_perfil_usuario_aspirante from perfil_aspirante where id_perfil_aspirante = ?);";
+      'select id_conversacion, nombre_empleo, date_format(fecha_contratacion, "%Y-%m-%d") as fecha_contratacion from conversacion as conv inner join participacion_conversacion as parConv on parConv.id_conversacion_participacion = conv.id_conversacion where parConv.id_perfil_usuario_participacion = (select id_perfil_usuario_aspirante from perfil_aspirante where id_perfil_aspirante = ?);';
 
     mysqlConnection.query(
       queryConversaciones,
@@ -111,7 +108,7 @@ exports.ConversacionDAO = class ConversacionDAO {
     var queryConversacion =
       "SELECT id_conversacion, nombre_empleo FROM " +
       "conversacion AS c INNER JOIN contratacion_servicio as cs " +
-      "ON cs.id_contratacion_servicio = c.id_conversacion WHERE " +
+      "ON cs.id_conversacion_cs = c.id_conversacion WHERE " +
       "c.id_conversacion = ? AND cs.id_perfil_demandante_cs = ?;";
 
     mysqlConnection.query(

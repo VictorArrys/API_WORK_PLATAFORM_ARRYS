@@ -67,8 +67,6 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/video", (req, res) => {
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarToken(token);
   const { idPerfilAspirante } = req.params;
-  var query =
-    "SELECT video FROM perfil_aspirante WHERE id_perfil_aspirante = ?";
 
   try {
     if (respuesta.statusCode == 200) {
@@ -114,33 +112,28 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/video", (req, res) => {
   }
 });
 
-path.get("/v1/perfilAspirantes", (req, res) => {
-  const token = req.headers["x-access-token"];
-  var respuesta = GestionToken.ValidarToken(token);
-  var query = "SELECT * FROM perfil_aspirante;";
+path.get('/v1/perfilAspirantes', (req, res) => {
+  const token = req.headers['x-access-token']
+  var respuesta = GestionToken.ValidarToken(token)
+  var query = 'SELECT * FROM perfil_aspirante;'
   try {
-    if (respuesta.statusCode == 200) {
-      GestionUsuarios.getAspirantes(function (
-        codigoRespuesta,
-        cuerpoRespuesta
-      ) {
-        res.status(codigoRespuesta);
-        res.json(cuerpoRespuesta);
-      });
-    } else if (respuesta.statusCode == 401) {
-      res.status(401);
-      res.json(mensajes.tokenInvalido);
-    }
-  } catch (error) {
-    consoleError(
-      error,
-      "Funcion: catalogo aspirantes. Paso: Excepcion cachada"
-    );
+      if (respuesta.statusCode == 200){
+          GestionUsuarios.getAspirantes(function(codigoRespuesta, cuerpoRespuesta){
+              console.log(cuerpoRespuesta)
+              res.status(codigoRespuesta);
+              res.json(cuerpoRespuesta);
+          })
+      }else if (respuesta.statusCode == 401){
+          res.status(401)
+          res.json(mensajes.tokenInvalido)
+      }
+  }catch (error) {
+      consoleError(error, 'Funcion: catalogo aspirantes. Paso: Excepcion cachada')
 
-    res.status(500);
-    res.json(mensajes.errorInterno);
+      res.status(500)
+      res.json(mensajes.errorInterno)
   }
-});
+})
 
 path.get("/v1/perfilAspirantes/:idPerfilUsuarioAspirante", (req, res) => {
   const token = req.headers["x-access-token"];

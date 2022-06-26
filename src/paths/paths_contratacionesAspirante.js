@@ -47,16 +47,7 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo", (req, r
     var tokenValido = verifyTokenAspirante(token);
 
     if (tokenValido) {
-        var query = "select conEmp.id_contratacion_empleo as idContratacionEmpleo, conEmp.estatus, date_format(conEmp.fecha_contratacion, \"%Y-%m-%d\") as fechaContratacion, date_format(conEmp.fecha_finalizacion, \"%Y-%m-%d\") as fechaFinalizacion ,  ofertaEmp.* " +
-                "from contratacion_empleo as conEmp inner join contratacion_empleo_aspirante as conEmpAsp  " +
-                "on conEmp.id_contratacion_empleo = conEmpAsp.id_contratacion_empleo_cea " +
-                "inner join  " +
-                "( " +
-                    "select ofEmp.id_oferta_empleo as idOfertaEmpleo, ofEmp.nombre as nombreEmpleo, pefEmp.nombre as nombreEmpleador  " +
-                    "from oferta_empleo as ofEmp inner join perfil_empleador as pefEmp  " +
-                    "on ofEmp.id_perfil_oe_empleador = pefEmp.id_perfil_empleador " +
-                ") as ofertaEmp  " +
-                "on ofertaEmp.idOfertaEmpleo = conEmp.id_oferta_empleo_coe where conEmpAsp.id_perfil_aspirante_cea = ?;";
+        var query = "select conEmp.id_contratacion_empleo as idContratacionEmpleo, conEmp.estatus, date_format(conEmp.fecha_contratacion, \"%Y-%m-%d\") as fechaContratacion, date_format(conEmp.fecha_finalizacion, \"%Y-%m-%d\") as fechaFinalizacion ,  ofertaEmp.* from contratacion_empleo as conEmp inner join contratacion_empleo_aspirante as conEmpAsp  on conEmp.id_contratacion_empleo = conEmpAsp.id_contratacion_empleo_cea inner join  ( select ofEmp.id_oferta_empleo as idOfertaEmpleo, ofEmp.nombre as nombreEmpleo, pefEmp.nombre as nombreEmpleador  from oferta_empleo as ofEmp inner join perfil_empleador as pefEmp  on ofEmp.id_perfil_oe_empleador = pefEmp.id_perfil_empleador ) as ofertaEmp  on ofertaEmp.idOfertaEmpleo = conEmp.id_oferta_empleo_coe where conEmpAsp.id_perfil_aspirante_cea = ?;";
         mysqlConnection.query(query, [idAspirante], (error, resultadoConsulta) => {
             if(error){ 
                 res.status(500)
@@ -91,18 +82,7 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo/:idContra
     const token = req.headers['x-access-token'];
     var tokenValido = verifyTokenAspirante(token);
     if(tokenValido) {
-        var queryContratacion = "select conEmp.id_contratacion_empleo as idContratacionEmpleo, conEmp.estatus, date_format(conEmp.fecha_contratacion, \"%Y-%m-%d\") as fechaContratacion, " +
-                                    "date_format(conEmp.fecha_finalizacion, \"%Y-%m-%d\") as fechaFinalizacion ,  ofertaEmp.* " +
-                                "from contratacion_empleo as conEmp inner join contratacion_empleo_aspirante as conEmpAsp " +
-                                "on conEmp.id_contratacion_empleo = conEmpAsp.id_contratacion_empleo_cea " +
-                                "inner join " +
-                                "(" +
-                                    "select ofEmp.id_oferta_empleo as idOfertaEmpleo, ofEmp.nombre as nombreEmpleo, pefEmp.nombre as nombreEmpleador, catEmp.nombre as categoriaEmpleo, " +
-                                        "ofEmp.direccion, ofEmp.dias_laborales as diasLaborales, ofEmp.tipo_pago as tipoPago, ofEmp.cantidad_pago as CantidadPago, ofEmp.descripcion, CONCAT( ofEmp.hora_inicio, " - ", ofEmp.hora_fin) as horario " +
-                                    "from oferta_empleo as ofEmp inner join perfil_empleador as pefEmp " +
-                                    "on ofEmp.id_perfil_oe_empleador = pefEmp.id_perfil_empleador inner join categoria_empleo as catEmp on catEmp.id_categoria_empleo = ofEmp.id_categoria_oe " +
-                                ") as ofertaEmp " +
-                                "on ofertaEmp.idOfertaEmpleo = conEmp.id_oferta_empleo_coe where conEmpAsp.id_perfil_aspirante_cea = ? and conEmp.id_contratacion_empleo = ?;"
+        var queryContratacion = "select conEmp.id_contratacion_empleo as idContratacionEmpleo, conEmp.estatus, date_format(conEmp.fecha_contratacion, \"%Y-%m-%d\") as fechaContratacion, date_format(conEmp.fecha_finalizacion, \"%Y-%m-%d\") as fechaFinalizacion ,  ofertaEmp.* from contratacion_empleo as conEmp inner join contratacion_empleo_aspirante as conEmpAsp on conEmp.id_contratacion_empleo = conEmpAsp.id_contratacion_empleo_cea inner join (select ofEmp.id_oferta_empleo as idOfertaEmpleo, ofEmp.nombre as nombreEmpleo, pefEmp.nombre as nombreEmpleador, catEmp.nombre as categoriaEmpleo, ofEmp.direccion, ofEmp.dias_laborales as diasLaborales, ofEmp.tipo_pago as tipoPago, ofEmp.cantidad_pago as CantidadPago, ofEmp.descripcion, CONCAT( ofEmp.hora_inicio, " - ", ofEmp.hora_fin) as horario from oferta_empleo as ofEmp inner join perfil_empleador as pefEmp on ofEmp.id_perfil_oe_empleador = pefEmp.id_perfil_empleador inner join categoria_empleo as catEmp on catEmp.id_categoria_empleo = ofEmp.id_categoria_oe ) as ofertaEmp on ofertaEmp.idOfertaEmpleo = conEmp.id_oferta_empleo_coe where conEmpAsp.id_perfil_aspirante_cea = ? and conEmp.id_contratacion_empleo = ?;"
         mysqlConnection.query(queryContratacion, [idAspirante, idContratacionEmpleo], (error, resultadoConsulta) => {
             if (error) {
                 res.status(500)
@@ -144,10 +124,7 @@ path.patch("/v1//perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo/:idCon
     const token = req.headers['x-access-token'];
     var tokenValido = verifyTokenAspirante(token);
     if(tokenValido) {
-        var queryComprobacion = "SELECT if(count(*) = 1, true, false) AS esEvaluable " +
-                                "FROM contratacion_empleo AS conEmp INNER JOIN contratacion_empleo_aspirante AS conEmpAsp " +
-                                "ON (conEmp.id_contratacion_empleo = conEmpAsp.id_contratacion_empleo_cea) " + 
-                                "WHERE (conEmpAsp.id_perfil_aspirante_cea = ? AND conEmpAsp.id_contratacion_empleo_cea = ?) AND estatus = 0;";
+        var queryComprobacion = "SELECT if(count(*) = 1, true, false) AS esEvaluable FROM contratacion_empleo AS conEmp INNER JOIN contratacion_empleo_aspirante AS conEmpAsp ON (conEmp.id_contratacion_empleo = conEmpAsp.id_contratacion_empleo_cea) WHERE (conEmpAsp.id_perfil_aspirante_cea = ? AND conEmpAsp.id_contratacion_empleo_cea = ?) AND estatus = 0;";
         mysqlConnection.query(queryComprobacion, [idAspirante, idContratacionEmpleo], (error, resultadoComprobacion) => {
             if (error) {
                 res.status(500).send(mensajes.errorInterno);
