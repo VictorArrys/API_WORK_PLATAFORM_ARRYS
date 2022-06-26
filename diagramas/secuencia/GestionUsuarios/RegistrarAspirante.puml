@@ -1,0 +1,258 @@
+@startuml
+
+box Cliente
+    actor Aspirante as a
+    participant RegistrarAspirante as b <<GUI>> 
+    participant RegistrarAspirante as c <<Controller>>
+    participant CategoriaDAO as d <<DAO>>
+    participant AspiranteDAO as e <<DAO>>
+end box
+
+box Servidor
+    participant ElCamelloAPI as f <<API>>
+    participant GestionUsuarios as g <<Componente>>
+    participant GestionCategoriasEmpleo as h <<Componente>>
+    participant CategoriaDAO as i <<DAO>>
+    participant AspiranteDAO as j <<DAO>>
+    participant UsuarioDAO as k <<DAO>>
+    database elCamelloDB as db
+end box
+
+a -> b: btnSiguiente_click()
+activate a
+activate b
+
+b -> c: CargarVentana()
+activate c
+
+c ->> c: CargarVentana()
+
+
+c -> d: GetCategorias()
+activate d
+
+d -> f: **GET** /v1/categoriasEmpleo
+activate f
+
+f -> h: getCategoriasEmpleo(callback)
+activate h
+
+h -> i: getCategoriasEmpleo(callback)
+activate i
+deactivate h
+
+i -> db: SELECT * FROM \ncategoria_empleo
+activate db
+
+db -->> i: Categorias
+
+i ->> f: callback(200, Categorias)
+
+f ->> d: **OK 200**
+
+d -->> c: categorias: \nList<Categoria>
+
+alt INTERNAL SERVER ERROR
+    i ->> f: callback(500, mensaje)
+
+    f ->> d: **INTERNAL SERVER ERROR 500**
+
+    d -->> c: null
+
+    c ->> c: mensaje\nErrorInternoServidor
+
+
+else NOT FOUND 
+
+    i ->> f: callback(404, mensaje)
+    deactivate i
+
+    f ->> d: **NOT FOUND 404**
+
+    d -->> c: null
+    deactivate d
+
+    c -->> c: mensaje\nPeticionNoEncontrada
+end
+
+a -> b: capturarDatos
+
+
+loop : 1...n && btnGuardar\nAspirante_Click == false
+
+    alt AgregarOficio
+
+        a -> b: btnAgregar\nCategoria_Click
+        b -> c: oficios.Add(oficio)
+        c ->> c: oficios.\nAdd(oficio)
+
+    else QuitarOFicio
+
+        a -> b: btnQuitarCategoria_Click
+        b -> c: oficios.Remove(oficioSeleccionado)
+        c ->>c: oficios.\nRemove\n(oficioSeleccionado)
+
+    end
+end
+
+a -> b: btnGuardarAspirante_Click
+
+b -> c: btnGuardarAspirante_Click
+
+c ->> c: validarCampos(isNuevo)
+
+loop validarCampos == false
+
+    alt camposVacios
+
+        c ->> c: mensaje\nCamposVacios 
+
+    else fotografiaVacia
+
+        c ->> c: mensaje\nFotografiaVacia
+
+    else videoVacio
+
+        c ->> c: mensajeVideoVacio
+
+    else oficiosVacio
+
+        c ->> c: mensajeOficiosVacio
+
+    else fechaInvalida
+
+        c ->> c: mensajeFechaInvalida
+
+    end
+
+end
+
+c -> e: PostAspirante\n(user, aspirante)
+activate e
+
+e -> f: **POST** /v1/perfilAspirantes
+
+
+f -> g: postAspirante\n(aspiranteNuevo, callback)
+activate g
+
+g -> j: postAspirante\n(aspiranteNuevo, callback)
+activate j
+
+j ->> j: comprobarRegistro\n(aspiranteNuevo.nombreUsuario, aspiranteNuevo.correoElectronico, \nfunction (codigoRespuesta, cuerpoRespuestaComprobacion)
+
+j -> k: putUsuario\n(usuario, callback)
+activate k
+
+k -> db: INSERT INTO perfil_usuario
+
+db -->> k: response.insertId
+
+k -->> j: response.insertId
+
+j -> db: INSERT INTO perfil_aspirante
+
+j -> db: INSERT INTO categoria_aspirante 
+
+db -->> j: response.insertId
+
+j -> f: callback(201, idAspirante)
+
+f -> e: **CREATED 201**
+
+alt CREATED
+
+    e -> f: **PATCH** /v1/perfilUsuarios/:idUsuario/fotografia
+
+    f -> g: patchFotografiaUsuario(idUsuario, fotografia, callback)
+
+    g -> k: patchFotografiaUsuario(idUsuario, fotografia, callback)
+
+    k -> db: UPDATE perfil_usuario \nSET fotografia 
+
+    db -->> k: response
+
+    k -> f: callback(200, response)
+    deactivate k
+
+    f -> e: **200 OK**
+
+    alt CREATED
+
+    e -> f: **PATCH** /v1/perfilAspirantes/:idAspirante/video 
+
+    f -> g: patchVideoAspirante(video, idAspirante, callback)
+
+    g -> j: patchVideoAspirante(video, idAspirante, callback)
+    deactivate g
+
+    j -> db: UPDATE perfil_aspirante \nSET video
+
+    db -->> j: response
+    deactivate db
+
+    j -> f: callback(200, reponse)
+
+    f -> e: **200 OK**
+
+    e -->> c: resultado
+
+    c ->> c: mensajeExito 
+
+    else INTERNAL SERVER ERROR
+
+        e -->> c: null
+
+        c ->> c: mensaje\nErrorServidor
+
+    else NOT FOUND
+
+        e -->> c: null
+
+
+        c ->> c: mensaje\nPeticionNoEncontrada
+
+    end
+
+else INTERNAL SERVER ERROR
+
+    j -> f: callback(500, mensaje)
+
+    f -> e: **500 INTERNAL SERVER ERROR**
+    
+    e -->> c: null
+
+    c ->> c: mensaje\nErrorServidor
+
+else UNPROCESSABLE ENTITY
+
+    j -> f: callback(422, mensaje)
+
+    f -> e: **422 UNPROCESSABLE ENTITY**
+
+    e -->> c: null
+
+    c ->> c: mensaje\nIInstruccionNoProcesada
+
+else NOT FOUND
+
+    j -> f: callback(404, mensaje)
+    deactivate j
+
+    f -> e: **404 NOT FOUND**
+    deactivate f
+    
+    
+    e -->> c: null
+    deactivate e
+
+    c ->> c: mensaje\nPeticionNoEcontrada
+
+    deactivate c
+
+end
+
+
+
+
+@enduml

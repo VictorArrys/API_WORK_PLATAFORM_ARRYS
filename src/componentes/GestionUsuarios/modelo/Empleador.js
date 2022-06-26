@@ -1,11 +1,11 @@
-const {Usuario} = require('./Usuario');
+const { Usuario } = require("./Usuario");
 
 exports.Empleador = class Empleador extends Usuario {
-    idPerfilEmpleador; 
-    nombreOrganizacion;
-    nombre; 
-    direccion; 
-    fechaNacimiento; 
-    telefono; 
-    amonestaciones;
-}
+  idPerfilEmpleador;
+  nombreOrganizacion;
+  nombre;
+  direccion;
+  fechaNacimiento;
+  telefono;
+  amonestaciones;
+};

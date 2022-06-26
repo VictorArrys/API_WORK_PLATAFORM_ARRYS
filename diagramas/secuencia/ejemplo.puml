@@ -24,8 +24,11 @@ activate c
 c -> d : iniciarSesion(\nnombreUsuario: string,\nclave: string): Usuario
 activate d
 
-note right :esta es una nota
-d -> e : **GET** /iniciaSesion?nombreUsuario=&clave=
+note right of a  
+    esta es una not
+    nota prueba
+end note
+d -> e  : **GET** /iniciaSesion?nombreUsuario=&clave=
 activate e
 
 e -> f : iniciarSesion(\nnombreUsuario: string,\nclave: string): Usuario

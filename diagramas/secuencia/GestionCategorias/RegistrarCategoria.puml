@@ -1,0 +1,88 @@
+@startuml
+
+box Cliente
+    actor Administrador as a
+    participant categoriasEmpleo as b <<GUI>> 
+    participant categoriasEmpleo as c <<Controller>>
+    participant CategoriaDAO as d <<DAO>>
+
+end box
+
+box Servidor
+    participant ElCamelloAPI as e <<API>>
+    participant GestionCategoriasEmpleo as f <<Componente>>
+    participant CategoriaEmpleoDAO as g <<DAO>>
+    database elCamelloDB as db
+end box
+
+a -> b: capturarDato
+activate a
+activate b
+
+b -> c: btnRegistrarCategoria_Click
+activate c
+
+c -> d: PostCategoria\n(string nombre, string token)
+activate d
+
+d -> e: **POST** /v1/categoriasEmpleo
+activate e
+
+e -> f: postCategoriaEmpleo\n(nombre, callback)
+activate f
+
+f -> g: postCategoriaEmpleo\n(nombre, callback)
+activate g
+deactivate f
+
+g ->> g: comprobarRegistro\n(nombre, \nfunction(codigoRespuesta, cuerpoRespuestaCateogira)
+
+g -> db: INSERT INTO categoria_empleo
+activate db
+
+db -->> g: response.insertId
+deactivate db
+
+g -> e: callback(201, response.insertId)
+
+e -> d: **201 CREATED**
+
+d -->> c: response.insertId
+
+c ->> c: mensaje\nExito
+
+alt INTERNAL ERROR SERVER
+
+     g -> e: callback(500, mensaje)
+
+     e -> d: **500 INTERNAL SERVER ERROR**
+
+     d -> c: null
+
+     c ->> c: mensaje\nErrorInternoServidor
+
+else UNPROCESSABLE ENTITY
+
+    g -> e: calbback(422, mensaje)
+
+    e -> d: **422 UNPROCESSABLE ENTITY**
+
+    d -> c: null
+
+    c ->> c: mensaje\nInstruccionNoProcesada
+
+
+else NOT FOUND
+
+    g -> e: calback(404, mensaje)
+
+    e -> d: **404 NOT FOUND**
+
+    d -> c: null
+
+    c ->> c: mensaje\nPeticionNoEncontrada
+
+end
+
+
+@enduml

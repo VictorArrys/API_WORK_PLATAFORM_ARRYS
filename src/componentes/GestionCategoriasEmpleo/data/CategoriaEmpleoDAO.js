@@ -9,6 +9,8 @@ exports.CategoriaEmpleoDAO = class CategoriaEmpleoDAO{
         mysqlConnection.query(query, (error, resultadoCategorias) =>{
             if (error){
                 callback(500, mensajes.errorInterno)
+            }else if (resultadoCategorias.length == 0){
+                callback(404, mensajes.peticionNoEncontrada)
             }else{
                 var cont = 0;
                 var categorias = []
@@ -29,10 +31,10 @@ exports.CategoriaEmpleoDAO = class CategoriaEmpleoDAO{
     static postCategoriaEmpleo(nombre, callback) {
         var queryTwo = 'INSERT INTO categoria_empleo (nombre) VALUES(?);'
 
-        this.#comprobarRegistro(nombre, function(codigoRespuesta, cuerpoRespuestaCateogira){
+        this.#comprobarRegistro(nombre, function(codigoRespuesta, cuerpoRespuestaCategoria){
             if (codigoRespuesta == 500){
                 callback(500, mensajes.errorInterno)
-            }else if (cuerpoRespuestaCateogira >= 1){
+            }else if (cuerpoRespuestaCategoria >= 1){
                 callback(422, mensajes.instruccionNoProcesada)
             }else{
 

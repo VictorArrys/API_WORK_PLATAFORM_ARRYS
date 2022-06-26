@@ -1,0 +1,74 @@
+@startuml
+
+box Cliente
+    actor Administrador as a
+    participant consultarPerfiles as b <<GUI>> 
+    participant consultarPerfiles as c <<Controller>>
+    participant UsuarioDAO as d <<DAO>>
+
+end box
+
+box Servidor
+    participant ElCamelloAPI as e <<API>>
+    participant GestionUsuarios as f <<Componente>>
+    participant UsuarioDAO as g <<DAO>>
+    database elCamelloDB as db
+end box
+
+a -> b: btnPantallaUsuarios_Click
+activate a
+activate b
+
+b -> c: cargarUsuarios(token)
+activate c
+
+c -> d: getUsuarios(token)
+activate d
+
+d -> e:  **GET** /v1/perfilUsuarios
+activate e
+
+e -> f: getUsuarios(callback)
+activate f
+
+f -> g: getUsuarios(callback)
+activate g
+deactivate f
+
+g -> db: SELECT * FROM perfil_usuario;
+activate db
+
+db -->> g: response
+deactivate db
+
+g -> e: callback(200, response)
+
+e -> d: **200 OK**
+
+d --> c: response
+
+c ->> c: mensaje\nExito
+
+alt INTERNAL SERVER ERROR
+
+    g -> e: callback(500, mensaje)
+
+    e -> d: **500 INTERNAL SERVER ERROR**
+
+    d -->> c: null
+
+    c ->> c: mensaje\nErrorInternoServidor
+
+else NOT FOUND
+
+    g -> e: callback(404, mensaje)
+
+    e -> d: **404 NO FOUND**
+
+    d -->> c: null
+
+    c ->> c: mensaje\nPeticionNoEncontrada
+
+end
+
+@enduml

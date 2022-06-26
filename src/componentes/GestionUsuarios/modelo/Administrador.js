@@ -1,7 +1,7 @@
-const {Usuario} = require('./Usuario');
+const { Usuario } = require("./Usuario");
 
-exports.Administrador = class Administrador extends Usuario{
-    nombre;
-    telefono;
-    idPerfilAdministrador;
+exports.Administrador = class Administrador extends Usuario {
+  nombre;
+  telefono;
+  idPerfilAdministrador;
 };

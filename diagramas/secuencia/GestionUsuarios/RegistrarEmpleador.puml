@@ -1,0 +1,162 @@
+@startuml
+
+box Cliente
+    actor Empleador as a
+    participant RegistrarEmpleador as b <<GUI>> 
+    participant RegistrarEmpleador as c <<Controller>>
+    participant EmpleadorDAO as d <<DAO>>
+
+end box
+
+box Servidor
+    participant ElCamelloAPI as e <<API>>
+    participant GestionUsuarios as f <<Componente>>
+    participant EmpleadorDAO as g <<DAO>>
+    participant UsuarioDAO as h <<DAO>>
+    database elCamelloDB as db
+end box
+
+a -> b: btnSiguiente_click()
+activate a
+activate b
+
+b -> c: CargarVentana()
+activate c
+
+c ->> c: CargarVentana()
+
+a -> b: capturarDatos
+
+a -> b : btnGuardar_Click
+
+b -> c: btnGuardar_Click
+
+c ->> c: validarCampos(isNuevo)
+
+loop validarCampos == false
+
+     alt camposVacios
+
+        c ->> c: mensaje\nCamposVacios 
+
+    else fotografiaVacia
+
+        c ->> c: mensaje\nFotografiaVacia
+
+    else videoVacio
+
+        c ->> c: mensajeVideoVacio
+
+    else fechaInvalida
+
+        c ->> c: mensajeFechaInvalida
+
+    end
+
+end
+
+c -> d: PostEmpleador\n(usuario, empleador)
+activate d
+
+d -> e: **POST** /v1/perfilEmpleadores
+activate e
+
+e -> f: postEmpleador(empleadorNuevo, callback)
+activate f
+
+f -> g: postEmpleador(empleadorNuevo, callback)
+activate g
+
+g ->> g: comprobarRegistro\n(empleadorNuevo.nombreUsuario, \nempleadorNuevo.correoElectronico, \nfunction (codigoRespuesta, cuerpoRespuestaRegistro)
+
+g -> h: putUsuario\n(usuario, callback)
+activate h
+
+h -> db: INSERT INTO perfil_usuario
+activate db
+
+db -->> h: response.insertId
+
+h -->> g: response.insertId
+
+g -> db: INSERT INTO perfil_empleador
+
+db -> g: response.insertId
+
+g -> e: callback(201, idEmpleador)
+deactivate g
+
+e -> d: **CREATED 201**
+
+alt CREATED
+
+    d -> e: **PATCH** /v1/PerfilUsuarios/:idUsuario/fotografia
+
+    e -> f: patchFotografiaUsuario\n(idUsuario, fotografia, callback)
+
+    f -> h: patchFotografiaUsuario\n(idUsuario, fotografia, callback)
+    deactivate f
+
+    h -> db: UPDATE perfil_usuario SET fotografia
+
+    db -->> h: response
+    deactivate db
+
+    h -> e: callback(200, response)
+
+    e -> d: **200 OK**
+
+    d -->> c: response
+
+    c ->> c: mensaje\nExito
+
+    alt INTERNAL ERROR SERVER
+
+        d -->> c: null
+
+        c ->> c: mensaje\nErrorInternoServidor
+
+    else NOT FOUND
+
+        d -->> c: null
+
+        c ->> c: mensaje\nPeticionNoEncontrada
+
+    end
+
+else INTERNAL ERROR SERVER
+
+    h -> e: callback(500, mensaje)
+
+    e -> d: **500 INTERNAL SERVER ERROR **
+
+    d -->> c: null
+
+    c ->> c: mensaje\nErrorInternoServidor
+
+else UNPROCESSABLE ENTITY
+
+    h -> e: callback(422, mensaje)
+
+    e -> d: **422 UNPROCESSABLE ENTITY**
+
+    d -->> c: null
+
+    c ->> c: mensaje\nInstruccionNoprocesada
+
+else NOT FOUND
+
+    h -> e: callback(404, mensaje)
+    deactivate h
+
+    e -> d: **404 NOT FOUND**
+
+    d -->> c: null
+
+    deactivate d
+
+    c ->> c: mensaje\nPeticionNoEncontrada
+
+end
+
+@enduml
