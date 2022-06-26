@@ -1,9 +1,10 @@
-exports.ContratacionServicio = class ContratacionServicio{
-    idContratacionServicio;
-    fechaFinalizacion;
-    estatus;
-    fechaContratacion;
-    valoracionDemandante;
-    idPerfilAspirante;
-    idPerfilDemandante;
-}
+exports.ContratacionServicio = class ContratacionServicio {
+  idContratacionServicio;
+  tituloEmpleo;
+  estatus;
+  fechaContratacion;
+  fechaFinalizacion;
+  valoracionDemandante;
+  idPerfilAspirante;
+  demandante;
+};

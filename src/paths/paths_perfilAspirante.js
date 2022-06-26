@@ -106,6 +106,7 @@ path.get('/v1/perfilAspirantes', (req, res) => {
     try {
         if (respuesta.statusCode == 200){
             GestionUsuarios.getAspirantes(function(codigoRespuesta, cuerpoRespuesta){
+                console.log(cuerpoRespuesta)
                 res.status(codigoRespuesta);
                 res.json(cuerpoRespuesta);
             })

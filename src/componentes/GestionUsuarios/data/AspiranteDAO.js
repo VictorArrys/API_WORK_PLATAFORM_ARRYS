@@ -30,10 +30,10 @@ exports.AspiranteDAO = class AspiranteDAO {
                         aspirante.nombre = elemento['nombre']
                         aspirante.telefono = elemento['telefono']
                         aspirante.idPerfilUsuario = elemento['id_perfil_usuario_aspirante']
-                        OficioDAO.getOficios(aspirante.idPerfilAspirante, (errorOficios, resultadoOficios)=> {
-                            if(errorOficios) {
-                                callback(errorOficios)
-                            } else {
+                        OficioDAO.getOficios(aspirante.idPerfilAspirante, (codigoRespuesta, resultadoOficios)=> {
+                            if(codigoRespuesta == 500) {
+                                callback(500, mensajes.errorInterno);
+                            } else if (codigoRespuesta == 200) {
                                 aspirante.oficios = resultadoOficios;
                                 listaAspirantes.push(aspirante);
                                 if (listaAspirantes.length == resultadoConsulta.length) {
@@ -56,24 +56,22 @@ exports.AspiranteDAO = class AspiranteDAO {
             var arregloOficios = []
             var getAspirante = resultadoAspirante[0]
 
-            this.#getOficios(getAspirante.id_perfil_aspirante, function(oficios) {
-                if (oficios == 500){
+            this.#getOficios(getAspirante.id_perfil_aspirante, function(codigoRespuesta, oficios) {
+                if (codigoRespuesta == 500){
                     callback(500, mensajes.errorInterno)
-                }else if (oficios.length == 0){
-                    callback([])
+                } else {
+                    aspirante['application/json'] = {
+                        'direccion': getAspirante['direccion'],
+                        'fechaNacimiento': getAspirante['fecha_nacimiento'],
+                        'idPerfilAspirante': getAspirante['id_perfil_aspirante'],
+                        'nombre': getAspirante['nombre'],
+                        'idPerfilUsuario': getAspirante['id_perfil_usuario_aspirante'],
+                        'oficios': oficios,
+                        'telefono': getAspirante['telefono']
+                    }
+    
+                    callback(200, aspirante['application/json'])
                 }
-                aspirante['application/json'] = {
-        
-                    'direccion': getAspirante['direccion'],
-                    'fechaNacimiento': getAspirante['fecha_nacimiento'],
-                    'idPerfilAspirante': getAspirante['id_perfil_aspirante'],
-                    'nombre': getAspirante['nombre'],
-                    'idPerfilUsuario': getAspirante['id_perfil_usuario_aspirante'],
-                    'oficios': oficios,
-                    'telefono': getAspirante['telefono']
-                }
-
-                callback(200, aspirante['application/json'])
 
                 
             })
@@ -255,7 +253,7 @@ exports.AspiranteDAO = class AspiranteDAO {
             if (error){
                 callback(500)
             }else if (resultadoOficios.length == 0){
-                callback([])
+                callback(200,[])
             }else{
                 var arreglo = []
 
@@ -267,7 +265,7 @@ exports.AspiranteDAO = class AspiranteDAO {
                         'experiencia': resultadoOficios[i]['experiencia']
                     }
                 }
-                callback(arreglo)
+                callback(200,arreglo)
             }
         })
     }

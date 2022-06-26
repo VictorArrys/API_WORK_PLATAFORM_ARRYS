@@ -11,9 +11,11 @@ exports.OficioDAO = class OficioDAO {
         var query = 'SELECT * FROM categoria_aspirante where id_aspirante_ca = ?;';
         mysqlConnection.query(query, [idAspirante], (error, resultadoConsulta) => {
             if(error) {
-                callback(error);
+                console.log("getoficios")
+                callback(500, null);
             } else {
                 var listaOficios = [];
+                console.log("oficios -si")
                 resultadoConsulta.forEach(elemento => {
                     var oficio = new Oficio();
                     oficio.idAspirante = elemento['id_aspirante_ca'],
@@ -21,7 +23,7 @@ exports.OficioDAO = class OficioDAO {
                     oficio.experiencia = elemento['experiencia'];
                     listaOficios.push(oficio);                
                 });
-                callback(null, listaOficios);
+                callback(200, listaOficios);
             }
         })
     }
