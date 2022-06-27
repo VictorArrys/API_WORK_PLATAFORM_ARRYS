@@ -5,4 +5,5 @@ exports.Usuario = class Usuario {
   correoElectronico;
   nombreUsuario;
   tipoUsuario;
+  fotografia;
 };

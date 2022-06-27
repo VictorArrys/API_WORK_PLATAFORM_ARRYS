@@ -288,9 +288,7 @@ exports.AspiranteDAO = class AspiranteDAO {
             if (error){
                 callback(500, mensajes.errorInterno)
             }else{
-                if (suprimirOficios['affectedRows'] >= 1){
-                    callback(200, mensajes.actualizacionExitosa)
-                }
+                callback(200, mensajes.actualizacionExitosa)
             }
         })
     }
