@@ -44,11 +44,11 @@ exports.GestionSolicitudesEmpleo =  class {
 
                                                     //Verificamos si existe la contratación de la solicitud
                                                     ContratacionDAO.existeContratacion(existeSolicitudEmpleo, (codigoRespuesta,contratacionEmpleo)=>{
-                                                        console.log("Contratacion: " + contratacionEmpleo + " res: " + codigoRespuesta)
+                                                        console.log("Contratacion: " + contratacionEmpleo['id_contratacion_empleo'] + " res: " + codigoRespuesta)
                                                         if(codigoRespuesta == 200){
-                                                            console.log(contratacionEmpleo)
+                                                            console.log(contratacionEmpleo['id_contratacion_empleo'])
                                                             if(contratacionEmpleo == 0){
-                                                                console.log('La contratacion tiene un ID: ' + contratacionEmpleo + ', lo cual significa que no existe y se crea')
+                                                                console.log('La contratacion tiene un ID: ' + contratacionEmpleo['id_contratacion_empleo'] + ', lo cual significa que no existe y se crea')
                                                                 //Se crea una nueva conversación de la solicitud
                                                                 ConversacionDAO.crearConversacion(existeSolicitudEmpleo, (codigoRespuesta,conversacionNueva)=>{
                                                                     if(codigoRespuesta == 201){
@@ -122,9 +122,11 @@ exports.GestionSolicitudesEmpleo =  class {
                                         
                                                             }else{
                                                                 //Solo se agrega al aspirante a la contratación
-                                                                ContratacionDAO.crearContratacionAspirante(contratacionEmpleo ,idAspirante, cuerpoIdEmpleador, (codigoRespuesta,contratacionEmpleoAspirante)=>{
+                                                                ContratacionDAO.crearContratacionAspirante(contratacionEmpleo['id_contratacion_empleo'] ,idAspirante, cuerpoIdEmpleador, (codigoRespuesta,contratacionEmpleoAspirante)=>{
                                                                     if(contratacionEmpleoAspirante == 1){
-                                                                        ConversacionDAO.agregarParticipantes(contratacionEmpleo, idUsuarioAspirante, (codigoRespuesta, agregarParticipante)=>{
+                                                                        console.log(contratacionEmpleo['id_conversacion_coe'])
+
+                                                                        ConversacionDAO.agregarParticipantes(contratacionEmpleo['id_conversacion_coe'], idUsuarioAspirante, (codigoRespuesta, agregarParticipante)=>{
                                                                             if(codigoRespuesta == 201){
                                                                                 OfertaEmpleoDAO.reducirVacante(idOfertaEmpleo, (codigoRespuesta,reducirVacante)=>{
                                                                                     if(codigoRespuesta == 200){
