@@ -25,6 +25,14 @@ activate c
 c -> d: getUsuarios(token)
 activate d
 
+note right of d
+ 
+**HEADERS**
+x-access-token: string
+
+end note
+
+
 d -> e:  **GET** /v1/perfilUsuarios
 activate e
 
@@ -37,6 +45,19 @@ deactivate f
 
 g -> db: SELECT * FROM perfil_usuario;
 activate db
+
+note right of db
+**PAYLOAD**
+
+list <Usuario>:
+    clave: string
+    estatus: int
+    idPerfilUsuario: int
+    correoElectronico: string
+    nombreUsuario: string
+    tipoUsuario: string
+
+end note
 
 db -->> g: response
 deactivate db

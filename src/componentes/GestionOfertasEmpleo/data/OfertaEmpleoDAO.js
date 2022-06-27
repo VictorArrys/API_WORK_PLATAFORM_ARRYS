@@ -46,7 +46,7 @@ exports.OfertaEmpleoDAO = class OfertaEmpleoDAO {
                            
                         }
                     }
-                    
+                        
                 });                
     
             }

@@ -141,7 +141,7 @@ exports.EmpleadorDAO = class EmpleadorDAO {
       function (codigoRespuesta, cuerpoRespuesta) {
         if (codigoRespuesta == 500) {
           callback(500, mensajes.errorInterno);
-        } else if (codigoRespuesta == 404) {
+        } else if (codigoRespuesta == 404) { 
           callback(404, mensajes.peticionNoEncontrada);
         } else {
           mysqlConnection.query(

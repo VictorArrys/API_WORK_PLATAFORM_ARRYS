@@ -1,5 +1,5 @@
 exports.ValoracionAspirante = class ValoracionAspirante {
     aspirante;
-    idPerfilAspirante; 
+    idValoracionAspirante; 
     valoracionAspirante;
 }
