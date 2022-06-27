@@ -77,6 +77,68 @@ alt OfertaEmpleo registrada
     e -->> d: **CREATED** 201
     d -->> c: idOfertaEmpleo :response
 
+    c -> d : PostFotografiasOfertaEmpleo(\nidOfertaEmpleo: OfertaEmpleo,\nfotografias: List<byte[]>): Empleador
+
+    note right of d  
+    **payload**
+    fotografia: byte[]
+    end note
+
+    d -> e : **POST** /v1/ofertasEmpleo-E/:idOfertaEmpleo/fotografia
+
+    e -> f : postFotografiaOfertaEmpleo(\nidOfertaEmpleo: int, \nfotografia: byte[]): Empleador
+
+    f -> g : postFotografiaOfertaEmpleo(\nidOfertaEmpleo: int, \nfotografia: byte[]): Empleador
+
+    g -> db : INSERT INTO fotografia(idOfertaEmpleo, fotografia)
+
+    note right of db  
+    **Status Code**
+    201
+    end note
+
+    db -->> g : response
+    deactivate db
+
+    alt Fotografia registrada
+        g ->> f : callback(201, response)
+        
+        f ->> e : callback(201, response)
+
+        e -->> d: **CREATED** 201
+        d -->> c: cambios :response
+
+    else Fotografia no registrada
+        g ->> f : callback(500, mensaje)
+        activate g
+
+        f ->> e : callback(500, mensaje)
+        deactivate f
+
+        e -->> d: **INTERNAL ERROR** 500
+        deactivate e
+
+        d -->> c: null
+        deactivate d
+
+        c ->> c: mostrarMensaje\nRegistrarFotoFallido()
+    else Peticion incorrecta
+        g ->> f : callback(404, mensaje)
+        deactivate g
+
+        f ->> e : callback(404, mensaje)
+        deactivate f
+
+        e -->> d: **NOT FOUND** 404
+        deactivate e
+
+        d -->> c: null
+        deactivate d
+
+        c ->> c: mostrarMensaje\nRegistrarFotoFallido()
+
+    end
+
     c ->> c: actualizarCambios("Registrar oferta empleo")
     c ->> c: mostrarMensaje\nRegistroExitoso()
 else OfertaEmpleo no registrada

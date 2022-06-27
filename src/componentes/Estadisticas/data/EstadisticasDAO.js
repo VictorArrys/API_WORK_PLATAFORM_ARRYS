@@ -1,6 +1,7 @@
 const MostrarError = require('../../../utils/MensajesConsolaAPI');
 var mysqlConnection = require('../../../../utils/conexion');
 var mensajes = require('../../../../utils/mensajes');
+const { UsoPlataforma } = require('../dataType/UsoPlataforma');
 
 exports.EstadisticasDAO = class estadisticasDAO {
 
@@ -16,6 +17,18 @@ exports.EstadisticasDAO = class estadisticasDAO {
                 callback(404, mensajes.peticionNoEncontrada)
      
             }else{
+                
+                var estadisticasArray = []
+                /*
+                estadisticas_uso_plataforma.forEach(element => {
+                    var estadisticas = new UsoPlataforma()
+                    estadisticas.fecha
+                    estadisticas.mes 
+                    estadisticas.ofertasPublicadas 
+                    estadisticas.categoria
+                });
+                */
+
                 var estadisticas_uso_plataforma = resultadoEstadisticasUso;
                 callback(200, estadisticas_uso_plataforma)
           
