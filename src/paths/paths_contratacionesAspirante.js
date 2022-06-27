@@ -59,7 +59,7 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo", (req, r
                     contratacionEmpleo = {
                         "idContratacionEmpleo": fila['idContratacionEmpleo'],
                         "idOfertaEmpleo": fila['idOfertaEmpleo'],
-                        "nombreEmpleo": fila['nombreEmpleo'],
+                        "nombreOfertaEmpleo": fila['nombreEmpleo'],
                         "nombreEmpleador": fila['nombreEmpleador'],
                         "estatus": fila['estatus'],
                         "fechaContratacion": fila['fechaContratacion'],
