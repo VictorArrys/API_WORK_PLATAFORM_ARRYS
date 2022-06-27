@@ -10,7 +10,7 @@ exports.DemandanteDAO = class DemandanteDAO {
     mysqlConnection.query(query, (error, resultadoDemandantes) => {
       if (error) {
         callback(500, mensajes.errorInterno);
-      }else if (resultadoDemandantes.length == 0){
+      }else if(resultadoDemandantes.length == 0){
         callback(200, [])
       } else {
         var cont = 0;
@@ -42,7 +42,7 @@ exports.DemandanteDAO = class DemandanteDAO {
     mysqlConnection.query(query, [idUsuario], (error, resultadoDemandante) => {
       if (error) {
         callback(500, mensajes.errorInterno);
-      }else if (resultadoDemandante.length == 0){
+      } else if(resultadoDemandante.length == 0){
         callback(404, mensajes.peticionNoEncontrada)
       } else {
         var getdemandante = resultadoDemandante[0];
