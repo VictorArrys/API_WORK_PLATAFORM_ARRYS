@@ -44,7 +44,7 @@ exports.GestionSolicitudesEmpleo =  class {
 
                                                     //Verificamos si existe la contratación de la solicitud
                                                     ContratacionDAO.existeContratacion(existeSolicitudEmpleo, (codigoRespuesta,contratacionEmpleo)=>{
-                                                        console.log("Contratacion: " + contratacionEmpleo + " res" + codigoRespuesta)
+                                                        console.log("Contratacion: " + contratacionEmpleo + " res: " + codigoRespuesta)
                                                         if(codigoRespuesta == 200){
                                                             console.log(contratacionEmpleo)
                                                             if(contratacionEmpleo == 0){
@@ -122,7 +122,7 @@ exports.GestionSolicitudesEmpleo =  class {
                                         
                                                             }else{
                                                                 //Solo se agrega al aspirante a la contratación
-                                                                ContratacionDAO.crearContratacionAspirante(contratacionEmpleoAspirante ,idAspirante, cuerpoIdEmpleador, (codigoRespuesta,contratacionEmpleoAspirante)=>{
+                                                                ContratacionDAO.crearContratacionAspirante(contratacionEmpleo ,idAspirante, cuerpoIdEmpleador, (codigoRespuesta,contratacionEmpleoAspirante)=>{
                                                                     if(contratacionEmpleoAspirante == 1){
                                                                         ConversacionDAO.agregarParticipantes(contratacionEmpleo, idUsuarioAspirante, (codigoRespuesta, agregarParticipante)=>{
                                                                             if(codigoRespuesta == 201){

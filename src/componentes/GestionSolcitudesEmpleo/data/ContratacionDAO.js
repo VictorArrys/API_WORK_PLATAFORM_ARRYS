@@ -33,7 +33,7 @@ exports.ContratacionDAO = class ContratacionDAO {
                 callback(200, 0)
 
             }else{ //En caso de existir la contratación solo agregamos el aspirante a ella
-                console.log('Contratacion: ' +existeContratacion[0]['id_contratacion_empleo'])
+                console.log('Contratacion sssss: ' + existeContratacion[0]['id_contratacion_empleo'])
                 callback(200,existeContratacion[0]['id_contratacion_empleo'])
                 
             }
