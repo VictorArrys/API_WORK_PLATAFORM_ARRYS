@@ -125,6 +125,7 @@ path.get("/v1/iniciarSesion", (req, res) => {
           idUsuario: cuerpoRespuesta.idPerfilUsuario,
           clave: cuerpoRespuesta.clave,
           tipo: cuerpoRespuesta.tipoUsuario,
+          estatus: cuerpoRespuesta.estatus
         };
         var token = GestionToken.CrearToken(payloadToken);
         res.setHeader("x-access-token", token);
