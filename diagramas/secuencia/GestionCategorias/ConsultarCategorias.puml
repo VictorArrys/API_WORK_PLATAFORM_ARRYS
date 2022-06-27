@@ -25,6 +25,7 @@ activate c
 c -> d: GetCategorias() 
 activate d
 
+
 d -> e: **GET** /v1/categoriasEmpleo
 activate e
 
@@ -36,6 +37,14 @@ activate g
 
 g -> db: SELECT * FROM categoria_empleo
 activate db
+
+note right of db
+**PAYLOAD**
+list<CategoriaEmpledo>:
+    idCategoriaEmpleo: int
+    nombre: string
+
+end note
 
 db -->> g: response
 deactivate db

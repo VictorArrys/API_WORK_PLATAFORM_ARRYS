@@ -18,7 +18,8 @@ exports.CategoriaEmpleoDAO = class CategoriaEmpleoDAO{
                 do{
                     categorias[cont] = {
                         'idCategoriaEmpleo': resultadoCategorias[cont]['id_categoria_empleo'],
-                        'nombre': resultadoCategorias[cont]['nombre']
+                        'nombre': 
+                        [cont]['nombre']
                     }
                     cont ++
                 }while(cont < resultadoCategorias.length)

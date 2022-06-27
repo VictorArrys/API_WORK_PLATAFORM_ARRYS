@@ -12,7 +12,10 @@ exports.EmpleadorDAO = class EmpleadorDAO {
     mysqlConnection.query(query, (error, resultadoEmpleadores) => {
       if (error) {
         callback(500, mensajes.errorInterno);
-      } else {
+      }else if (resultadoEmpleadores.length == 0){
+        callback(200, [])
+      } 
+      else {
         var cont = 0;
         var empleadores = [];
 
@@ -48,6 +51,8 @@ exports.EmpleadorDAO = class EmpleadorDAO {
     mysqlConnection.query(query, [idEmpleador], (error, resultadoEmpleador) => {
       if (error) {
         callback(500, mensajes.errorInterno);
+      }else if (resultadoEmpleador.length == 200){
+        callback(404, mensajes.errorInterno)
       } else {
         var empleador = resultadoEmpleador[0];
         var getEmpleador = {};
@@ -141,7 +146,7 @@ exports.EmpleadorDAO = class EmpleadorDAO {
       function (codigoRespuesta, cuerpoRespuesta) {
         if (codigoRespuesta == 500) {
           callback(500, mensajes.errorInterno);
-        } else if (codigoRespuesta == 404) {
+        } else if (codigoRespuesta == 404) { 
           callback(404, mensajes.peticionNoEncontrada);
         } else {
           mysqlConnection.query(

@@ -25,6 +25,11 @@ activate c
 c -> d: PostCategoria\n(string nombre, string token)
 activate d
 
+note right of d  
+**HEADERS**
+x-access-token: string
+end note
+
 d -> e: **POST** /v1/categoriasEmpleo
 activate e
 
@@ -39,6 +44,14 @@ g ->> g: comprobarRegistro\n(nombre, \nfunction(codigoRespuesta, cuerpoRespuesta
 
 g -> db: INSERT INTO categoria_empleo
 activate db
+
+note right of db
+**PAYLOAD**
+
+idCategoriaEmpleo: int
+nombre: string
+
+end note
 
 db -->> g: response.insertId
 deactivate db

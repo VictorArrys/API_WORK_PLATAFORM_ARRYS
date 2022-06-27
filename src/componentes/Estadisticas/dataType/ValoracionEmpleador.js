@@ -1,5 +1,5 @@
 exports.ValoracionEmpleaodr = class ValoracionEmpleaodr{
     empleador; 
-    idPerfilEmpleador;
+    idValoracionEmpleador;
     valoracionEmpleador;
 }

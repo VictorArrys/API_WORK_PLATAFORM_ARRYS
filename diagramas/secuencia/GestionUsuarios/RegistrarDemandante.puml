@@ -75,11 +75,34 @@ activate h
 h -> db: INSERT INTO perfil_usuario
 activate db
 
+note right of db
+**PAYLOAD**
+
+clave: string
+estatus: int
+idPerfilUsuario: int
+correoElectronico: string
+nombreUsuario: string 
+tipoUsuario: string
+
+end note
+
 db -->> h: response.insertId
 
 h -->> g: response.insertId
 
 g -> db: INSERT INTO perfil_demandante
+
+note right of db
+**PAYLOAD**
+
+idPerfilDemandante: int
+nombre: string
+fechaNacimiento: date
+telefono: string
+direccion: string
+
+end note 
 
 db -> g: response.insertId
 
@@ -98,6 +121,14 @@ alt CREATED
     deactivate f
 
     h -> db: UPDATE perfil_usuario SET fotografia
+
+    note right of db
+
+    **PAYLOAD**
+
+    fotografia: byte[]
+
+    end note
 
     db -->> h: response
     deactivate db

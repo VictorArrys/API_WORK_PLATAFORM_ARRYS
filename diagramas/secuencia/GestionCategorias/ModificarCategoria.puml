@@ -25,8 +25,15 @@ activate c
 c -> d: PatchCategoria\n(categoriaSeleccionada, token)
 activate d
 
+note right of d  
+**HEADERS**
+x-access-token: string
+end note
+
 d -> e: **PATCH** /v1/categoriasEmpleo
 activate e
+
+
 
 e -> f: patchCategoriaEmpleo\n(idCategoriaEmpleo, nombre, callback)
 activate f
@@ -36,6 +43,15 @@ activate g
 
 g -> db: UPDATE categoria_empleo SET nombre
 activate db
+
+note right of db
+**PAYLOAD**
+
+list<CategoriaEmpleo>:
+    idCategoriaEmpleo: int
+    nombre: string
+
+end note
 
 db -->> g: response 
 

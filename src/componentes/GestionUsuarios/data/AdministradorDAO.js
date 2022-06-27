@@ -11,7 +11,7 @@ exports.AdministradorDAO = class AdministradorDAO {
       if (error) {
         callback(500, mensajes.errorInterno);
       } else if (resultadoAdministradores.length == 0) {
-        callback(404, mensajes.peticionNoEncontrada);
+        callback(200, []);
       } else {
         var cont = 0;
         var administradores = [];
@@ -118,7 +118,7 @@ exports.AdministradorDAO = class AdministradorDAO {
         if (error) {
           callback(500, mensajes.errorInterno);
         } else if (actualizacionUsuario.length == 0) {
-          callback(404, mensajes.peticionNoEncontrada);
+          callback(200, mensajes.peticionNoEncontrada);
         } else {
           const modificarUsuario = {};
 

@@ -44,9 +44,16 @@ deactivate h
 i -> db: SELECT * FROM \ncategoria_empleo
 activate db
 
-db -->> i: Categorias
+note right of db
+**PAYLOAD**
+list<CategoriaEmpleo>:
+    idCategoriaEmpleo: int
+    nombre: string
+end note
 
-i ->> f: callback(200, Categorias)
+db -->> i: response
+
+i ->> f: callback(200, response)
 
 f ->> d: **OK 200**
 
@@ -146,13 +153,46 @@ activate k
 
 k -> db: INSERT INTO perfil_usuario
 
+note right of db
+**PAYLOAD**
+
+clave: string
+estatus: int
+idPerfilUsuario: int
+correoElectronico: string
+nombreUsuario: string 
+tipoUsuario: string
+
+end note
+
 db -->> k: response.insertId
 
 k -->> j: response.insertId
 
 j -> db: INSERT INTO perfil_aspirante
 
+note right of db
+**PAYLOAD**
+
+direccion: string
+fechaNacimiento: date
+idPerfilAspirante: int
+nombre: string
+telefono: string
+video: MemoryStream
+
+end note
+
 j -> db: INSERT INTO categoria_aspirante 
+
+note right of db
+**PAYLOAD**
+
+idAspirante: int
+idCategoriaEmpleo: int
+experiencia: string
+
+end note
 
 db -->> j: response.insertId
 
@@ -168,7 +208,14 @@ alt CREATED
 
     g -> k: patchFotografiaUsuario(idUsuario, fotografia, callback)
 
-    k -> db: UPDATE perfil_usuario \nSET fotografia 
+    k -> db: UPDATE perfil_usuario \nSET fotografia
+
+    note right of db
+        **PAYLOAD**
+
+        fotografia: byte[]
+
+    end note 
 
     db -->> k: response
 
@@ -187,6 +234,13 @@ alt CREATED
     deactivate g
 
     j -> db: UPDATE perfil_aspirante \nSET video
+
+    note right of db
+        **PAYLOAD**
+
+        video: MemoryStream
+
+    end note
 
     db -->> j: response
     deactivate db
