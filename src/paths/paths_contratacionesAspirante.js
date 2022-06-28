@@ -28,7 +28,7 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesServicios", (req
     const token = req.headers['x-access-token'];
     var validacionToken = GestionToken.ValidarTokenTipoUsuario(token, "Aspirante");
 
-    if (validacionToken.statusCode == 200) {
+    if (validacionToken.statusCode == 200  && validacionToken.tokenData['estatus'] == 1) {
         GestionServicios.getContratacionesServicioAspirante(idAspirante, (codigoRespuesta, cuerpoRespuesta) => {
             res.status(codigoRespuesta).json(cuerpoRespuesta);
         });

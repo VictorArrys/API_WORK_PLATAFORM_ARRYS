@@ -15,7 +15,7 @@ path.post("/v1/ofertasEmpleo-A/:idOfertaEmpleo/solicitarVacante", (req, res)=>{
     var idOfertaEmpleo = req.params['idOfertaEmpleo'];
     var validacionToken = GestionToken.ValidarTokenTipoUsuario(token, "Aspirante");
 
-    if (validacionToken.statusCode == 200) {
+    if (validacionToken.statusCode == 200 && validacionToken.tokenData['estatus'] == 1) {
         var queryComprobacion = "SELECT COUNT(*) as numSolicitudes FROM solicitud_aspirante where id_perfil_aspirante_sa = ? and id_oferta_empleo_sa = ?;";
         mysqlConnection.query(queryComprobacion, [idPerfilAspirante,idOfertaEmpleo], (error, resultado) => {
             if (error) {
@@ -70,6 +70,9 @@ path.post("/v1/ofertasEmpleo-A/:idOfertaEmpleo/solicitarVacante", (req, res)=>{
                 }
             }
         })
+    }else if (validacionToken.tokenData['estatus'] == 2){
+        res.status(403)
+        res.json(mensajes.prohibido)
     } else {
         res.status(validacionToken.statusCode)
         res.json(mensajes.tokenInvalido);

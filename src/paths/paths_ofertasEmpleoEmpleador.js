@@ -23,7 +23,7 @@ path.get('/v1/ofertasEmpleo-E', validarQueryOferta, (req, res) => {
     
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Empleador")
     
-    if(respuesta['statusCode'] == 200){
+    if(respuesta['statusCode'] == 200 && respuesta.tokenData['estatus'] == 1){
         var idUsuario = respuesta['tokenData']['idUsuario']
 
         GestionOfertasEmpleo.getOfertasEmpleo(req.query.idPerfilEmpleador, idUsuario, (codigoRespuesta, cuerpoRespuestaOferta)=>{
@@ -51,7 +51,7 @@ path.get('/v1/ofertasEmpleo-E/:idOfertaEmpleo', validarParamOferta, (req, res) =
     
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Empleador")
     
-    if(respuesta['statusCode'] == 200){
+    if(respuesta['statusCode'] == 200 && respuesta.tokenData['estatus'] == 1){
         var idOfertaEmpleo = req.params.idOfertaEmpleo
         var idUsuario = respuesta['tokenData']['idUsuario']
 
@@ -92,7 +92,7 @@ path.post('/v1/ofertasEmpleo-E', validarOfertaEmpleo, (req, res) => {
     
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Empleador")
     
-    if(respuesta['statusCode'] == 200){
+    if(respuesta['statusCode'] == 200 && respuesta.tokenData['estatus'] == 1){
 
         console.log(req.body)
 
@@ -120,6 +120,9 @@ path.post('/v1/ofertasEmpleo-E', validarOfertaEmpleo, (req, res) => {
         })
 
             
+    }else if (respuesta.tokenData['estatus'] == 2){
+        res.status(403)
+        res.json(mensajes.prohibido)
     }else if(respuesta['statusCode'] == 401){
         res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);
@@ -151,7 +154,7 @@ path.put('/v1/ofertasEmpleo-E/:idOfertaEmpleo', validarParamOferta, (req, res) =
     
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Empleador")
     
-    if(respuesta['statusCode'] == 200){
+    if(respuesta['statusCode'] == 200 && respuesta.tokenData['estatus'] == 1){
         var idUsuario = respuesta['tokenData']['idUsuario']
 
         var ofertaEmpleoEdicion = new OfertaEmpleo();
@@ -178,6 +181,9 @@ path.put('/v1/ofertasEmpleo-E/:idOfertaEmpleo', validarParamOferta, (req, res) =
 
         })
 
+    }else if (respuesta.tokenData['estatus'] == 2){
+        res.status(403)
+        res.json(mensajes.prohibido)
     }else if(respuesta['statusCode'] == 401){
         res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);

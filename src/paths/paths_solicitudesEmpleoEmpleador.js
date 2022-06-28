@@ -16,7 +16,7 @@ path.get('/v1/solicitudesEmpleo', (req, res) => {
     
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Empleador")
     
-    if(respuesta['statusCode'] == 200){
+    if(respuesta['statusCode'] == 200 && respuesta.tokenData['estatus'] == 1){
         var idOfertaEmpleo = req.query.idOfertaEmpleo
 
         GestionSolicitudesEmpleo.getSolicitudesEmpleo(idOfertaEmpleo, (codigoRespuesta, cuerpoRespuestaSolicitudes)=>{
@@ -25,6 +25,9 @@ path.get('/v1/solicitudesEmpleo', (req, res) => {
             res.json(cuerpoRespuestaSolicitudes)
 
         })
+    }else if (respuesta.tokenData['estatus'] == 2){
+        res.status(403)
+        res.json(mensajes.prohibido)
     }else if(respuesta['statusCode'] == 401){
         res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);
@@ -43,7 +46,7 @@ path.get('/v1/solicitudesEmpleo/:idSolicitudEmpleo', (req, res) => {
     
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Empleador")
     
-    if(respuesta['statusCode'] == 200){
+    if(respuesta['statusCode'] == 200 && respuesta.tokenData['estatus'] == 1){
         var idSolicitudEmpleo = req.params.idSolicitudEmpleo
 
         GestionSolicitudesEmpleo.getSolicitudEmpleo(idSolicitudEmpleo, (codigoRespuesta, cuerpoRespuestaSolicitud)=>{
@@ -52,6 +55,9 @@ path.get('/v1/solicitudesEmpleo/:idSolicitudEmpleo', (req, res) => {
             res.json(cuerpoRespuestaSolicitud)
 
         })
+    }else if (respuesta.tokenData['estatus'] == 2){
+        res.status(403)
+        res.json(mensajes.prohibido)
     }else if(respuesta['statusCode'] == 401){
         res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);
@@ -72,7 +78,7 @@ path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/aceptada', (req, res) => {
     
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Empleador")
     
-    if(respuesta['statusCode'] == 200){
+    if(respuesta['statusCode'] == 200 && respuesta.tokenData['estatus'] == 1){
         var idSolicitudEmpleo = req.params.idSolicitudEmpleo
 
         GestionSolicitudesEmpleo.patchAceptarSolicitud(idSolicitudEmpleo, (codigoRespuesta, cuerpoRespuestaSolicitud)=>{
@@ -81,6 +87,9 @@ path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/aceptada', (req, res) => {
             res.json(cuerpoRespuestaSolicitud)
 
         })
+    }else if (respuesta.tokenData['estatus'] == 2){
+        res.status(403)
+        res.json(mensajes.prohibido)
     }else if(respuesta['statusCode'] == 401){
         res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);
@@ -100,7 +109,7 @@ path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/rechazada', (req, res) => {
     
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Empleador")
     
-    if(respuesta['statusCode'] == 200){
+    if(respuesta['statusCode'] == 200 && respuesta.tokenData['estatus'] == 1){
         var idSolicitudEmpleo = req.params.idSolicitudEmpleo
 
         GestionSolicitudesEmpleo.patchRechazarSolicitud(idSolicitudEmpleo, (codigoRespuesta, cuerpoRespuestaSolicitud)=>{
@@ -109,6 +118,9 @@ path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/rechazada', (req, res) => {
             res.json(cuerpoRespuestaSolicitud)
 
         })
+    }else if (respuesta.tokenData['estatus'] == 2){
+        res.status(403)
+        res.json(mensajes.prohibido)
     }else if(respuesta['statusCode'] == 401){
         res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);

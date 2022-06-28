@@ -1,4 +1,4 @@
-const { Router } = require("express");
+const { Router, response } = require("express");
 const path = Router();
 var mysqlConnection = require("../../utils/conexion");
 const keys = require("../../settings/keys");
@@ -140,12 +140,15 @@ path.get("/v1/perfilUsuarios", (req, res) => {
   var respuesta = GestionToken.ValidarToken(token);
 
   try {
-    if (respuesta.statusCode == 200) {
+    if (respuesta.statusCode == 200 && respuesta.tokenData['estatus'] == 1) {
       GestionUsuarios.getUsuarios(function (codigoRespuesta, cuerpoRespuesta) {
         res.status(codigoRespuesta);
         res.json(cuerpoRespuesta);
       });
-    } else if (respuesta.statusCode == 401) {
+    }else if (respuesta.tokenData['estatus'] == 2){
+      res.status(403)
+      res.status(mensajes.prohibido)
+    }else if (respuesta.statusCode == 401) {
       res.status(401);
       res.json(mensajes.peticionNoEncontrada);
     } else {
@@ -166,7 +169,7 @@ path.get("/v1/PerfilUsuarios/:idPerfilUsuario", (req, res) => {
   const { idPerfilUsuario } = req.params;
 
   try {
-    if (respuesta.statusCode == 200) {
+    if (respuesta.statusCode == 200 && respuesta.tokenData['estatus'] == 1) {
       GestionUsuarios.getUsuario(
         idPerfilUsuario,
         function (codigoRespuesta, cuerpoRespuesta) {
@@ -174,7 +177,10 @@ path.get("/v1/PerfilUsuarios/:idPerfilUsuario", (req, res) => {
           res.json(cuerpoRespuesta);
         }
       );
-    } else if (respuesta.statusCode == 401) {
+    }else if (respuesta.tokenData['estatus'] == 2){
+      res.status(403)
+      res.json(mensajes.prohibido)
+    }else if (respuesta.statusCode == 401) {
       res.status(401);
       res.json(mensajes.peticionNoEncontrada);
     } else {
@@ -193,40 +199,105 @@ path.get("/v1/PerfilUsuarios/:idPerfilUsuario", (req, res) => {
 });
 
 path.patch("/v1/perfilUsuarios/:idPerfilUsuario/habilitar", (req, res) => {
-  // listo api
-  try {
-    const token = req.headers["x-access-token"];
-    var validacionToken = GestionToken.ValidarToken(token);
-    //var respuesta = verifyTokenUser(token);
-    const { idPerfilUsuario } = req.params;
+  const token = req.headers["x-access-token"]
+  var respuesta = GestionToken.ValidarToken(token);
 
-    if (validacionToken.statusCode == 200) {
-      AccesoSistema.habilitarPerfil(
-        idPerfilUsuario,
-        (codigoRespuesta, cuerpoRespuesta) => {
-          res.status(codigoRespuesta).json(cuerpoRespuesta);
+  const { idPerfilUsuario } = req.params
+
+
+  try {
+    if (respuesta.statusCode == 200 && respuesta.tokenData['estatus'] == 2){
+      AccesoSistema.habilitarPerfil(idPerfilUsuario, function(codigoRespuesta, cuerpoRespuesta){
+        if (codigoRespuesta == 200){
+          const payloadToken = {
+            idUsuario: respuesta.tokenData.idUsuario,
+            clave: respuesta.tokenData.clave,
+            tipo: respuesta.tokenData.tipo,
+            estatus: 1
+          };
+          
+          var nuevoToken = GestionToken.CrearToken(payloadToken);
+          console.log(nuevoToken)
+          res.setHeader("x-access-token", nuevoToken);
+
         }
-      );
-    } else if (validacionToken == 401) {
-      res.status(respuesta).json(mensajes.tokenInvalido);
-    } else {
-      res.status(500).json(mensajes.errorInterno);
+
+        res.status(codigoRespuesta)
+        res.json(cuerpoRespuesta)
+      })
+    }else if (respuesta.tokenData['estatus'] == 1){
+      res.status(403)
+      res.json(mensajes.prohibido)
+    }else if (respuesta.statusCode == 401){
+      res.status(401)
+      res.json(mensajes.tokenInvalido)
+    }else{
+      res.status(500);
+      res.json(mensajes.errorInterno);
     }
   } catch (error) {
-    consoleError(error, "Funcion: Habilitar perfil. Paso: Excepcion cachada");
+    consoleError(
+      error,
+      "Funcion: habilitar perfil. Paso: Excepcion cachada."
+    );
 
     res.status(500);
     res.json(mensajes.errorInterno);
   }
+
+
+  
 });
 
 path.patch("/v1/perfilUsuarios/:idPerfilUsuario/deshabilitar", (req, res) => {
   // listo api
-  const token = req.headers["x-access-token"];
-  var respuesta = verifyTokenUser(token);
+  const token = req.headers["x-access-token"]
+  var respuesta = GestionToken.ValidarToken(token)
+
   const { idPerfilUsuario } = req.params;
+  console.log(respuesta.tokenData)
 
   try {
+    if (respuesta.statusCode == 200 && respuesta.tokenData['estatus'] == 1){
+      AccesoSistema.deshabilitarPerfil(
+        idPerfilUsuario, function(codigoRespuesta, cuerpoRespuesta){
+          if (codigoRespuesta == 200){
+            const payloadToken = {
+              idUsuario: respuesta.tokenData.idUsuario,
+              clave: respuesta.tokenData.clave,
+              tipo: respuesta.tokenData.tipo,
+              estatus: 2
+            };
+            
+            var token = GestionToken.CrearToken(payloadToken);
+            res.setHeader("x-access-token", token);
+          }
+
+          res.status(codigoRespuesta)
+          res.json(cuerpoRespuesta)
+        }
+      )
+    }else if (respuesta.tokenData['estatus'] == 2){
+      res.status(403)
+      res.json(mensajes.prohibido)
+    }else if (respuesta.statusCode == 401){
+      res.status(401)
+      res.json(mensajes.tokenInvalido)
+    }else{
+      res.status(500);
+      res.json(mensajes.errorInterno);
+    }
+  } catch (error) {
+    consoleError(
+      error,
+      "Funcion: deshabilitar perfil. Paso: Excepcion cachada."
+    );
+
+    res.status(500);
+    res.json(mensajes.errorInterno);
+  }
+
+  /*try {
     if (respuesta == 200) {
       var query =
         "UPDATE perfil_usuario SET estatus = ? WHERE id_perfil_usuario = ?;";
@@ -274,7 +345,7 @@ path.patch("/v1/perfilUsuarios/:idPerfilUsuario/deshabilitar", (req, res) => {
 
     res.status(500);
     res.json(mensajes.errorInterno);
-  }
+  }*/
 });
 
 module.exports = path;
