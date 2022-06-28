@@ -157,23 +157,23 @@ path.patch('/v1/reportesEmpleo/:idReporteEmpleo/rechazado', (req, res) => {
 
 path.post('/v1/reportesEmpleo', (req, res) => {
     const token = req.headers['x-access-token'];
-    var idOfertaEmpleo = req.body['idOfertaEmpleo'];
+    var idContratacion = req.body['idContratacion'];
     var estatus = 1;
     var contenidoReporte = req.body['motivo'];
     var idAspirante = req.body['idPerfilAspirante'];
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Aspirante");
 
-    if(respuesta == 200){
+    if(respuesta.statusCode == 200){
         //Confirmar que existe la oferta
         try {
-            var queryOfertaEmpleo = "select count(id_reporte_empleo) AS estaRegistrada FROM reporte_empleo where id_oferta_empleo_re = ? AND id_perfil_aspirante_re = ?;";
-            mysqlConnection.query(queryOfertaEmpleo, [idOfertaEmpleo, idAspirante], (error, resultado) => {
+            var queryOfertaEmpleo = "select count(id_reporte_empleo) AS estaRegistrada from contratacion_empleo_aspirante as cea inner join contratacion_empleo as ce on (cea.id_contratacion_empleo_cea = ce.id_contratacion_empleo) inner join reporte_empleo as re on (re.id_oferta_empleo_re = ce.id_oferta_empleo_coe) where cea.id_perfil_aspirante_cea = re.id_perfil_aspirante_re AND re.id_perfil_aspirante_re = ?;";
+            mysqlConnection.query(queryOfertaEmpleo, [ idAspirante], (error, resultado) => {
                 if(error) {
                     throw error;
                 } else {
                     if(resultado[0]['estaRegistrada'] == 0) { //No hau reporte
-                        var queryReporte = "INSERT INTO reporte_empleo (id_perfil_aspirante_re, id_oferta_empleo_re, motivo, estatus, fecha_registro) VALUES (?, ?, ?, ?, NOW());"
-                        mysqlConnection.query(queryReporte, [idAspirante, idOfertaEmpleo, contenidoReporte, estatus], (error, resultado)=> {
+                        var queryReporte = "INSERT INTO reporte_empleo (id_perfil_aspirante_re, id_oferta_empleo_re, motivo, estatus, fecha_registro) VALUES (?, (SELECT id_oferta_empleo_coe FROM deser_el_camello.contratacion_empleo where id_contratacion_empleo = ?), ?, ?, NOW());"
+                        mysqlConnection.query(queryReporte, [idAspirante, idContratacion, contenidoReporte, estatus], (error, resultado)=> {
                             if(error) {
                                 throw error;
                             } else {
@@ -200,8 +200,7 @@ path.post('/v1/reportesEmpleo', (req, res) => {
                             }
                         });
                     } else {
-                        res.json(mensajes.peticionIncorrecta);
-                        res.status(404);
+                        res.status(422).json(mensajes.reporteEmpleoRegistrado);
                     }
                 }
             });
@@ -210,8 +209,8 @@ path.post('/v1/reportesEmpleo', (req, res) => {
             res.json(mensajes.errorInterno);
             res.status(500);
         }
-    }else if(respuesta == 401){
-        res.status(respuesta)
+    }else if(respuesta.statusCode == 401){
+        res.status(respuesta.s)
         res.json(mensajes.tokenInvalido);
     }
 });

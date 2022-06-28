@@ -118,27 +118,39 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo/:idContra
 
 //Creamos la contratacion
 //Estatus de la contratación {1: En curso, 0: Terminada}
-path.patch("/v1//perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo/:idContratacionEmpleoAspirante/evaluarEmpleador", (req, res) => {
+path.patch("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo/:idContratacionEmpleoAspirante/evaluarEmpleador", (req, res) => {
     const idAspirante = req.params['idPerfilAspirante'];
     const idContratacionEmpleo = req.params['idContratacionEmpleoAspirante'];
     const puntuacion = req.body['puntuacion'];
     const token = req.headers['x-access-token'];
+    console.log("ffff")
     var tokenValido = verifyTokenAspirante(token);
     if(tokenValido) {
-        var queryComprobacion = "SELECT if(count(*) = 1, true, false) AS esEvaluable FROM contratacion_empleo AS conEmp INNER JOIN contratacion_empleo_aspirante AS conEmpAsp ON (conEmp.id_contratacion_empleo = conEmpAsp.id_contratacion_empleo_cea) WHERE (conEmpAsp.id_perfil_aspirante_cea = ? AND conEmpAsp.id_contratacion_empleo_cea = ?) AND estatus = 0;";
+        var queryComprobacion = "SELECT if(count(*) = 1, true, false) AS esEvaluable FROM contratacion_empleo AS conEmp INNER JOIN contratacion_empleo_aspirante AS conEmpAsp ON (conEmp.id_contratacion_empleo = conEmpAsp.id_contratacion_empleo_cea) WHERE (conEmpAsp.id_perfil_aspirante_cea = ? AND conEmpAsp.id_contratacion_empleo_cea = ?) AND estatus = 1 and valoracion_empleador = 0;";
         mysqlConnection.query(queryComprobacion, [idAspirante, idContratacionEmpleo], (error, resultadoComprobacion) => {
             if (error) {
                 res.status(500).send(mensajes.errorInterno);
+                console.log("AAAAAAA")
             } else {
                 if(resultadoComprobacion[0]['esEvaluable'] == 1) {
-                    var queryEvaluacion = "UPDATE contratacion_empleo_aspirante SET valoracion_empleador = ? WHERE ?;"
-                    mysqlConnection.query(que)
+                    var queryEvaluacion = "UPDATE contratacion_empleo_aspirante SET valoracion_empleador = ? WHERE id_contratacion_empleo_cea = ? AND id_perfil_aspirante_cea = ?;"
+                    mysqlConnection.query(queryEvaluacion, [puntuacion, idContratacionEmpleo, idAspirante], (error, resultadoEvaluacion) => {
+                        if(error) {
+                            res.status(500).send(mensajes.errorInterno);
+                            console.log(error)
+                        } else {
+                            res.status(200).json(mensajes.evaluacionDeEmpleadorRegistrada);
+                        }
+                    });
                 } else {
-                    res.status(409).send(mensajes.evaluacionDeEmpleadorDenegada);
+                    console.log("CCCCCC")
+                    res.status(422).send(mensajes.evaluacionDeEmpleadorDenegada);
+                    
                 }
             }
         });
     } else {
+        console.log("XXXXX")
         res.status(401);
         res.send(mensajes.tokenInvalido);
     }

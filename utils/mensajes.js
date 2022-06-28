@@ -118,3 +118,13 @@ exports.evaluacionDeEmpleadorDenegada = {
         "message" : "El empleador no se puede evaluado hasta finalizar la contratación."
     }
 }
+
+exports.evaluacionDeEmpleadorRegistrada = {
+    "message" : "Se registró la evaluaion del empleador."
+}
+
+exports.reporteEmpleoRegistrado = {
+    "type error" : {
+    "message" : "Ya registraste un reporte"
+    }
+}
