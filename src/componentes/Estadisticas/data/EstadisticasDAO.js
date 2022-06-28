@@ -95,7 +95,7 @@ exports.EstadisticasDAO = class estadisticasDAO {
     static valoracionesEmpleador(callback) {
         var pool = mysqlConnection;
   
-        pool.query('SELECT * FROM deser_el_camello.valoraciones_empleadores WHERE valoracion_empleador;', (error, resultadoValoracionesEmpleadores)=>{
+        pool.query('SELECT * FROM deser_el_camello.valoraciones_empleadores;', (error, resultadoValoracionesEmpleadores)=>{
             if(error){ 
                 callback(500, mensajes.errorInterno)
                 

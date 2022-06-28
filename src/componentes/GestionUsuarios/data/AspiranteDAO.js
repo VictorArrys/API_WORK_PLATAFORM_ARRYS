@@ -86,8 +86,9 @@ exports.AspiranteDAO = class AspiranteDAO {
                 callback(500, mensajes.errorInterno)
             }else if (video.length == 0){
                 callback(404, mensajes.peticionNoEncontrada)
+            }else if (video[0].video == null){
+                callback(404, mensajes.peticionNoEncontrada)
             }else{
-                console.log(video)
                 var arrayVideo = null
                 arrayVideo = Uint8Array.from(Buffer.from(video[0]['video'].buffer, 'base64'))
                 var rutaVideo = __dirname+ruta.sep+'video'+idAspirante+'.mp4'
@@ -97,14 +98,10 @@ exports.AspiranteDAO = class AspiranteDAO {
                 stream.write(arrayVideo)
                 stream.on('finish', function(){
     
-
-                    
-
                     callback(200, rutaVideo)
                 })
-    
+
                 stream.end('end')
-                
             }
         })
     }
