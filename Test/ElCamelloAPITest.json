@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "9d65c957-de20-445e-a3ed-86a9714a8218",
+		"_postman_id": "77e070a7-06d9-4ec4-879f-5e0e937d1978",
 		"name": "ElCamelloAPI_Test",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "20612529"
+		"_exporter_id": "20612454"
 	},
 	"item": [
 		{
@@ -311,7 +311,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"clave\": \"123456\",\n  \"correoElectronico\": \"baxin43@outlook.com\",\n  \"direccion\": \"Diplomaticos #40\",\n  \"estatus\": 1,\n  \"fechaNacimiento\": \"1991-01-29\",\n  \"nombre\": \"Alberto Baxin\",\n  \"nombreOrganizacion\": \"the alchemist enterprice\",\n  \"telefono\": \"2296031675\",\n  \"nombreusuario\": \"oficinas45\"\n}",
+							"raw": "{\n  \"clave\": \"123456\",\n  \"correoElectronico\": \"baxin43@outlook.com\",\n  \"direccion\": \"Diplomaticos #40\",\n  \"estatus\": 1,\n  \"fechaNacimiento\": \"1991-01-29\",\n  \"nombre\": \"Alberto Baxin\",\n  \"nombreOrganizacion\": \"the alchemist enterprice\",\n  \"telefono\": \"2296031675\",\n  \"nombreUsuario\": \"oficinas45\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -445,7 +445,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"clave\": \"123456\",\n  \"correoElectronico\": \"entepriceBX@outlook.com\",\n  \"direccion\": \"Xalapeños ilustres #40\",\n  \"fechaNacimiento\": \"1991-01-29\",\n  \"estatus\": 1,\n  \"nombre\": \"Alberto Baxin\",\n  \"nombreOrganizacion\": \"baxin_enterprice\",\n  \"telefono\": \"2296031675\",\n  \"nombreusuario\": \"oficinas_baxin\"\n}",
+							"raw": "{\n  \"clave\": \"123456\",\n  \"correoElectronico\": \"entepriceBX@outlook.com\",\n  \"direccion\": \"Xalapeños ilustres #40\",\n  \"fechaNacimiento\": \"1991-01-29\",\n  \"estatus\": 1,\n  \"nombre\": \"Alberto Baxin\",\n  \"nombreOrganizacion\": \"baxin_enterprice\",\n  \"telefono\": \"2296031675\",\n  \"nombreUsuario\": \"oficinas_baxin\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2276,6 +2276,11 @@
 									"pm.test(\"consultar catalogo categorias exitoso.\", () => {\r",
 									"    pm.response.to.have.status(200)\r",
 									"    \r",
+									"    console.log(pm.response.json())\r",
+									"    var datosRespuesta = pm.response.json()\r",
+									"    \r",
+									"    pm.environment.set('categoriasConsultadas', datosRespuesta)\r",
+									"    pm.environment.set('idCategoriaGet1', datosRespuesta[0].idCategoriaEmpleo)\r",
 									"})"
 								],
 								"type": "text/javascript"
@@ -3342,9 +3347,9 @@
 						"method": "PATCH",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/perfilUsuarios/:idPerfilUsuario/deshabilitar",
+							"raw": "{{baseURL}}/perfilUsuarios/:idPerfilUsuario/deshabilitar",
 							"host": [
-								"{{baseUrl}}"
+								"{{baseURL}}"
 							],
 							"path": [
 								"perfilUsuarios",
@@ -3613,9 +3618,9 @@
 						"method": "PATCH",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/perfilUsuarios/:idPerfilUsuario/habilitar",
+							"raw": "{{baseURL}}/perfilUsuarios/:idPerfilUsuario/habilitar",
 							"host": [
-								"{{baseUrl}}"
+								"{{baseURL}}"
 							],
 							"path": [
 								"perfilUsuarios",
@@ -5598,6 +5603,73 @@
 							"body": ""
 						}
 					]
+				},
+				{
+					"name": "Consulta perfil de aspirante",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"consultar un aspirante en especifico\", () => {\r",
+									"    pm.response.to.have.status(200)\r",
+									"    \r",
+									"    console.log(pm.response.json())\r",
+									"    var datosRespuesta = pm.response.json()\r",
+									"    pm.environment.set('idAspirante', datosRespuesta.idPerfilAspirante)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{tokenAspirante}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-access-token",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/perfilAspirantes/:idPerfilUsuarioAspirante",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"perfilAspirantes",
+								":idPerfilUsuarioAspirante"
+							],
+							"variable": [
+								{
+									"key": "idPerfilUsuarioAspirante",
+									"value": "{{idUsuarioAspiranteLogeado}}"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -5928,7 +6000,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"clave\": \"anim sed\",\n  \"correoElectronico\": \"platano@outlook.com\",\n  \"direccion\": \"Xalapeños ilustres #40\",\n  \"estatus\": 1,\n  \"fechaNacimiento\": \"1978-07-01\",\n  \"idPerfilUsuario\": {{idUsuarioEmpleadorLogeado}},\n  \"nombre\": \"Alberto Baxin\",\n  \"nombreOrganizacion\": \"the alchemist enterprice\",\n  \"telefono\": \"2296031675\",\n  \"nombreusuario\": \"platano25\"\n}",
+							"raw": "{\n  \"clave\": \"anim sed\",\n  \"correoElectronico\": \"platano@outlook.com\",\n  \"direccion\": \"Xalapeños ilustres #40\",\n  \"estatus\": 1,\n  \"fechaNacimiento\": \"1978-07-01\",\n  \"idPerfilUsuario\": {{idUsuarioEmpleadorLogeado}},\n  \"nombre\": \"Alberto Baxin\",\n  \"nombreOrganizacion\": \"the alchemist enterprice\",\n  \"telefono\": \"2296031675\",\n  \"nombreUsuario\": \"platano25\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -6439,6 +6511,1062 @@
 							"body": ""
 						}
 					]
+				}
+			]
+		},
+		{
+			"name": "ofertasEmpleo",
+			"item": [
+				{
+					"name": "Registrar oferta empleo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"registro de oferta de empleo exitoso\", () => {\r",
+									"\r",
+									"    pm.response.to.have.status(201)\r",
+									"    console.log(pm.response.json())\r",
+									"\r",
+									"    var datosRespuesta = pm.response.json()\r",
+									"    pm.environment.set('idOfertaEmpleoCreada', datosRespuesta.idOfertaEmpleo)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{tokenEmpleador}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-access-token",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"cantidadPago\": 200,\r\n  \"descripcion\": \"Realización de mesas, sillas, además de otros muebles de cocina, teniendo en cuenta que se hará lijado y pintado de los mismos muebles\",\r\n  \"diasLaborales\": \"2345\",\r\n  \"direccion\": \"Privada Adolfo López Mateos #12, Rafael Lucio, Ver.\",\r\n  \"fechaDeFinalizacion\": \"1986-05-13\",\r\n  \"fechaDeIinicio\": \"2020-07-31\",\r\n  \"horaFin\": \"22:45\",\r\n  \"horaInicio\": \"07:20\",\r\n  \"idCategoriaEmpleo\": {{idCategoriaGet1}},\r\n  \"idPerfilEmpleador\": {{idEmpleador}},\r\n  \"nombre\": \"Carpintería don nacho\",\r\n  \"tipoPago\": \"Por día\",\r\n  \"vacantes\": 5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/ofertasEmpleo-E",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"ofertasEmpleo-E"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar ofertas empleo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"consulta de ofertas de empleo exitosa\", () => {\r",
+									"\r",
+									"    pm.response.to.have.status(200)\r",
+									"    console.log(pm.response.json())\r",
+									"\r",
+									"    var datosRespuesta = pm.response.json()\r",
+									"    pm.environment.set('listaOfertasEmpleo', datosRespuesta)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{tokenEmpleador}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-access-token",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/ofertasEmpleo-E?idPerfilEmpleador={{idEmpleador}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"ofertasEmpleo-E"
+							],
+							"query": [
+								{
+									"key": "idPerfilEmpleador",
+									"value": "{{idEmpleador}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Modificar oferta empleo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Actualizacion de la oferta de empleo exitosa\", () => {\r",
+									"\r",
+									"    pm.response.to.have.status(200)\r",
+									"    console.log('Se ha realizado: ' + pm.response.json().cambios + ' cambios')\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{tokenEmpleador}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-access-token",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"cantidadPago\": 200,\r\n  \"descripcion\": \"Realización de mesas, sillas, además de otros muebles de cocina, teniendo en cuenta que se hará lijado y pintado de los mismos muebles\",\r\n  \"diasLaborales\": \"1567\",\r\n  \"direccion\": \"Privada Adolfo López Mateos #12, Rafael Lucio, Ver.\",\r\n  \"fechaDeFinalizacion\": \"2022-09-11\",\r\n  \"fechaDeIinicio\": \"2022-07-31\",\r\n  \"horaFin\": \"22:45\",\r\n  \"horaInicio\": \"06:27\",\r\n  \"idCategoriaEmpleo\": {{idCategoriaGet1}},\r\n  \"idPerfilEmpleador\": {{idEmpleador}},\r\n  \"nombre\": \"Carpintería don nacho\",\r\n  \"tipoPago\": \"Por día\",\r\n  \"vacantes\": 5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/ofertasEmpleo-E/:idOfertaEmpleo",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"ofertasEmpleo-E",
+								":idOfertaEmpleo"
+							],
+							"variable": [
+								{
+									"key": "idOfertaEmpleo",
+									"value": "{{idOfertaEmpleoCreada}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar oferta empleo",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.test(\"consulta de oferta de empleo exitosa\", () => {\r",
+									"\r",
+									"    pm.response.to.have.status(200)\r",
+									"    console.log(pm.response.json())\r",
+									"\r",
+									"    var datosRespuesta = pm.response.json()\r",
+									"    pm.environment.set('ofertasEmpleoConsultada', datosRespuesta)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{tokenEmpleador}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-access-token",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/ofertasEmpleo-E/:idOfertaEmpleo",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"ofertasEmpleo-E",
+								":idOfertaEmpleo"
+							],
+							"variable": [
+								{
+									"key": "idOfertaEmpleo",
+									"value": "{{idOfertaEmpleoCreada}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Solicitud empleo - Aspirante",
+			"item": [
+				{
+					"name": "Solicitar vacante",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Registro de solicitud de empleo exitoso\", () => {\r",
+									"\r",
+									"    pm.response.to.have.status(201)\r",
+									"    console.log(pm.response.json())\r",
+									"\r",
+									"    var datosRespuesta = pm.response.json()\r",
+									"    pm.environment.set('idSolicitudVacanteCreada', datosRespuesta.idSolicitudVacante)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{tokenAspirante}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-access-token",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"idPerfilAspirante\": {{idAspirante}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/ofertasEmpleo-A/:idOfertaEmpleo/solicitarVacante",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"ofertasEmpleo-A",
+								":idOfertaEmpleo",
+								"solicitarVacante"
+							],
+							"variable": [
+								{
+									"key": "idOfertaEmpleo",
+									"value": "{{idOfertaEmpleoCreada}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reporte empleo oferta - Aspirante",
+			"item": [
+				{
+					"name": "Registrar reporte de empleo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Registro de reporte de empleo exitoso\", () => {\r",
+									"\r",
+									"    pm.response.to.have.status(201)\r",
+									"    console.log(pm.response.json())\r",
+									"\r",
+									"    var datosRespuesta = pm.response.json()\r",
+									"    pm.environment.set('idReporteCreado', datosRespuesta.idReporteEmpleo)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{tokenAspirante}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-access-token",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"idPerfilAspirante\": {{idAspirante}},\r\n  \"motivo\": \"No cumple con la paga establecida y no proporciona un correcto liderazgo ni muestra organización\",\r\n  \"idOfertaEmpleo\": {{idOfertaEmpleoCreada}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/reportesEmpleo",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"reportesEmpleo"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Solicitud empleo - Empleador",
+			"item": [
+				{
+					"name": "Consultar lista de solicitudes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Consultar lista de solicutudes exitoso.\", () => {\r",
+									"    pm.response.to.have.status(200)\r",
+									"    \r",
+									"    console.log(pm.response.json())\r",
+									"    var datosRespuesta = pm.response.json()\r",
+									"    \r",
+									"    pm.environment.set('solicitudesConsultadas', datosRespuesta)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{tokenEmpleador}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-access-token",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/solicitudesEmpleo?idOfertaEmpleo={{idOfertaEmpleoCreada}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"solicitudesEmpleo"
+							],
+							"query": [
+								{
+									"key": "idOfertaEmpleo",
+									"value": "{{idOfertaEmpleoCreada}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar solicitud de empleo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Consultar solicutud exitoso.\", () => {\r",
+									"    pm.response.to.have.status(200)\r",
+									"    \r",
+									"    console.log(pm.response.json())\r",
+									"    var datosRespuesta = pm.response.json()\r",
+									"    \r",
+									"    pm.environment.set('solicitudConsultada', datosRespuesta)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{tokenEmpleador}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-access-token",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/solicitudesEmpleo/:idSolicitudEmpleo",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"solicitudesEmpleo",
+								":idSolicitudEmpleo"
+							],
+							"variable": [
+								{
+									"key": "idSolicitudEmpleo",
+									"value": "{{idSolicitudVacanteCreada}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Aceptar una solicitud empleo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Se ha aceptado la solicitud.\", () => {\r",
+									"    pm.response.to.have.status(204)\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{tokenEmpleador}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-access-token",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/solicitudesEmpleo/:idSolicitudEmpleo/aceptada",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"solicitudesEmpleo",
+								":idSolicitudEmpleo",
+								"aceptada"
+							],
+							"variable": [
+								{
+									"key": "idSolicitudEmpleo",
+									"value": "{{idSolicitudVacanteCreada}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Contrataciones - Empleador",
+			"item": [
+				{
+					"name": "Consultar una contratacion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Consultar contratacion exitosamente.\", () => {\r",
+									"    pm.response.to.have.status(200)\r",
+									"    \r",
+									"    console.log(pm.response.json())\r",
+									"    var datosRespuesta = pm.response.json()\r",
+									"    \r",
+									"    pm.environment.set('contratacionEmpleoConsultada', datosRespuesta)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{tokenEmpleador}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-access-token",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/contratacionesEmpleo/:idOfertaEmpleo",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"contratacionesEmpleo",
+								":idOfertaEmpleo"
+							],
+							"variable": [
+								{
+									"key": "idOfertaEmpleo",
+									"value": "{{idOfertaEmpleoCreada}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Evaluar aspirante de una contratación",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Evaluar aspirante exitosamente.\", () => {\r",
+									"    pm.response.to.have.status(200)\r",
+									"    \r",
+									"    console.log(pm.response.json())\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{tokenEmpleador}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-access-token",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"valoracionAspirante\": 4\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/contratacionesEmpleo/:idOfertaEmpleo?idAspirante={{idAspirante}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"contratacionesEmpleo",
+								":idOfertaEmpleo"
+							],
+							"query": [
+								{
+									"key": "idAspirante",
+									"value": "{{idAspirante}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "idOfertaEmpleo",
+									"value": "{{idOfertaEmpleoCreada}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Estadisticas",
+			"item": [
+				{
+					"name": "Consulta de estadisticas del uso de la plataforma",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Consultar estadisticas de la plataforma exitosamente.\", () => {\r",
+									"    pm.response.to.have.status(200)\r",
+									"    \r",
+									"    console.log(pm.response.json())\r",
+									"    var datosRespuesta = pm.response.json()\r",
+									"    \r",
+									"    pm.environment.set('estadisticasPlataforma', datosRespuesta)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{tokenAdmini}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-access-token",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/estadisticas/estadisticasUsoPlataforma",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"estadisticas",
+								"estadisticasUsoPlataforma"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consulta de estadisticas de los empleos",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Consultar estadisticas delos empleos exitosamente.\", () => {\r",
+									"    pm.response.to.have.status(200)\r",
+									"    \r",
+									"    console.log(pm.response.json())\r",
+									"    var datosRespuesta = pm.response.json()\r",
+									"    \r",
+									"    pm.environment.set('estadisticasEmpleos', datosRespuesta)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{tokenAdmini}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-access-token",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/estadisticas/estadisiticasEmpleos",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"estadisticas",
+								"estadisiticasEmpleos"
+							]
+						},
+						"description": "Consultar información estadistica de los empleos, tanto ofertas como solicitudes"
+					},
+					"response": []
+				},
+				{
+					"name": "Consulta de valoraciones de los aspirantes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Consultar valoraciones de los aspirantes exitosamente.\", () => {\r",
+									"    pm.response.to.have.status(200)\r",
+									"    \r",
+									"    console.log(pm.response.json())\r",
+									"    var datosRespuesta = pm.response.json()\r",
+									"    \r",
+									"    pm.environment.set('valoracionAspirantes', datosRespuesta)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{tokenAdmini}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-access-token",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/estadisticas/valoracionesAspirantes",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"estadisticas",
+								"valoracionesAspirantes"
+							]
+						},
+						"description": "Consultar la información de valoración de los aspirantes"
+					},
+					"response": []
+				},
+				{
+					"name": "Consulta la valoración de los empleadores",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Consultar valoracion de los empleadores exitosamente.\", () => {\r",
+									"    pm.response.to.have.status(200)\r",
+									"    \r",
+									"    console.log(pm.response.json())\r",
+									"    var datosRespuesta = pm.response.json()\r",
+									"    \r",
+									"    pm.environment.set('valoracionesEmpleadores', datosRespuesta)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{tokenAdmini}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-access-token",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/estadisticas/valoracionesEmpleadores",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"estadisticas",
+								"valoracionesEmpleadores"
+							]
+						},
+						"description": "Consultar la información de valoración de los empleadores"
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar información estadistica de las ofertas de empleo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Consultar información estadistica de ofertas de empleo exitosamente.\", () => {\r",
+									"    pm.response.to.have.status(200)\r",
+									"    \r",
+									"    console.log(pm.response.json())\r",
+									"    var datosRespuesta = pm.response.json()\r",
+									"    \r",
+									"    pm.environment.set('estadisticasOfertasEmpleo', datosRespuesta)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{tokenAdmini}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "x-access-token",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/estadisticas/ofertasEmpleo",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"estadisticas",
+								"ofertasEmpleo"
+							]
+						},
+						"description": "Consultar información estadistica de las ofertas de empleo creadas agrupadas por año"
+					},
+					"response": []
 				}
 			]
 		}
