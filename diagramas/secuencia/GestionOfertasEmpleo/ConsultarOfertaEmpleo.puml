@@ -33,10 +33,10 @@ end note
 d -> e : **GET** /v1/ofertasEmpleo-E/:idOfertaEmpleo
 activate e
 
-e -> f : getOfertaEmpleo(\nidOfertaEmpleo: int, \nidUserToken: int): Empleador
+e -> f : getOfertaEmpleo(\nidOfertaEmpleo: int, \nidUserToken: int, callback): Empleador
 activate f
 
-f -> g : getOfertaEmpleo(\nidOfertaEmpleo: int, \nidUserToken: int): Empleador
+f -> g : getOfertaEmpleo(\nidOfertaEmpleo: int, \nidUserToken: int, callback): Empleador
 activate g
 
 g -> db : SELECT * FROM oferta_empleo WHERE \nidOfertaEmpleo
@@ -61,7 +61,7 @@ end note
 
 db -->> g : response
 
-alt OfertaEmpleo consultada
+alt Contratacion consultada
     g ->> f : callback(200, response)
     
     f ->> e : callback(200, response)
@@ -69,7 +69,7 @@ alt OfertaEmpleo consultada
     e -->> d: **OK** 200
     d -->> c: OfertaEmpleo :response
     
-    f -> h : getContratacionEmpleo(\nidOfertaEmpleo: int): Empleador
+    f -> h : getContratacionEmpleo(\nidOfertaEmpleo: int, callback): Empleador
 
     h -> db : SELECT * FROM contratacion_empleo WHERE \nidOfertaEmpleo
 
@@ -119,7 +119,7 @@ alt OfertaEmpleo consultada
 
     end
         
-        c -> d : GetOfertaEmpleo(\nidOfertaEmpleo: int, \ntoken: string): Empleador
+        c -> d : GetFotografiasOfertaEmpleo(\nidOfertaEmpleo: int): Empleador
 
         d -> e : **GET** /v1/ofertasEmpleo-E/:idOfertaEmpleo/fotografia
 
