@@ -160,15 +160,15 @@ path.post('/v1/reportesEmpleo', (req, res) => {
     var idOfertaEmpleo = req.body['idOfertaEmpleo'];
     var estatus = 1;
     var contenidoReporte = req.body['motivo'];
-    var idAspirante = req.body['idAspirante'];
+    var idAspirante = req.body['idPerfilAspirante'];
     
     var respuesta = verifyToken(token, 'Aspirante');
 
     if(respuesta == 200){
-        var queryOfertaEmpleo = "select count(id_reporte_empleo) AS estaRegistrada FROM reporte_empleo where id_reporte_empleo = ?;";
+        var queryOfertaEmpleo = "select count(id_reporte_empleo) AS estaRegistrada FROM reporte_empleo where id_oferta_empleo_re = ? AND id_perfil_aspirante_re = ?;";
         //Confirmar que existe la oferta
 
-        mysqlConnection.query(queryOfertaEmpleo, [idOfertaEmpleo], (error, resultado) => {
+        mysqlConnection.query(queryOfertaEmpleo, [idOfertaEmpleo, idAspirante], (error, resultado) => {
             if(error) {
                 res.json(mensajes.errorInterno);
                 res.status(500)

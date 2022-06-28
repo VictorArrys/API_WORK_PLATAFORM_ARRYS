@@ -2,7 +2,7 @@ exports.SolicitudServicio = class SolicitudServicio {
     idSolicitudServicio;
     titulo;
     estatus; 
-    registro; 
+    fechaRegistro; 
     descripcion;
     idPerfilDemandante;
     idPerfilAspirante;
