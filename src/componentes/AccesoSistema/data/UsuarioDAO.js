@@ -60,7 +60,6 @@ exports.UsuarioDAO = class UsuarioDAO {
       if (error) {
         callback(500, mensajes.errorInterno);
       } else if (resultadoHabilitar.changedRows == 1) {
-        //Se modifico el registro de usuario
         var idPerfilHabilitado = {};
 
         idPerfilHabilitado = {
@@ -90,7 +89,7 @@ exports.UsuarioDAO = class UsuarioDAO {
           const idPerfilDeshabilitado = {};
 
           idPerfilDeshabilitado["application/json"] = {
-            idPerfilusuario: idPerfilUsuario,
+            idPerfilusuario: idUsuario,
             estatus: 2,
           };
 

@@ -39,7 +39,7 @@ path.get('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
     
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Empleador")
     
-    if(respuesta['statusCode'] == 200){
+    if(respuesta['statusCode'] == 200  && respuesta.tokenData['estatus'] == 1){
         var idOfertaEmpleo = req.params.idOfertaEmpleo
 
         GestionContratacionesEmpleo.getContratacionEmpleo(idOfertaEmpleo, (codigoRespuesta, cuerpoContratacion)=>{
@@ -48,6 +48,9 @@ path.get('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
             res.json(cuerpoContratacion)
 
         })
+    }else if (respuesta.tokenData['estatus'] == 2){
+        res.status(403)
+        res.json(mensajes.prohibido)
     }else if(respuesta['statusCode'] == 401){
         res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);
@@ -67,7 +70,7 @@ path.patch('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
     
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Empleador")
     
-    if(respuesta['statusCode'] == 200){
+    if(respuesta['statusCode'] == 200 && respuesta.tokenData['estatus'] == 1){
         //Agregar valoración del aspirante en caso de existir la contratación
         //Obtener datos del body
         var idAspirante = req.query.idAspirante
@@ -80,6 +83,9 @@ path.patch('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
             res.json(cuerpoEvaluacion)
 
         })
+    }else if (respuesta.tokenData['estatus'] == 2){
+        res.status(403)
+        res.json(mensajes.prohibido)
     }else if(resprespuesta['statusCode'] == 401){
         res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);

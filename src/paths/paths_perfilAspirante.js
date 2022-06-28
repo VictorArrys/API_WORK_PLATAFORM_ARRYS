@@ -19,6 +19,7 @@ const mensajes = require("../../utils/mensajes");
 const pool = require("../../utils/conexion");
 const req = require("express/lib/request");
 const res = require("express/lib/response");
+const { json } = require("body-parser");
 
 function consoleError(error, ubicacion) {
   console.log(
@@ -69,7 +70,7 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/video", (req, res) => {
   const { idPerfilAspirante } = req.params;
 
   try {
-    if (respuesta.statusCode == 200) {
+    if (respuesta.statusCode == 200 && respuesta.tokenData['estatus'] == 1) {
       GestionUsuarios.getVideoAspirante(
         idPerfilAspirante,
         function (codigoRespuesta, cuerpoRespuesta) {
@@ -95,7 +96,11 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/video", (req, res) => {
           }
         }
       );
-    } else if (respuesta.statusCode == 401) {
+    }else if (respuesta.tokenData['estatus'] == 2){
+      res.status(403)
+      res.json(mensajes.prohibido)
+    } 
+    else if (respuesta.statusCode == 401) {
       res.status(500);
       res.json(mensajes.errorInterno);
     } else {
@@ -117,15 +122,21 @@ path.get('/v1/perfilAspirantes', (req, res) => {
   var respuesta = GestionToken.ValidarToken(token)
   var query = 'SELECT * FROM perfil_aspirante;'
   try {
-      if (respuesta.statusCode == 200){
+      if (respuesta.statusCode == 200 && respuesta.tokenData['estatus'] == 1){
           GestionUsuarios.getAspirantes(function(codigoRespuesta, cuerpoRespuesta){
               console.log(cuerpoRespuesta)
               res.status(codigoRespuesta);
               res.json(cuerpoRespuesta);
           })
-      }else if (respuesta.statusCode == 401){
+      }else if (respuesta.tokenData['estatus'] == 2){
+          res.status(403)
+          res.json(mensajes.prohibido)
+      }else if (respuesta.statusCode == 401 ){
           res.status(401)
           res.json(mensajes.tokenInvalido)
+      }else{
+        res.status(500)
+        res.json(mensajes.errorInterno)
       }
   }catch (error) {
       consoleError(error, 'Funcion: catalogo aspirantes. Paso: Excepcion cachada')
@@ -201,7 +212,7 @@ path.put("/v1/perfilAspirantes/:idPerfilAspirante", (req, res) => {
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Aspirante");
   try {
-    if (respuesta.statusCode == 200) {
+    if (respuesta.statusCode == 200 && respuesta.tokenData['estatus'] == 1) {
       var edicionAspirante = new Aspirante();
 
       edicionAspirante.idPerfilAspirante = req.params.idPerfilAspirante;

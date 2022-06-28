@@ -124,7 +124,7 @@ path.put("/v1/perfilEmpleadores/:idPerfilEmpleador", (req, res) => {
   var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Empleador");
 
   try {
-    if (respuesta.statusCode == 200) {
+    if (respuesta.statusCode == 200 && respuesta.tokenData['estatus'] == 1) {
       var edicionEmpleador = new Empleador();
       edicionEmpleador.idPerfilUsuario = req.body.idPerfilUsuario;
       edicionEmpleador.idPerfilEmpleador = req.params.idPerfilEmpleador;
@@ -146,7 +146,10 @@ path.put("/v1/perfilEmpleadores/:idPerfilEmpleador", (req, res) => {
           res.json(cuerpoRespuesta);
         }
       );
-    } else if (respuesta.statusCode == 401) {
+    }else if (respuesta.tokenData == 2){
+      res.status(401)
+      res.json(mensajes.prohibido)
+    }else if (respuesta.statusCode == 401) {
       res.status(respuesta);
       res.json(mensajes.tokenInvalido);
     } else {

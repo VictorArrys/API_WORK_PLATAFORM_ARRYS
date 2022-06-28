@@ -13,7 +13,7 @@ path.get('/v1/estadisticas/estadisticasUsoPlataforma', (req, res) => {
     
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador")
     
-    if(respuesta['statusCode'] == 200){
+    if(respuesta['statusCode'] == 200 && respuesta.tokenData['estatus'] == 1){
 
         Estadisticas.estadisticaUsoPlataforma((codigoRespuesta, cuerpoEstadisticasPlataforma)=>{
             
@@ -39,7 +39,7 @@ path.get('/v1/estadisticas/estadisiticasEmpleos', (req, res) => {
     
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador")
     
-    if(respuesta['statusCode'] == 200){
+    if(respuesta['statusCode'] == 200 && respuesta.tokenData['estatus'] == 1){
 
         Estadisticas.estadisticaEmpleos((codigoRespuesta, cuerpoEstadisticasEmpleo)=>{
             
@@ -47,6 +47,9 @@ path.get('/v1/estadisticas/estadisiticasEmpleos', (req, res) => {
             res.json(cuerpoEstadisticasEmpleo)
 
         })
+    }else if (respuesta.tokenData['estatus'] == 2){
+        res.estatus(403)
+        res.json(mensajes.prohibido)
     }else if(respuesta['statusCode'] == 401){
         res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);
@@ -66,7 +69,7 @@ path.get('/v1/estadisticas/valoracionesAspirantes', (req, res) => {
     
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador")
     
-    if(respuesta['statusCode'] == 200){
+    if(respuesta['statusCode'] == 200  && respuesta.tokenData['estatus'] == 1){
 
         Estadisticas.valoracionesAspirante((codigoRespuesta, cuerpoValoracionesAspirantes)=>{
             
@@ -74,7 +77,11 @@ path.get('/v1/estadisticas/valoracionesAspirantes', (req, res) => {
             res.json(cuerpoValoracionesAspirantes)
 
         })
-    }else if(respuesta['statusCode'] == 401){
+    }else if (respuesta.tokenData['estatus'] == 2){
+        res.status(403)
+        res.json(mensajes.prohibido)
+    }
+    else if(respuesta['statusCode'] == 401){
         res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);
 
@@ -92,7 +99,7 @@ path.get('/v1/estadisticas/valoracionesEmpleadores', (req, res) => {
     
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador")
     
-    if(respuesta['statusCode'] == 200){
+    if(respuesta['statusCode'] == 200  && respuesta.tokenData['estatus'] == 1){
 
         Estadisticas.valoracionesEmpleador((codigoRespuesta, cuerpoValoracionesEmpleadores)=>{
             
@@ -100,6 +107,9 @@ path.get('/v1/estadisticas/valoracionesEmpleadores', (req, res) => {
             res.json(cuerpoValoracionesEmpleadores)
 
         })
+    }else if (respuesta.tokenData['estatus'] == 2){
+        res.status(403)
+        res.json(mensajes.prohibido)
     }else if(respuesta['statusCode'] == 401){
         res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);
@@ -118,7 +128,7 @@ path.get('/v1/estadisticas/ofertasEmpleo', (req, res) => {
     
     var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador")
     
-    if(respuesta['statusCode'] == 200){
+    if(respuesta['statusCode'] == 200 && respuesta.tokenData['estatus'] == 1){
 
         Estadisticas.estadisticasOfertasEmpleo((codigoRespuesta, cuerpoEstadisticasOfertas)=>{
             
@@ -126,6 +136,9 @@ path.get('/v1/estadisticas/ofertasEmpleo', (req, res) => {
             res.json(cuerpoEstadisticasOfertas)
 
         })
+    }else if (respuesta.tokenData['estatus'] == 2){
+        res.status(403)
+        res.json(mensajes.prohibido)
     }else if(respuesta['statusCode'] == 401){
         res.status(respuesta['statusCode'])
         res.json(mensajes.tokenInvalido);

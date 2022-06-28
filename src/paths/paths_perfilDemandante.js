@@ -30,7 +30,7 @@ path.get("/v1/perfilDemandantes", (req, res) => {
   var respuesta = GestionToken.ValidarToken(token);
 
   try {
-    if (respuesta.statusCode == 200) {
+    if (respuesta.statusCode == 200 && respuesta.tokenData['estatus'] == 1) {
       GestionUsuarios.getDemandantes(function (
         codigoRespuesta,
         cuerpoRespuesta
@@ -38,7 +38,10 @@ path.get("/v1/perfilDemandantes", (req, res) => {
         res.status(codigoRespuesta);
         res.json(cuerpoRespuesta);
       });
-    } else if (respuesta.statusCode == 401) {
+    }else if (respuesta.tokenData['estatus'] == 2){
+      res.status(403)
+      res.json(mensajes.prohibido)
+    }else if (respuesta.statusCode == 401) {
       res.status(401);
       res.json(mensajes.tokenInvalido);
     } else {
@@ -124,7 +127,7 @@ path.put("/v1/perfilDemandantes/:idPerfilDemandante", (req, res) => {
   var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Demandante");
 
   try {
-    if (respuesta.statusCode == 200) {
+    if (respuesta.statusCode == 200  && respuesta.tokenData['estatus'] == 1) {
       var edicionDemandante = new Demandante();
 
       edicionDemandante.idPerfilUsuario = req.body.idPerfilUsuario;
@@ -146,7 +149,10 @@ path.put("/v1/perfilDemandantes/:idPerfilDemandante", (req, res) => {
           res.json(cuerpoRespuesta);
         }
       );
-    } else if (respuesta.statusCode == 401) {
+    }else if (respuesta.tokenData['estatus'] == 2){
+      res.status(403)
+      res.json(mensajes.prohibido)
+    }else if (respuesta.statusCode == 401) {
       res.status(401);
       res.json(mensajes.tokenInvalido);
     } else {

@@ -28,7 +28,7 @@ path.get(
       "Demandante"
     );
 
-    if (validacionToken.statusCode == 200) {
+    if (validacionToken.statusCode == 200 && validacionToken.tokenData['estatus'] == 1) {
       Mensajeria.getConversacionesDemandante(
         idPerfilDemandante,
         (codigoRespuesta, cuerpoRespuesta) => {
@@ -56,7 +56,7 @@ path.get(
       "Demandante"
     );
 
-    if (validacionToken.statusCode == 200) {
+    if (validacionToken.statusCode == 200 && validacionToken.tokenData['estatus'] == 1) {
       Mensajeria.getConversacionDemandante(
         idPerfilDemandante,
         idConversacion,
@@ -64,6 +64,9 @@ path.get(
           res.status(codigoRespuesta).json(cuerpoRespuesta);
         }
       );
+    }else if (validacionToken.tokenData['estatus'] == 2){
+      res.status(403)
+      res.json(mensajes.prohibido)
     } else {
       res.status(401);
       res.send(mensajes.tokenInvalido);
@@ -85,7 +88,7 @@ path.post(
       "Demandante"
     );
 
-    if (validacionToken.statusCode == 200) {
+    if (validacionToken.statusCode == 200 && validacionToken.tokenData['estatus'] == 1) {
       Mensajeria.postMensajeDemandante(
         idPerfilDemandante,
         idConversacion,
@@ -94,6 +97,9 @@ path.post(
           res.status(codigoRespuesta).json(cuerpoRespuesta);
         }
       );
+    }else if (validacionToken.tokenData['estatus'] == 2){
+      res.status(403)
+      res.json(mensaje.prohibido)
     } else {
       res.status(401);
       res.send(mensajes.tokenInvalido);
@@ -112,13 +118,16 @@ path.get(
       "Empleador"
     );
 
-    if (validacionToken.statusCode == 200) {
+    if (validacionToken.statusCode == 200 && validacionToken.tokenData['estatus'] == 1) {
       Mensajeria.getConversacionesEmpleador(
         idPerfilEmpleador,
         (codigoRespuesta, cuerpoRespuesta) => {
           res.status(codigoRespuesta).json(cuerpoRespuesta);
         }
       );
+    }else if (validacionToken.tokenData['estatus'] == 1){
+      res.status(403)
+      res.json(mensajes.prohibido)
     } else {
       res.status(401);
       res.send(mensajes.tokenInvalido);
@@ -139,7 +148,7 @@ path.get(
       "Empleador"
     );
 
-    if (validacionToken.statusCode == 200) {
+    if (validacionToken.statusCode == 200  && validacionToken.tokenData['estatus'] == 1) {
       Mensajeria.getConversacionEmpleador(
         idPerfilEmpleador,
         idConversacion,
@@ -147,6 +156,9 @@ path.get(
           res.status(codigoRespuesta).json(cuerpoRespuesta);
         }
       );
+    }else if (validacionToken.tokenData['estatus'] == 2){
+      res.status(403)
+      res.json(mensajes.prohibido)
     } else {
       res.status(401);
       res.send(mensajes.tokenInvalido);
@@ -167,7 +179,7 @@ path.post(
       token,
       "Empleador"
     );
-    if (validacionToken.statusCode == 200) {
+    if (validacionToken.statusCode == 200 && validacionToken.tokenData['estatus'] == 1) {
       Mensajeria.postMensajeEmpleador(
         idPerfilEmpleador,
         idConversacion,
@@ -176,7 +188,10 @@ path.post(
           res.status(codigoRespuesta).json(cuerpoRespuesta);
         }
       );
-    } else {
+    }else if (validacionToken.tokenData['estatus'] == 2){
+      res.status(403)
+      res.json(mensaje.prohibido)
+    }else {
       res.status(401);
       res.send(mensajes.tokenInvalido);
     }
@@ -194,13 +209,16 @@ path.get(
       "Aspirante"
     );
 
-    if (validacionToken.statusCode == 200) {
+    if (validacionToken.statusCode == 200 && validacionToken.tokenData['estatus'] == 1) {
       Mensajeria.getConversacionesAspirante(
         idPerfilAspirante,
         (codigoRespuesta, cuerpoRespuesta) => {
           res.status(codigoRespuesta).json(cuerpoRespuesta);
         }
       );
+    }else if (validacionToken.tokenData['estatus'] == 2){
+      res.status(403)
+      res.json(mensajes.prohibido)
     } else {
       res.status(401);
       res.send(mensajes.tokenInvalido);
@@ -219,7 +237,7 @@ path.get(
       token,
       "Aspirante"
     );
-    if (validacionToken.statusCode == 200) {
+    if (validacionToken.statusCode == 200 && validacionToken.tokenData['estatus'] == 1) {
       Mensajeria.getConversacionAspirante(
         idPerfilAspirante,
         idConversacion,
@@ -227,6 +245,9 @@ path.get(
           res.status(codigoRespuesta).json(cuerpoRespuesta);
         }
       );
+    }else if (validacionToken.tokenData['estatus'] == 2){
+      res.status(403)
+      res.json(mensajes.prohibido)
     } else {
       console.log("token invalidado");
       res.status(401).send(mensajes.tokenInvalido);
@@ -245,7 +266,7 @@ path.post(
       token,
       "Aspirante"
     );
-    if (validacionToken.statusCode == 200) {
+    if (validacionToken.statusCode == 200  && validacionToken.tokenData['estatus'] == 1) {
       Mensajeria.postMensajeAspirante(
         idPerfilAspirante,
         idConversacion,
@@ -254,7 +275,10 @@ path.post(
           res.status(codigoRespuesta).json(cuerpoRespuesta);
         }
       );
-    } else {
+    }else if (validacionToken.tokenData['estatus'] == 2){
+      res.status(403)
+      res.json(mensaje.prohibido)
+    }else {
       res.status(401);
       res.send(mensajes.tokenInvalido);
     }

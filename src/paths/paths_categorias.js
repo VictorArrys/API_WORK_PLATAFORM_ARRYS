@@ -48,7 +48,7 @@ path.post("/v1/categoriasEmpleo", (req, res) => {
   var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador");
 
   try {
-    if (respuesta.statusCode == 200) {
+    if (respuesta.statusCode == 200 && respuesta.tokenData['estatus'] == 1) {
       var categoria = new CategoriaEmpleo();
 
       categoria.nombre = req.body.nombre;
@@ -62,6 +62,9 @@ path.post("/v1/categoriasEmpleo", (req, res) => {
           res.json(cuerpoRespuesta);
         }
       );
+    }else if (respuesta.tokenData['estatus'] == 2){
+      res.status(403)
+      res.json(mensajes.prohibido)
     } else if (respuesta.statusCode == 401) {
       res.status(401);
       res.json(mensajes.tokenInvalido);
@@ -85,7 +88,7 @@ path.patch("/v1/categoriasEmpleo/:idCategoriaEmpleo", (req, res) => {
   var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador");
 
   try {
-    if (respuesta.statusCode == 200) {
+    if (respuesta.statusCode == 200 && respuesta.tokenData['estatus'] == 1) {
       var edicionCategoria = new CategoriaEmpleo();
 
       edicionCategoria.idCategoriaEmpleo = req.params.idCategoriaEmpleo;
@@ -101,7 +104,10 @@ path.patch("/v1/categoriasEmpleo/:idCategoriaEmpleo", (req, res) => {
           res.json(cuerpoRespuesta);
         }
       );
-    } else if (respuesta.statusCode == 401) {
+    }else if (respuesta.tokenData['estatus'] == 2){
+      res.status(403)
+      res.json(mensajes.prohibido)
+    }else if (respuesta.statusCode == 401) {
       res.status(respuesta);
       res.json(mensajes.tokenInvalido);
     } else {
@@ -125,7 +131,7 @@ path.delete("/v1/categoriasEmpleo/:idCategoriaEmpleo", (req, res) => {
   const { idCategoriaEmpleo } = req.params;
 
   try {
-    if (respuesta.statusCode == 200) {
+    if (respuesta.statusCode == 200 && respuesta.tokenData['estatus'] == 1) {
       GestionCategoriasEmpleo.deleteCategoriaEmpleo(
         idCategoriaEmpleo,
         function (codigoRespuesta, cuerpoRespuesta) {
@@ -133,7 +139,11 @@ path.delete("/v1/categoriasEmpleo/:idCategoriaEmpleo", (req, res) => {
           res.json(cuerpoRespuesta);
         }
       );
-    } else if (respuesta.statusCode == 401) {
+    }else if (respuesta.tokenData['estatus'] == 2){
+      res.status(403)
+      res.json(mensajes.prohibido)
+    }
+     else if (respuesta.statusCode == 401) {
       res.status(respuesta.statusCode);
       res.json(mensajes.tokenInvalido);
     } else {

@@ -26,7 +26,7 @@ path.get("/v1/ofertasEmpleo-A", ValidarCategorias, (req, res) => {
     const token = req.headers['x-access-token'];
     const categoriasEmpleo = req.query['categoriasEmpleo'];
     var tokenValido = GestionToken.ValidarTokenTipoUsuario(token, "Aspirante");
-    if(tokenValido.statusCode == 200) {
+    if(tokenValido.statusCode == 200 && tokenValido.tokenData['estatus'] == 1) {
         var queryConsulta = `SELECT ofEmp.id_oferta_empleo, date_format(fecha_inicio, \"%Y-%m-%d\") as fecha_inicio, ofEmp.nombre, ofEmp.direccion, ofEmp.cantidad_pago, ofEmp.tipo_pago, ofEmp.dias_laborales, ofEmp.vacantes, date_format(fecha_finalizacion, \"%Y-%m-%d\") as fecha_finalizacion FROM oferta_empleo AS ofEmp INNER JOIN perfil_empleador AS pefEmp ON (pefEmp.id_perfil_empleador = ofEmp.id_perfil_oe_empleador) INNER JOIN perfil_usuario as pefUs ON (pefUs.id_perfil_usuario = pefEmp.id_perfil_usuario_empleador) WHERE id_categoria_oe IN ( ${categoriasEmpleo} ) AND ofEmp.fecha_finalizacion > now() AND pefUs.estatus = 1;`;
         mysqlConnection.query(queryConsulta, (error, resultadoConsulta) => {
             if (error) {
@@ -52,7 +52,10 @@ path.get("/v1/ofertasEmpleo-A", ValidarCategorias, (req, res) => {
                 res.status(200).send(listaOfertas);
             }
         })
-    } else {
+    }else if (tokenValido.tokenData['estatus'] == 2){
+        res.status(403)
+        res.json(mensajes.prohibido)
+    }else {
         res.status(401);
         res.send(mensajes.tokenInvalido);
     }

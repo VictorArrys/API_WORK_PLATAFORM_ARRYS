@@ -31,7 +31,7 @@ path.get("/v1/perfilAdministradores", (req, res) => {
   var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador");
 
   try {
-    if (respuesta.statusCode == 200) {
+    if (respuesta.statusCode == 200  && respuesta.tokenData['estatus'] == 1) {
       GestionUsuarios.getAdministradores(function (
         codigoRespuesta,
         cuerpoRespuesta
@@ -61,7 +61,7 @@ path.get("/v1/perfilAdministradores/:idPerfilUsuarioAdmin", (req, res) => {
   const { idPerfilUsuarioAdmin } = req.params;
 
   try {
-    if (respuesta.statusCode == 200) {
+    if (respuesta.statusCode == 200 ) {
       GestionUsuarios.getAdministrador(
         idPerfilUsuarioAdmin,
         function (codigoRespuesta, cuerpoRespuesta) {
@@ -90,7 +90,7 @@ path.put("/v1/perfilAdministradores/:idPerfilAdministrador", (req, res) => {
   var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador");
 
   try {
-    if (respuesta.statusCode == 200) {
+    if (respuesta.statusCode == 200 && respuesta.tokenData['estatus'] == 1) {
       var administradorEdicion = new Administrador();
 
       administradorEdicion.idPerfilUsuario = req.body.idPerfilUsuario;
@@ -111,7 +111,10 @@ path.put("/v1/perfilAdministradores/:idPerfilAdministrador", (req, res) => {
           res.json(cuerpoRespuesta);
         }
       );
-    } else if (respuesta.statusCode == 401) {
+    }else if (respuesta.tokenData['estatus'] == 2){
+      res.status(403)
+      res.json(mensajes.prohibido)
+    }else if (respuesta.statusCode == 401) {
       res.status(respuesta.statusCode);
       res.json(mensajes.tokenInvalido);
     } else {
