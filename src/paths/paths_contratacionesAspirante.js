@@ -82,8 +82,8 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo/:idContra
     const token = req.headers['x-access-token'];
     var tokenValido = verifyTokenAspirante(token);
     if(tokenValido) {
-        var queryContratacion = "select conEmp.id_contratacion_empleo as idContratacionEmpleo, conEmp.estatus, date_format(conEmp.fecha_contratacion, \"%Y-%m-%d\") as fechaContratacion, date_format(conEmp.fecha_finalizacion, \"%Y-%m-%d\") as fechaFinalizacion ,  ofertaEmp.* from contratacion_empleo as conEmp inner join contratacion_empleo_aspirante as conEmpAsp on conEmp.id_contratacion_empleo = conEmpAsp.id_contratacion_empleo_cea inner join (select ofEmp.id_oferta_empleo as idOfertaEmpleo, ofEmp.nombre as nombreEmpleo, pefEmp.nombre as nombreEmpleador, catEmp.nombre as categoriaEmpleo, ofEmp.direccion, ofEmp.dias_laborales as diasLaborales, ofEmp.tipo_pago as tipoPago, ofEmp.cantidad_pago as CantidadPago, ofEmp.descripcion, CONCAT( ofEmp.hora_inicio, " - ", ofEmp.hora_fin) as horario from oferta_empleo as ofEmp inner join perfil_empleador as pefEmp on ofEmp.id_perfil_oe_empleador = pefEmp.id_perfil_empleador inner join categoria_empleo as catEmp on catEmp.id_categoria_empleo = ofEmp.id_categoria_oe ) as ofertaEmp on ofertaEmp.idOfertaEmpleo = conEmp.id_oferta_empleo_coe where conEmpAsp.id_perfil_aspirante_cea = ? and conEmp.id_contratacion_empleo = ?;"
-        mysqlConnection.query(queryContratacion, [idAspirante, idContratacionEmpleo], (error, resultadoConsulta) => {
+        var queryContratacion = `select conEmp.id_contratacion_empleo as idContratacionEmpleo, conEmp.estatus, date_format(conEmp.fecha_contratacion, "%Y-%m-%d") as fechaContratacion, date_format(conEmp.fecha_finalizacion, "%Y-%m-%d") as fechaFinalizacion ,  ofertaEmp.* from contratacion_empleo as conEmp inner join contratacion_empleo_aspirante as conEmpAsp on conEmp.id_contratacion_empleo = conEmpAsp.id_contratacion_empleo_cea inner join (select ofEmp.id_oferta_empleo as idOfertaEmpleo, ofEmp.nombre as nombreEmpleo, pefEmp.nombre as nombreEmpleador, catEmp.nombre as categoriaEmpleo, ofEmp.direccion, ofEmp.dias_laborales as diasLaborales, ofEmp.tipo_pago as tipoPago, ofEmp.cantidad_pago as cantidadPago, ofEmp.descripcion, ofEmp.hora_inicio, ofEmp.hora_fin from oferta_empleo as ofEmp inner join perfil_empleador as pefEmp on ofEmp.id_perfil_oe_empleador = pefEmp.id_perfil_empleador inner join categoria_empleo as catEmp on catEmp.id_categoria_empleo = ofEmp.id_categoria_oe ) as ofertaEmp on ofertaEmp.idOfertaEmpleo = conEmp.id_oferta_empleo_coe where conEmpAsp.id_perfil_aspirante_cea = ${idAspirante} AND conEmp.id_contratacion_empleo = ${idContratacionEmpleo};`
+        mysqlConnection.query(queryContratacion, (error, resultadoConsulta) => {
             if (error) {
                 res.status(500)
                 res.json(mensajes.errorInterno);
@@ -92,13 +92,14 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo/:idContra
                 if (resultadoConsulta.length == 1) {
                     var consultaContratacion = resultadoConsulta[0];
                     contratacionEmpleo = {
-                        "idContratacion" : consultaContratacion['idContratacion"'],
+                        "idContratacion" : consultaContratacion['idContratacionEmpleo'],
                         "estatus": consultaContratacion['estatus'],
                         "nombreEmpleo": consultaContratacion['nombreEmpleo'],
                         "categoriaEmpleo": consultaContratacion['categoriaEmpleo'],
                         "direccion": consultaContratacion['direccion'],
                         "diasLaborales": consultaContratacion['diasLaborales'],
-                        "horario": consultaContratacion['horario'],
+                        "horaInicio": consultaContratacion['hora_inicio'],
+                        "horaFin": consultaContratacion['hora_fin'],
                         "tipoPago": consultaContratacion['tipoPago'], 
                         "cantidadPago": consultaContratacion['cantidadPago'],
                         "fechaContratacion": consultaContratacion['fechaContratacion'],
