@@ -149,61 +149,58 @@ path.post('/v1/reportesEmpleo', (req, res) => {
     var estatus = 1;
     var contenidoReporte = req.body['motivo'];
     var idAspirante = req.body['idPerfilAspirante'];
-    
-    var respuesta = verifyToken(token, 'Aspirante');
+    var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Aspirante");
 
     if(respuesta == 200){
-        var queryOfertaEmpleo = "select count(id_reporte_empleo) AS estaRegistrada FROM reporte_empleo where id_oferta_empleo_re = ? AND id_perfil_aspirante_re = ?;";
         //Confirmar que existe la oferta
-
-        mysqlConnection.query(queryOfertaEmpleo, [idOfertaEmpleo, idAspirante], (error, resultado) => {
-            if(error) {
-                res.json(mensajes.errorInterno);
-                res.status(500)
-            } else {
-                if(resultado[0]['estaRegistrada'] == 0) {
-                    res.json(mensajes.peticionIncorrecta);
-                    res.status(404);
+        try {
+            var queryOfertaEmpleo = "select count(id_reporte_empleo) AS estaRegistrada FROM reporte_empleo where id_oferta_empleo_re = ? AND id_perfil_aspirante_re = ?;";
+            mysqlConnection.query(queryOfertaEmpleo, [idOfertaEmpleo, idAspirante], (error, resultado) => {
+                if(error) {
+                    throw error;
                 } else {
-                    var queryReporte = "INSERT INTO reporte_empleo (id_perfil_aspirante_re, id_oferta_empleo_re, motivo, estatus, fecha_registro) VALUES (?, ?, ?, ?, NOW());"
-                    mysqlConnection.query(queryReporte, [idAspirante, idOfertaEmpleo, contenidoReporte, estatus], (error, resultado)=> {
-                        if(error) {
-                            res.json(mensajes.errorInterno);
-                            res.status(500)
-                        } else {
-                            var idNuevoReporte = resultado.insertId;
-                            var queryConsulta = "select * from reporte_empleo where id_reporte_empleo = ?";
-                            mysqlConnection.query(queryConsulta, [idNuevoReporte], (error, resultadoConsulta) => {
-                                if (error) {
-
-                                } else {
-                                    var nuevoReporte = {};
-                                    nuevoReporte = {
-                                        "idReporteEmpleo": resultadoConsulta[0]['id_reporte_empleo'],
-                                        "idOfertaEmpleo": resultadoConsulta[0]['id_oferta_empleo_re'],
-                                        "idAspirante" : resultadoConsulta[0]['id_perfil_aspirante_re'],
-                                        "estatus": resultadoConsulta[0]['estatus'],
-                                        "fechaRegistro": resultadoConsulta[0]['fecha_registro'],
-                                        "motivo": resultadoConsulta[0]['motivo']
-                                    };
-
-                                    res.status(201);
-                                    res.json(nuevoReporte);
-                                }
-                            });
-                        }
-                    });
+                    if(resultado[0]['estaRegistrada'] == 0) { //No hau reporte
+                        var queryReporte = "INSERT INTO reporte_empleo (id_perfil_aspirante_re, id_oferta_empleo_re, motivo, estatus, fecha_registro) VALUES (?, ?, ?, ?, NOW());"
+                        mysqlConnection.query(queryReporte, [idAspirante, idOfertaEmpleo, contenidoReporte, estatus], (error, resultado)=> {
+                            if(error) {
+                                throw error;
+                            } else {
+                                var idNuevoReporte = resultado.insertId;
+                                var queryConsulta = "select * from reporte_empleo where id_reporte_empleo = ?";
+                                mysqlConnection.query(queryConsulta, [idNuevoReporte], (error, resultadoConsulta) => {
+                                    if (error) {
+                                        throw error;
+                                    } else {
+                                        var nuevoReporte = {};
+                                        nuevoReporte = {
+                                            "idReporteEmpleo": resultadoConsulta[0]['id_reporte_empleo'],
+                                            "idOfertaEmpleo": resultadoConsulta[0]['id_oferta_empleo_re'],
+                                            "idAspirante" : resultadoConsulta[0]['id_perfil_aspirante_re'],
+                                            "estatus": resultadoConsulta[0]['estatus'],
+                                            "fechaRegistro": resultadoConsulta[0]['fecha_registro'],
+                                            "motivo": resultadoConsulta[0]['motivo']
+                                        };
+    
+                                        res.status(201);
+                                        res.json(nuevoReporte);
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        res.json(mensajes.peticionIncorrecta);
+                        res.status(404);
+                    }
                 }
-            }
-        });
+            });
+            
+        } catch (error) {
+            res.json(mensajes.errorInterno);
+            res.status(500);
+        }
     }else if(respuesta == 401){
         res.status(respuesta)
         res.json(mensajes.tokenInvalido);
-
-    }else{
-        res.status(500)
-        res.json(mensajes.errorInterno);
-        
     }
 });
 
