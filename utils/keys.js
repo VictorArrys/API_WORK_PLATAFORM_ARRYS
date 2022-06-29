@@ -2,7 +2,7 @@ const fs = require("fs");
 
 
 // Base de datos online
-/*
+
 module.exports = {
     database: {
         host : 'elcamelloapi.mysql.database.azure.com',
@@ -15,9 +15,9 @@ module.exports = {
         }
     }
 }
-*/
 
-module.exports = {
+
+/*module.exports = {
     database: {
         host : 'localhost',
         database : 'deser_el_camello',
@@ -25,4 +25,4 @@ module.exports = {
         password: "root",
         port: 3306
     }
-}
+}*/
