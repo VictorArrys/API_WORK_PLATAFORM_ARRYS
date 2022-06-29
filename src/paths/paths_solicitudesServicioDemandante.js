@@ -76,7 +76,7 @@ path.post("/v1/perfilDemandantes/:idPerfilDemandante/solicitudesServicios", (req
                 res.send(mensajes.errorInterno);
             } else {
                 querySolicitudRegistrada = "select * from solicitud_servicio where id_solicitud_servicio = ?";
-                mysqlConnection.query(querySolicitudRegistrada, [resultadoRegistro], (error, resultadoSelect) => {
+                mysqlConnection.query(querySolicitudRegistrada, [resultadoRegistro.insertId], (error, resultadoSelect) => {
                     if (error){
                         res.status(500);
                         res.send(mensajes.errorInterno);
