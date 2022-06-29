@@ -10,6 +10,8 @@ exports.EstadisticasDAO = class estadisticasDAO {
 
         pool.query('SELECT * FROM deser_el_camello.estadisticas_uso_plataforma;', (error, resultadoEstadisticasUso)=>{
             if(error){ 
+                MostrarError.MostrarError(error, 'GET: estadisticas uso plataforma Paso: 1era query mysql')
+                    
                 callback(500, mensajes.errorInterno);
                 
             }else if(resultadoEstadisticasUso.length == 0){
@@ -41,6 +43,8 @@ exports.EstadisticasDAO = class estadisticasDAO {
 
         pool.query('SELECT * FROM deser_el_camello.estadisticas_empleos;', (error, resultadoEstadisticasEmpleos)=>{
             if(error){ 
+                
+                MostrarError.MostrarError(error, 'GET: estadisticas empleos demanda Paso: 1era query mysql')
                 callback(500, mensajes.errorInterno)
                 
             }else if(resultadoEstadisticasEmpleos.length == 0){
@@ -60,6 +64,8 @@ exports.EstadisticasDAO = class estadisticasDAO {
     
             pool.query('SELECT * FROM deser_el_camello.estadisticas_ofertas_empleo;', (error, resultadoEstadisticasOfertasEmpleo)=>{
                 if(error){ 
+                    
+                    MostrarError.MostrarError(error, 'GET: estadisticas ofertas empleo Paso: 1era query mysql')
                     callback(500, mensajes.errorInterno)
                     
                 }else if(resultadoEstadisticasOfertasEmpleo.length == 0){
@@ -79,6 +85,8 @@ exports.EstadisticasDAO = class estadisticasDAO {
 
         pool.query('SELECT * FROM deser_el_camello.valoraciones_aspirantes WHERE valoracion_aspirante;', (error, resultadoValoracionesAspirantes)=>{
             if(error){ 
+                
+                MostrarError.MostrarError(error, 'GET: valoraciones aspirante Paso: 1era query mysql')
                 callback(500, mensajes.errorInterno)
                 
             }else if(resultadoValoracionesAspirantes.length == 0){
@@ -97,6 +105,8 @@ exports.EstadisticasDAO = class estadisticasDAO {
   
         pool.query('SELECT * FROM deser_el_camello.valoraciones_empleadores;', (error, resultadoValoracionesEmpleadores)=>{
             if(error){ 
+                
+                MostrarError.MostrarError(error, 'GET: valoraciones empleador Paso: 1era query mysql')
                 callback(500, mensajes.errorInterno)
                 
             }else if(resultadoValoracionesEmpleadores.length == 0){
