@@ -3,6 +3,7 @@ const req = require('express/lib/request');
 const app = express();
 const morgan = require('morgan');
 
+console.log(process.env.PORT)
 
 app.set('port',process.env.PORT || 80);
 app.set('json spaces', 2);

@@ -3,8 +3,7 @@ const fs = require("fs");
 
 // Base de datos online
 
-/*module.exports = {
-    database: {
+module.exports.SERVER_CREDENTTIALS = {
         host : 'elcamelloapi.mysql.database.azure.com',
         database : 'deser_el_camello',
         user : 'elCamello_',
@@ -13,16 +12,14 @@ const fs = require("fs");
         ssl: {
             ca : fs.readFileSync(__dirname + '/certificates/deser_el_camello_db.pem')
         }
-    }
-}*/
+    
+}
 
 
-module.exports = {
-    database: {
+module.exports.TEST_CREDENTTIALS = {
         host : 'localhost',
         database : 'deser_el_camello',
         user : 'Camello',
         password: "root",
         port: 3306
-    }
 }

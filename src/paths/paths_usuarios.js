@@ -9,7 +9,7 @@ const {
 } = require("../../utils/validaciones/validarParam");
 const { send, status, json } = require("express/lib/response");
 
-const { AccesoSistema } = require("../componentes/accesosistema");
+const { AccesoSistema } = require("../componentes/AccesoSistema");
 const { GestionUsuarios } = require("../componentes/GestionUsuarios");
 const GestionToken = require("../utils/GestionToken");
 

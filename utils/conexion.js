@@ -5,9 +5,18 @@ const Connection = require('mysql/lib/Connection');
 
 const {promisify} = require('util');
 
-const { database } = require('./keys');
+const { SERVER_CREDENTTIALS, TEST_CREDENTTIALS } = require('./keys');
 
-const pool = mysql.createPool(database);
+var pool;
+
+console.log("ambi " + process.env.PORT)
+if (process.env.PORT) {
+    pool = mysql.createPool(SERVER_CREDENTTIALS);
+    console.log("Server")
+} else {
+    pool = mysql.createPool(TEST_CREDENTTIALS);
+    console.log("test")
+}
 
 pool.getConnection((err, connection)=>{
     if(err){

@@ -1,4 +1,4 @@
-FROM node:10-alpine
+FROM node:current-alpine3.16
 
 COPY . /api
 
@@ -8,6 +8,5 @@ RUN npm install
 
 ENV PORT=5000
 EXPOSE 5000
-EXPOSE 80
 
 CMD [ "node", "ElCamelloAPI.js" ]

@@ -1,0 +1,7 @@
+/diagramas
+/out
+/.github
+/.vscode
+/node_modules
+/Test
+package-lock.json
