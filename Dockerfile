@@ -6,6 +6,7 @@ WORKDIR /api
 
 RUN npm install
 
+EXPOSE 5000
 EXPOSE 80
 
 CMD [ "node", "ElCamelloAPI.js" ]
