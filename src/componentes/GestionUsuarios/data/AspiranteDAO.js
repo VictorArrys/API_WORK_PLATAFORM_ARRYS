@@ -61,7 +61,7 @@ exports.AspiranteDAO = class AspiranteDAO {
             var arregloOficios = []
             var getAspirante = resultadoAspirante[0]
 
-            getOficios(getAspirante.id_perfil_aspirante, function(codigoRespuesta, oficios) {
+            this.#getOficios(getAspirante.id_perfil_aspirante, function(codigoRespuesta, oficios) {
                 if (codigoRespuesta == 500){
                     callback(500, mensajes.errorInterno)
                 } else {
@@ -129,7 +129,7 @@ exports.AspiranteDAO = class AspiranteDAO {
         var queryTwo = 'INSERT INTO perfil_aspirante ( id_perfil_usuario_aspirante, nombre, direccion, fecha_nacimiento, telefono) VALUES (?, ?, ?, ?, ?); '
         var queryThree = 'INSERT INTO categoria_aspirante (id_aspirante_ca, id_categoria_ca, experiencia) VALUES ? ;'
 
-        comprobarRegistro(aspiranteNuevo.nombreUsuario, aspiranteNuevo.correoElectronico, function(codigoRespuesta, cuerpoRespuestaComprobacion){
+        this.#comprobarRegistro(aspiranteNuevo.nombreUsuario, aspiranteNuevo.correoElectronico, function(codigoRespuesta, cuerpoRespuestaComprobacion){
             if (codigoRespuesta == 500){
                 callback(500, mensajes.errorInterno)
             }else if (cuerpoRespuestaComprobacion >= 1){
@@ -202,7 +202,7 @@ exports.AspiranteDAO = class AspiranteDAO {
             }else if (codigoRespuesta == 404){
                 callback(404, mensajes.peticionIncorrecta)
             }else{
-                borrarOficios(aspirante.idPerfilAspirante, function(codigoRespuesta, cuerpoRespuesta){
+                AspiranteDAO.#borrarOficios(aspirante.idPerfilAspirante, function(codigoRespuesta, cuerpoRespuesta){
                     if (codigoRespuesta == 500){
                         callback(500, mensajes.errorInterno)
                     }else if (codigoRespuesta == 200){
@@ -249,7 +249,7 @@ exports.AspiranteDAO = class AspiranteDAO {
         })
     }
 
-    static getOficios(idAspirante, callback){
+    static #getOficios(idAspirante, callback){
         var query = 'SELECT * FROM categoria_aspirante where id_aspirante_ca = ?;'
         
         mysqlConnection.query(query, [idAspirante], (error, resultadoOficios) => {
@@ -273,7 +273,7 @@ exports.AspiranteDAO = class AspiranteDAO {
         })
     }
 
-    static comprobarRegistro(nombreUsuario, correoElectronico, callback){
+    static #comprobarRegistro(nombreUsuario, correoElectronico, callback){
         var queryOne = 'SELECT count(id_perfil_usuario) as Comprobacion FROM perfil_usuario WHERE nombre_usuario = ? OR  correo_electronico = ? ;'
         mysqlConnection.query(queryOne, [nombreUsuario, correoElectronico], (error, comprobacion) =>{
             if (error){
@@ -284,7 +284,7 @@ exports.AspiranteDAO = class AspiranteDAO {
         })
     }
 
-    static borrarOficios(idAspirante, callback){
+    static #borrarOficios(idAspirante, callback){
         var queryOne = 'DELETE FROM categoria_aspirante WHERE id_aspirante_ca = ?;'
 
         mysqlConnection.query(queryOne, [idAspirante], (error, suprimirOficios) =>{

@@ -59,7 +59,7 @@ exports.AdministradorDAO = class AdministradorDAO {
     // falta mandar el error de la funcion
     var queryTwo =
       "UPDATE perfil_administrador SET nombre = ?, telefono = ? WHERE id_perfil_administrador = ?;";
-    actualizarUsuarioAdministrador(
+    this.actualizarUsuarioAdministrador(
       administrador,
       function (codigoRespuesta, cuerpoRespuesta) {
         if (codigoRespuesta == 500) {
