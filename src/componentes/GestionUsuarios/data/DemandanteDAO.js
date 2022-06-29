@@ -65,7 +65,7 @@ exports.DemandanteDAO = class DemandanteDAO {
     var queryTwo =
       "INSERT INTO perfil_demandante (id_perfil_usuario_demandante, nonbre, fecha_nacimiento, telefono, direccion) VALUES ( ?, ?, ?, ?, ?);";
 
-    this.#comprobarRegistro(
+    comprobarRegistro(
       demandante.nombreUsuario,
       demandante.correoElectronico,
       function (codigoRespuesta, cuerpoRespuestaRegistrarDemandante) {
@@ -165,7 +165,7 @@ exports.DemandanteDAO = class DemandanteDAO {
     );
   }
 
-  static #comprobarRegistro(nombreUsuario, correoElectronico, callback) {
+  static comprobarRegistro(nombreUsuario, correoElectronico, callback) {
     var queryOne =
       "SELECT count(id_perfil_usuario) as Comprobacion FROM perfil_usuario WHERE nombre_usuario = ? OR  correo_electronico = ? ;";
     mysqlConnection.query(

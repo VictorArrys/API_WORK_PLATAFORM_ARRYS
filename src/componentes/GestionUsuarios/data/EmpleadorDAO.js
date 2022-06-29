@@ -77,7 +77,7 @@ exports.EmpleadorDAO = class EmpleadorDAO {
     var queryTwo =
       "INSERT INTO perfil_empleador (id_perfil_usuario_empleador, nombre_organizacion, nombre, direccion, fecha_nacimiento, telefono, amonestaciones) VALUES (?, ?, ?, ?, ?, ?, ?);";
 
-    this.#comprobarRegistro(
+    comprobarRegistro(
       empleadorNuevo.nombreUsuario,
       empleadorNuevo.correoElectronico,
       function (codigoRespuesta, cuerpoRespuestaRegistro) {
@@ -182,7 +182,7 @@ exports.EmpleadorDAO = class EmpleadorDAO {
     );
   }
 
-  static #comprobarRegistro(nombreUsuario, correoElectronico, callback) {
+  static comprobarRegistro(nombreUsuario, correoElectronico, callback) {
     var queryOne =
       "SELECT count(id_perfil_usuario) as Comprobacion FROM perfil_usuario WHERE nombre_usuario = ? OR  correo_electronico = ? ;";
     mysqlConnection.query(

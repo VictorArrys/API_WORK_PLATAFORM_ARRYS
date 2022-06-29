@@ -59,7 +59,7 @@ exports.AdministradorDAO = class AdministradorDAO {
     // falta mandar el error de la funcion
     var queryTwo =
       "UPDATE perfil_administrador SET nombre = ?, telefono = ? WHERE id_perfil_administrador = ?;";
-    this.#actualizarUsuarioAdministrador(
+    actualizarUsuarioAdministrador(
       administrador,
       function (codigoRespuesta, cuerpoRespuesta) {
         if (codigoRespuesta == 500) {
@@ -96,7 +96,7 @@ exports.AdministradorDAO = class AdministradorDAO {
     );
   }
 
-  static #actualizarUsuarioAdministrador(administrador, callback) {
+  static actualizarUsuarioAdministrador(administrador, callback) {
     var queryOne =
       "UPDATE perfil_usuario SET nombre_usuario = ?, clave = ?, correo_electronico = ? WHERE id_perfil_usuario = ?;";
     var usuario = new Usuario();

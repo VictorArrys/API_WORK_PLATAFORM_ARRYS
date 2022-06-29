@@ -31,7 +31,7 @@ exports.CategoriaEmpleoDAO = class CategoriaEmpleoDAO{
     static postCategoriaEmpleo(nombre, callback) {
         var queryTwo = 'INSERT INTO categoria_empleo (nombre) VALUES(?);'
 
-        this.#comprobarRegistro(nombre, function(codigoRespuesta, cuerpoRespuestaCategoria){
+        comprobarRegistro(nombre, function(codigoRespuesta, cuerpoRespuestaCategoria){
             if (codigoRespuesta == 500){
                 callback(500, mensajes.errorInterno)
             }else if (cuerpoRespuestaCategoria >= 1){
@@ -91,7 +91,7 @@ exports.CategoriaEmpleoDAO = class CategoriaEmpleoDAO{
         })
     }
 
-    static #comprobarRegistro(nombre, callback){
+    static comprobarRegistro(nombre, callback){
         var queryOne = 'SELECT count(nombre) as Comprobacion FROM categoria_empleo WHERE nombre = ? ;'
 
         mysqlConnection.query(queryOne, [nombre], (error, comprobacion) => {
