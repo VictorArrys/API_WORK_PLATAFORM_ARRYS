@@ -27,8 +27,8 @@ jobs:
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
     - run: |
-        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/elcamello:${{ github.sha }}
-        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/elcamello:${{ github.sha }}
+        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/elcamello:latest
+        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/elcamello:latest
         
     - name: Depluyment to Azure App Service
       uses: azure/webapps-deploy@v2
