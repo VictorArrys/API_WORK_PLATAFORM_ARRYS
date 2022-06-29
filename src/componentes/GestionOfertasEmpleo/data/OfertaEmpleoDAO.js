@@ -16,7 +16,7 @@ exports.OfertaEmpleoDAO = class OfertaEmpleoDAO {
                 
             }else if(resultadoOfertasEmpleo.length == 0){
 
-                callback(404, mensajes.peticionNoEncontrada)
+                callback(200, [])
      
             }else{
                 var ofertaEmpleo = resultadoOfertasEmpleo[0];
