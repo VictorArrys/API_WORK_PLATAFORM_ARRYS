@@ -120,11 +120,11 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/video", (req, res) => {
 path.get('/v1/perfilAspirantes', (req, res) => {
   const token = req.headers['x-access-token']
   var respuesta = GestionToken.ValidarToken(token)
-  var query = 'SELECT * FROM perfil_aspirante;'
+  var idCategoria = req.query.idCategoria;
+  
   try {
       if (respuesta.statusCode == 200 && respuesta.tokenData['estatus'] == 1){
-          GestionUsuarios.getAspirantes(function(codigoRespuesta, cuerpoRespuesta){
-              console.log(cuerpoRespuesta)
+          GestionUsuarios.getAspirantes(idCategoria, function(codigoRespuesta, cuerpoRespuesta){
               res.status(codigoRespuesta);
               res.json(cuerpoRespuesta);
           })

@@ -19,8 +19,8 @@ exports.GestionUsuarios = class {
   }
 
   //Aspirante
-  static getAspirantes(callback) {
-    AspiranteDAO.getAspirantes(callback);
+  static getAspirantes(idCategoria, callback) {
+    AspiranteDAO.getAspirantes(idCategoria, callback);
   }
 
   static getAspirante(idUsuario, callback) {

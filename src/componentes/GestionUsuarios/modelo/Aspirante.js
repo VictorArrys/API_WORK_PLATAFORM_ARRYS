@@ -8,4 +8,5 @@ exports.Aspirante = class Aspirante extends Usuario {
   telefono;
   video;
   oficios;
+  valoracionPromedio;
 };

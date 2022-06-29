@@ -12,8 +12,12 @@ const ruta = require('path');
 
 
 exports.AspiranteDAO = class AspiranteDAO {
-    static getAspirantes(callback) {
-        var query = 'SELECT * FROM perfil_aspirante;';
+    static getAspirantes(idCategoria, callback) {
+        var query = 'SELECT asp.*, asp_val.valoracionPromedio FROM deser_el_camello.perfil_aspirante as asp left join (SELECT id_perfil_aspirante_cea as idAspirante , round( avg(valoracion_aspirante), 2) as valoracionPromedio FROM contratacion_empleo_aspirante where valoracion_aspirante > 0 group by idAspirante) as asp_val on asp_val.idAspirante = id_perfil_aspirante inner join categoria_aspirante as cat ON (asp.id_perfil_aspirante = cat.id_aspirante_ca)';
+        if (!idCategoria === undefined) {
+            query += " where cat.id_categoria_ca = " + idCategoria;
+            console.log(query);
+        }
         mysqlConnection.query(query, (error, resultadoConsulta) => {
             if(error) {
                 callback(500, mensajes.errorInterno);
@@ -30,6 +34,7 @@ exports.AspiranteDAO = class AspiranteDAO {
                         aspirante.nombre = elemento['nombre']
                         aspirante.telefono = elemento['telefono']
                         aspirante.idPerfilUsuario = elemento['id_perfil_usuario_aspirante']
+                        aspirante.valoracionPromedio = (elemento['valoracionPromedio'] === null) ? 0 : elemento['valoracionPromedio'];
                         OficioDAO.getOficios(aspirante.idPerfilAspirante, (codigoRespuesta, resultadoOficios)=> {
                             if(codigoRespuesta == 500) {
                                 callback(500, mensajes.errorInterno);

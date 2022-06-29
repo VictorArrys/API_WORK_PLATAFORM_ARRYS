@@ -123,14 +123,12 @@ path.patch("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo/:idCont
     const idContratacionEmpleo = req.params['idContratacionEmpleoAspirante'];
     const puntuacion = req.body['puntuacion'];
     const token = req.headers['x-access-token'];
-    console.log("ffff")
     var tokenValido = verifyTokenAspirante(token);
     if(tokenValido) {
         var queryComprobacion = "SELECT if(count(*) = 1, true, false) AS esEvaluable FROM contratacion_empleo AS conEmp INNER JOIN contratacion_empleo_aspirante AS conEmpAsp ON (conEmp.id_contratacion_empleo = conEmpAsp.id_contratacion_empleo_cea) WHERE (conEmpAsp.id_perfil_aspirante_cea = ? AND conEmpAsp.id_contratacion_empleo_cea = ?) AND estatus = 1 and valoracion_empleador = 0;";
         mysqlConnection.query(queryComprobacion, [idAspirante, idContratacionEmpleo], (error, resultadoComprobacion) => {
             if (error) {
                 res.status(500).send(mensajes.errorInterno);
-                console.log("AAAAAAA")
             } else {
                 if(resultadoComprobacion[0]['esEvaluable'] == 1) {
                     var queryEvaluacion = "UPDATE contratacion_empleo_aspirante SET valoracion_empleador = ? WHERE id_contratacion_empleo_cea = ? AND id_perfil_aspirante_cea = ?;"
@@ -143,14 +141,11 @@ path.patch("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo/:idCont
                         }
                     });
                 } else {
-                    console.log("CCCCCC")
                     res.status(422).send(mensajes.evaluacionDeEmpleadorDenegada);
-                    
                 }
             }
         });
     } else {
-        console.log("XXXXX")
         res.status(401);
         res.send(mensajes.tokenInvalido);
     }
