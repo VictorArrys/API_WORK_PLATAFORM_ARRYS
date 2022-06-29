@@ -14,7 +14,7 @@ exports.EstadisticasDAO = class estadisticasDAO {
                 
             }else if(resultadoEstadisticasUso.length == 0){
     
-                callback(404, mensajes.peticionNoEncontrada)
+                callback(200, [])
      
             }else{
                 
@@ -45,7 +45,7 @@ exports.EstadisticasDAO = class estadisticasDAO {
                 
             }else if(resultadoEstadisticasEmpleos.length == 0){
     
-                callback(404, mensajes.peticionNoEncontrada)
+                callback(200, [])
      
             }else{
                 var estadisticas_empleos = resultadoEstadisticasEmpleos;
