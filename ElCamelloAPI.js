@@ -4,7 +4,7 @@ const app = express();
 const morgan = require('morgan');
 
 
-app.set('port', process.env.PORT || 5000);
+app.set('port', 80);
 app.set('json spaces', 2);
 
 //middlewares
