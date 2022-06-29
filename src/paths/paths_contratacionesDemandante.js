@@ -68,7 +68,7 @@ path.patch("/v1/perfilDemandantes/:idPerfilDemandante/contratacionesServicios/:i
     const idDemandante = req.params['idPerfilDemandante'];
     const idContratacion = req.params['idContratacionServicio'];
     const puntuacion =  req.body['puntuacion'];
-    var queryComprobacion = "SELECT count(*) as estaFinalizada FROM contratacion_servicio WHERE id_perfil_demandante_cs = ? AND id_contratacion_servicio = ? AND estatus = 0; ";
+    var queryComprobacion = "SELECT count(*) as estaFinalizada FROM contratacion_servicio WHERE id_perfil_demandante_cs = ? AND id_contratacion_servicio = ? AND estatus = 1; ";
     var queryEvaluacion = "UPDATE contratacion_servicio SET valoracion_aspirante = ? WHERE id_perfil_demandante_cs = ? AND id_contratacion_servicio = ?;"
     var tokenValido = verificarTokenDemandante(token);
 
