@@ -1,0 +1,88 @@
+@startuml Aceptar solicitud de servicio
+
+box Cliente
+    actor Aspirante as a
+    participant SolicitudesServicio as b <<GUI>> 
+    participant SolicitudesServicioController as c <<Controller>>
+    participant MessaggeBox as mb
+    participant SolicitudesServicioDAO as d <<DAO>>
+    participant RespuestasAPI as ra <<GUI>>
+end box
+
+box Servidor
+    participant ElCamelloAPI as e <<API>>
+    participant GestionToken as f
+    participant GestionServicios as g <<Component>>
+    participant SolicitudServicioDAO as h <<DAO>>
+    database elCamelloDB as db
+end box
+
+a ->> b : seleccionarsolicitud
+activate b
+
+b ->> c : CargarDetallesSolicitud()
+activate c
+
+c ->> c : MostrarSolicitudSeleccionada()
+activate c
+
+alt estatus == "Pendiente"
+    c ->> c : HabilitarBotones()
+    deactivate c
+    deactivate c
+
+    a -> b : clicAcpetarSolicitud()
+    b -> c : btnAceptar_Click()
+    activate c
+
+    c ->> c : AceptarSolicitud()
+    activate c
+
+    c -> d : PatchAceptarSolicitud(\nidAspirante:int,\nidSolicitudServicio: int,\ntoken:string)
+
+    note right of d 
+        **header**
+        x-accces-token : string
+        
+        **params**
+        idAspirante: int
+        idSolicitud: int
+    end note
+    d -> e : **PATCH** /v1/perfilAspirantes/idAspirante/solicitudesServicios/:idSolicitud/aceptada
+
+
+    e -> f : ValidarTokenTipoUsuario(\ntoken: string, \n"Aspirante")
+    activate e
+    activate f
+    f -->> e: validacionToken
+
+    alt validacionToken.statusCode == 200  && validacionToken.tokenData['estatus'] == 1
+        e ->> g : aceptarSolicitudServicio(\nidAspirante:int, \nidSolicitudServicio:int,\ncallback: function) : void
+        activate e
+
+        g ->> h : aceptarSolicitud(\nidAspirante:int, \nidSolicitudServicio:int,\ncallback:function) : void
+        activate h
+
+        h -> db : Actualizar Solicitud
+        activate db
+        h -> db : Crear conversacion 
+        h -> db : Crear contratacion
+        deactivate db
+        h ->> e : callback(200, mensajes.solicitudServicioAceptada)
+        deactivate h
+        e -->> d: response
+    end
+
+    d -->> c : mensaje:string
+
+    create mb
+    c --> mb : MessaggeBox.Show(mensaje)
+    c --> c : ActualizarPantalla()
+    deactivate c
+else
+    e -->> d: response
+    deactivate f
+    deactivate e
+end
+
+@enduml
