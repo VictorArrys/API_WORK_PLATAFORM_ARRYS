@@ -30,9 +30,7 @@ exports.CategoriaEmpleoDAO = class CategoriaEmpleoDAO {
   static postCategoriaEmpleo(nombre, callback) {
     var queryTwo = "INSERT INTO categoria_empleo (nombre) VALUES(?);";
 
-    comprobarRegistro(
-      nombre,
-      function (codigoRespuesta, cuerpoRespuestaCategoria) {
+    this.comprobarRegistro( nombre, function (codigoRespuesta, cuerpoRespuestaCategoria) {
         if (codigoRespuesta == 500) {
           callback(500, mensajes.errorInterno);
         } else if (cuerpoRespuestaCategoria >= 1) {

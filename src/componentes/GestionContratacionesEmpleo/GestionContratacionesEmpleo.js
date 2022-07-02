@@ -15,11 +15,11 @@ exports.GestionContratacionesEmpleo = class GestionContratacionesEmpleo {
         ContratacionDAO.getContratacionesDeAspirante(idAspirante, callback);
     }
 
-    static getContratacionDeAspirante(idAspirante, IdContratacionEmpleo, callback) {
-        ContratacionDAO.getContratacionDeAspirante(idAspirante, IdContratacionEmpleo, callback);
+    static getContratacionDeAspirante(idAspirante, idContratacionEmpleo, callback) {
+        ContratacionDAO.getContratacionDeAspirante(idAspirante, idContratacionEmpleo, callback);
     }
 
-    static evaluarEmpleador(idAspirante, IdContratacionEmpleo, puntuacion, callback) {
-        ContratacionDAO.evaluarEmpleador(idAspirante, IdContratacionEmpleo, puntuacion, callback);
+    static evaluarEmpleador(idAspirante, idContratacionEmpleo, puntuacion, callback) {
+        ContratacionDAO.evaluarEmpleador(idAspirante, idContratacionEmpleo, puntuacion, callback);
     }
 }

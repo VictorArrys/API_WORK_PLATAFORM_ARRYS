@@ -32,7 +32,7 @@ exports.SolicitudDAO = class SolicitudDAO {
             if(error){ 
                 MostrarError.MostrarError(error, 'SolicitudDAO | Metodo: getSolicitudEmpleo')
                 callback(500, mensajes.errorInterno)
-            }else if(resultadoSolicitudEmpleo[0].length == 0){
+            }else if(resultadoSolicitudEmpleo.length == 0){
     
                 callback(404, mensajes.peticionNoEncontrada)
      
@@ -167,5 +167,55 @@ exports.SolicitudDAO = class SolicitudDAO {
         });
     }
 
-    
+    static postSolicitarVacante(idOfertaEmpleo, idAspirante, callback) {
+        var queryComprobacion = "SELECT COUNT(*) as numSolicitudes FROM solicitud_aspirante where id_perfil_aspirante_sa = ? and id_oferta_empleo_sa = ?;";
+        mysqlConnection.query(queryComprobacion, [idAspirante,idOfertaEmpleo], (error, resultado) => {
+            if (error) {
+                
+                callback(500, mensajes.errorInterno);
+            } else {
+                var numSolicitud = resultado[0]['numSolicitudes'];
+                if (numSolicitud == 0) {
+                    querySolicitud = "INSERT INTO solicitud_aspirante ( id_perfil_aspirante_sa, id_oferta_empleo_sa, estatus, fecha_registro) VALUES ( ?, ?, 1, NOW());";
+                    mysqlConnection.query(querySolicitud, [idAspirante, idOfertaEmpleo], (error, resultado) => {
+                        if (error) {
+                            callback(500, mensajes.errorInterno);
+                        } else {
+                            nuevaSolcitud = {
+                                "idSolicitudVacante": resultado.insertId,
+                                "estatus": resultado['estatus'],
+                                "fechaRegistro": resultado['fecha_registro'],
+                                "idOfertaEmpleo": resultado['id_oferta_empleo_sa'],
+                                "idPerfilAspirante": resultado['id_perfil_aspirante_sa']
+                            }
+
+                            callback(201, nuevaSolcitud);
+                        }
+                    });
+                } else {
+                    var queryEstatus = "Select estatus FROM solicitud_aspirante where id_perfil_aspirante_sa = ? and id_oferta_empleo_sa = ?;";
+                    mysqlConnection.query(queryEstatus, [idAspirante, idOfertaEmpleo], (error, resultadoConsulta) => {
+                        if(error) {
+                            callback(500, mensajes.errorInterno);
+                        } else {
+                            var mensajeRespuesta = "";
+                            var estatus = resultadoConsulta[0]['estatus']
+                            switch(estatus) {
+                                case 0:
+                                    mensajeRespuesta = mensajes.solicitudEmpleoAceptada
+                                    break;
+                                case 1:
+                                    mensajeRespuesta = mensajes.solicitudEmpleoPendiente
+                                    break;
+                                case -1:
+                                    mensajeRespuesta = mensajes.solicitudEmpleoRechazada
+                                    break;    
+                            }
+                            callback(422, mensajeRespuesta);
+                        }
+                    })
+                }
+            }
+        })
+    }
 }

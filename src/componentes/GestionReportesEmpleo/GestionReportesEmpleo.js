@@ -31,12 +31,12 @@ exports.ResportesEmpleo = class ReportesEmpleo {
     }
 
     //Aspirante
-    static postReporteEmpleo(idOfertaEmpleo, idAspirante, contenidoReporte, callback) {
+    static postReporteEmpleo(idContratacion, idAspirante, contenidoReporte, callback) {
         var reporteNuevo = new ReporteEmpleo();
         reporteNuevo.estatus = 1;
         reporteNuevo.idPerfilAspirante = idAspirante;
         reporteNuevo.contenidoReporte = contenidoReporte;
-        reporteNuevo.idOfertaEmpleo = idOfertaEmpleo;
+        reporteNuevo.idContratacion = idContratacion
         ReporteEmpleoDAO.postReporteEmpleo(reporteNuevo, callback);
     }
 }

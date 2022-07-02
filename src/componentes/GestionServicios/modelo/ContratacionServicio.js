@@ -6,5 +6,6 @@ exports.ContratacionServicio = class ContratacionServicio {
   fechaFinalizacion;
   valoracionDemandante;
   idPerfilAspirante;
+  idPerfilDemandante;
   demandante;
 };

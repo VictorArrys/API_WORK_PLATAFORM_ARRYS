@@ -1,6 +1,6 @@
 const {SolicitudServicioDAO} = require('./data/SolicitudServicioDAO')
 const {ContratacionServicioDAO} = require('./data/ContratacionServicioDAO')
-const {SolicitudServicio} = require('./modelo/SolicitudServicio');
+const {SolicitudServicio} = require('./modelo/SolicitudServicio')
 
 exports.GestionServicios = class GestionServicios {
     
@@ -24,7 +24,7 @@ exports.GestionServicios = class GestionServicios {
     static postSolicitudServicio(idAspirante, idDemandante, titulo, descripcion, callback) {
         var solicitud = new SolicitudServicio();
         solicitud.idDemandante = idDemandante;
-        solicitud.idAspirante = idAspirante;
+        solicitud.idPerfilAspirante = idAspirante;
         solicitud.titulo = titulo;
         solicitud.descripcion = descripcion;
         SolicitudServicioDAO.postSolicitudServicio(solicitud, callback);
@@ -36,19 +36,19 @@ exports.GestionServicios = class GestionServicios {
 
 
     //Aspirante
-    static getSolicitudesServicioAspirante(idAspirante, callback) {
-
+    static getSolicitudesServicioAspirante(idAspirante, estatus, callback) {
+        SolicitudServicioDAO.getSolicitudesServicioAspirante(idAspirante, estatus, callback)
     }
 
     static getSolicitudServicioAspirante(idAspirante, idSolicitud, callback) {
-        
+        SolicitudServicioDAO.getSolicitudServicioAspirante(idAspirante,idSolicitud, callback);
     }
 
     static aceptarSolicitudServicio(idAspirante, idSolicitud, callback) {
-        SolicitudServicioDAO.aceptarSolicitudServicio(idAspirante, idSolicitud, callback);
+        SolicitudServicioDAO.aceptarSolicitud(idAspirante, idSolicitud, callback);
     }
 
     static rechazarSolicitudServicio(idAspirante, idSolicitud, callback) {
-        SolicitudServicioDAO.rechazarSolicitudServicio(idAspirante,idSolicitud, callback);
+        SolicitudServicioDAO.rechazarSolicitud(idAspirante,idSolicitud, callback);
     }
 }

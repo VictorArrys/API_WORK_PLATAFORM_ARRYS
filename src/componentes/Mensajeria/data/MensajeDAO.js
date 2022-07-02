@@ -140,6 +140,7 @@ exports.MensajeDAO = class MensajeDAO {
             mensaje.fechaRegistro = fila["fechaRegistro"];
             mensaje.contenidoMensaje = fila["contenidoMensaje"];
             mensaje.tipoUsuario = fila["tipoUsuario"];
+            mensaje.remitente = fila['remitente'];
             listaMensajes.push(mensaje);
           });
 

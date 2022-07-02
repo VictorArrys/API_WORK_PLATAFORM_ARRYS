@@ -9,29 +9,6 @@ const mensajes = require('../../utils/mensajes');
 const { GestionContratacionesEmpleo } = require('../componentes/GestionContratacionesEmpleo/GestionContratacionesEmpleo');
 const GestionToken = require('../utils/GestionToken');
 
-//Función para verificar el token
-function verifyToken(token, tipoUsuario){
-    var statusCode = 0;
-    try{
-        const tokenData = jwt.verify(token, keys.key); 
-        console.log(tokenData);
-  
-        if (tokenData["tipo"] == tipoUsuario) {
-            statusCode = 200
-            return statusCode
-        }else{
-            //Caso que un token exista pero no contenga los permisos para la petición
-            statusCode = 401
-            return statusCode
-          }
-    
-        } catch (error) { //Caso ..de un token invalido, es decir que no exista
-            statusCode = 401
-            return statusCode
-            
-        }
-}
-
 
 path.get('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
     //Creamos la constante del token que recibimos

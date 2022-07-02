@@ -5,12 +5,8 @@ const keys = require("../../settings/keys");
 const jwt = require("jsonwebtoken");
 const ruta = require("path");
 const multer = require("multer");
-const {
-  GestionUsuarios,
-} = require("../componentes/GestionUsuarios/GestionUsuarios");
-const {
-  Aspirante,
-} = require("../componentes/GestionUsuarios/modelo/Aspirante");
+const { GestionUsuarios } = require("../componentes/GestionUsuarios/GestionUsuarios");
+const { Aspirante } = require("../componentes/GestionUsuarios/modelo/Aspirante");
 const GestionToken = require("../utils/GestionToken");
 var fileSystem = require("fs");
 

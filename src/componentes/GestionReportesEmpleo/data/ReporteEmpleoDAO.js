@@ -99,8 +99,7 @@ exports.ReporteEmpleoDAO = class ReporteEmpleoDAO {
                     });
 
                 }else{
-                    res.status(400)
-                    res.json(mensajes.peticionIncorrecta);
+                    callback(400, mensajes.peticionIncorrecta);
                 }          
     
             }
@@ -127,6 +126,48 @@ exports.ReporteEmpleoDAO = class ReporteEmpleoDAO {
 
     //Aspirante
     static postReporteEmpleo(reporteNuevo, callback) {
-        
+        //Confirmar que existe la oferta
+        try {
+            var queryOfertaEmpleo = "select count(id_reporte_empleo) AS estaRegistrada from contratacion_empleo_aspirante as cea inner join contratacion_empleo as ce on (cea.id_contratacion_empleo_cea = ce.id_contratacion_empleo) inner join reporte_empleo as re on (re.id_oferta_empleo_re = ce.id_oferta_empleo_coe) where cea.id_perfil_aspirante_cea = re.id_perfil_aspirante_re AND re.id_perfil_aspirante_re = ? AND ce.id_contratacion_empleo = ?;";
+            mysqlConnection.query(queryOfertaEmpleo, [ reporteNuevo.idPerfilAspirante, reporteNuevo.idContratacion], (error, resultado) => {
+                if(error) {
+                    throw error;
+                } else {
+                    if(resultado[0]['estaRegistrada'] == 0) { //No hau reporte
+                        var queryReporte = "INSERT INTO reporte_empleo (id_perfil_aspirante_re, id_oferta_empleo_re, motivo, estatus, fecha_registro) VALUES (?, (SELECT id_oferta_empleo_coe FROM deser_el_camello.contratacion_empleo where id_contratacion_empleo = ?), ?, ?, NOW());"
+                        mysqlConnection.query(queryReporte, [reporteNuevo.idPerfilAspirante, reporteNuevo.idContratacion, reporteNuevo.contenidoReporte, reporteNuevo.estatus], (error, resultado)=> {
+                            if(error) {
+                                throw error;
+                            } else {
+                                var idNuevoReporte = resultado.insertId;
+                                var queryConsulta = "select * from reporte_empleo where id_reporte_empleo = ?";
+                                mysqlConnection.query(queryConsulta, [idNuevoReporte], (error, resultadoConsulta) => {
+                                    if (error) {
+                                        throw error;
+                                    } else {
+                                        var nuevoReporte = {};
+                                        nuevoReporte = {
+                                            "idReporteEmpleo": resultadoConsulta[0]['id_reporte_empleo'],
+                                            "idOfertaEmpleo": resultadoConsulta[0]['id_oferta_empleo_re'],
+                                            "idAspirante" : resultadoConsulta[0]['id_perfil_aspirante_re'],
+                                            "estatus": resultadoConsulta[0]['estatus'],
+                                            "fechaRegistro": resultadoConsulta[0]['fecha_registro'],
+                                            "motivo": resultadoConsulta[0]['motivo']
+                                        };
+    
+                                        callback(201,nuevoReporte);
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        callback(422, mensajes.reporteEmpleoRegistrado);
+                    }
+                }
+            });
+            
+        } catch (error) {
+            callback(500, mensajes.errorInterno);
+        }
     }
 }

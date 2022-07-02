@@ -7,9 +7,6 @@ const { EmpleadorDAO } = require('./data/EmpleadorDAO');
 const { UsuarioDAO } = require('./data/UsuarioDAO');
 
 exports.GestionSolicitudesEmpleo =  class {
-    //Demandante
-
-
     //Empleador
     static getSolicitudesEmpleo(idOfertaEmpleo, callback){
         SolicitudDAO.getSolicitudesEmpleo(idOfertaEmpleo, callback)
@@ -190,7 +187,7 @@ exports.GestionSolicitudesEmpleo =  class {
     }
 
     //Aspirante
-
-
-    
+    static postSolicitarVancante(idOfertaEmpleo, idAspirante, callback) {
+        SolicitudDAO.postSolicitarVacante(idOfertaEmpleo, idAspirante, callback);
+    }  
 }

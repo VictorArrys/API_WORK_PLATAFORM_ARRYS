@@ -5,4 +5,5 @@ exports.ReporteEmpleo = class ReporteEmpleo {
     motivo;
     estatus; 
     fechaRegistro;
+    idContratacion;
 }

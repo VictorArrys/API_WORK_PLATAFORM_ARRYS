@@ -17,13 +17,12 @@ exports.ContratacionServicioDAO = class ContratacionServicioDAO {
                         contratacion.fechaContratacion = fila['fecha_contratacion'];
                         contratacion.valoracionDemandante = fila['valoracion_aspirante'];
                         contratacion.idPerfilAspirante = fila['id_perfil_aspirante_cs'];
-                        contratacion.idPErfilDemandante = fila['id_perfil_demandante_cs'];
+                        contratacion.idPerfilDemandante = fila['id_perfil_demandante_cs'];
                         contratacion.idContratacionServicio = fila['id_contratacion_servicio'];
                         contratacion.fechaFinalizacion = fila['fecha_finalizacion'];
-                    listaContratacionesServicio.push(contratacionServicio);
+                    listaContratacionesServicio.push(contratacion);
                 });
-                res.status(200);
-                res.send(listaContratacionesServicio);
+                callback(200, listaContratacionesServicio);
             }
         });
     }
@@ -59,11 +58,30 @@ exports.ContratacionServicioDAO = class ContratacionServicioDAO {
     }
 
     static finalizarContratacionServicio(idDemandante, idContratacionServicio, callback) {
-        
+        var queryComprobacion = "SELECT if(count(*) = 1, true, false) as estaActiva FROM deser_el_camello.contratacion_servicio where (id_perfil_demandante_cs = ? AND id_contratacion_servicio = ?) AND estatus = 0;"
+        var queryFinalizar = "UPDATE contratacion_servicio SET estatus = 1 WHERE (id_perfil_demandante_cs = ? AND id_contratacion_servicio = ?);"
+        mysqlConnection.query(queryComprobacion, [idDemandante, idContratacionServicio], (error, resultadoComprobacion) => {
+            if (error) {
+                callback(500, mensajes.errorInterno);
+            } else {
+                var sePuedeFinalizar = resultadoComprobacion[0]['estaActiva'];
+                if (sePuedeFinalizar == 1) {
+                    mysqlConnection.query(queryFinalizar, [idDemandante, idContratacionServicio], (error, resultado)=> {
+                        if(error){ 
+                            callback(500, mensajes.errorInterno);
+                        } else {
+                            callback(204, mensajes.contratacionServicioFinalizada);
+                        }
+                    });
+                } else {
+                    callback(409, mensajes.contratacionServicioPreviamenteFinalizada);
+                }
+            }
+        });
     }
     
     static evaluarAspirante(idDemandante, idContratacionServicio, puntuacion, callback) {
-        var queryComprobacion = "SELECT count(*) as estaFinalizada FROM contratacion_servicio WHERE id_perfil_demandante_cs = ? AND id_contratacion_servicio = ? AND estatus = 0; ";
+        var queryComprobacion = "SELECT count(*) as estaFinalizada FROM contratacion_servicio WHERE id_perfil_demandante_cs = ? AND id_contratacion_servicio = ? AND estatus = 1 AND valoracion_aspirante > 0; ";
         var queryEvaluacion = "UPDATE contratacion_servicio SET valoracion_aspirante = ? WHERE id_perfil_demandante_cs = ? AND id_contratacion_servicio = ?;"
         mysqlConnection.query(queryComprobacion, [idDemandante, idContratacionServicio], (error, resultadoComprobacion) => {
             if (error) {
@@ -71,15 +89,15 @@ exports.ContratacionServicioDAO = class ContratacionServicioDAO {
             } else {
                 var sePuedeEvaluar = resultadoComprobacion[0]['estaFinalizada'];
                 if (sePuedeEvaluar == 1) {
-                    mysqlConnection.query(queryEvaluacion, [puntuacion, idDemandante, idContratacion], (error, resultado)=> {
+                    mysqlConnection.query(queryEvaluacion, [puntuacion, idDemandante, idContratacionServicio], (error, resultado)=> {
                         if(error){ 
-                            callback(500,mensajes.errorInterno);
+                            callback(500, mensajes.errorInterno);
                         } else {
                             callback(204, mensajes.aspiranteEvaluado);
                         }
                     });
                 } else {
-                    callback(409,mensajes.evaluacionDeAspiranteDenegada);
+                    callback(409, mensajes.evaluacionDeAspiranteDenegada);
                 }
             }
         });
