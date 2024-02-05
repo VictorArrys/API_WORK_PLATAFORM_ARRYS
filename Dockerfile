@@ -4,6 +4,9 @@ COPY . /api
 
 WORKDIR /api
 
+# Copiar el archivo .env
+COPY .env .env
+
 RUN npm install
 
 ENV PORT=5000
