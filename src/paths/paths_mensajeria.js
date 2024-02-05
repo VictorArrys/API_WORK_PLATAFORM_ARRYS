@@ -17,7 +17,7 @@ const {
 
 //Consulta de conversaciones
 path.get(
-  "/v1/perfilDemandantes/:idPerfilDemandante/conversaciones",
+  "/perfilDemandantes/:idPerfilDemandante/conversaciones",
   ConversacionesDemandante,
   (req, res) => {
     const token = req.headers["x-access-token"];
@@ -44,7 +44,7 @@ path.get(
 
 //Consulta de una conversación
 path.get(
-  "/v1/perfilDemandantes/:idPerfilDemandante/conversaciones/:idConversacion",
+  "/perfilDemandantes/:idPerfilDemandante/conversaciones/:idConversacion",
   ConversacionDemandante,
   (req, res) => {
     const token = req.headers["x-access-token"];
@@ -75,7 +75,7 @@ path.get(
 );
 
 path.post(
-  "/v1/perfilDemandantes/:idPerfilDemandante/conversaciones/:idConversacion",
+  "/perfilDemandantes/:idPerfilDemandante/conversaciones/:idConversacion",
   MensajeDemandante,
   (req, res) => {
     const token = req.headers["x-access-token"];
@@ -108,7 +108,7 @@ path.post(
 );
 
 path.get(
-  "/v1/perfilEmpleadores/:idPerfilEmpleador/conversaciones",
+  "/perfilEmpleadores/:idPerfilEmpleador/conversaciones",
   ConversacionesEmpleaodor,
   (req, res) => {
     const token = req.headers["x-access-token"];
@@ -136,7 +136,7 @@ path.get(
 );
 
 path.get(
-  "/v1/perfilEmpleadores/:idPerfilEmpleador/conversaciones/:idConversacion",
+  "/perfilEmpleadores/:idPerfilEmpleador/conversaciones/:idConversacion",
   ConversacionEmpleador,
   (req, res) => {
     const token = req.headers["x-access-token"];
@@ -167,7 +167,7 @@ path.get(
 );
 
 path.post(
-  "/v1/perfilEmpleadores/:idPerfilEmpleador/conversaciones/:idConversacion",
+  "/perfilEmpleadores/:idPerfilEmpleador/conversaciones/:idConversacion",
   MensajeEmpleaodor,
   (req, res) => {
     const token = req.headers["x-access-token"];
@@ -199,7 +199,7 @@ path.post(
 );
 
 path.get(
-  "/v1/perfilAspirantes/:idPerfilAspirante/conversaciones",
+  "/perfilAspirantes/:idPerfilAspirante/conversaciones",
   (req, res) => {
     const token = req.headers["x-access-token"];
     const idPerfilAspirante = req.params["idPerfilAspirante"];
@@ -227,7 +227,7 @@ path.get(
 );
 
 path.get(
-  "/v1/perfilAspirantes/:idPerfilAspirante/conversaciones/:idConversacion",
+  "/perfilAspirantes/:idPerfilAspirante/conversaciones/:idConversacion",
   (req, res) => {
     const token = req.headers["x-access-token"];
     idPerfilAspirante = req.params["idPerfilAspirante"];
@@ -256,7 +256,7 @@ path.get(
 );
 
 path.post(
-  "/v1/perfilAspirantes/:idPerfilAspirante/conversaciones/:idConversacion",
+  "/perfilAspirantes/:idPerfilAspirante/conversaciones/:idConversacion",
   (req, res) => {
     const token = req.headers["x-access-token"];
     const idPerfilAspirante = req.params["idPerfilAspirante"];

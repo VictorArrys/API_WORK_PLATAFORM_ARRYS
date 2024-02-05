@@ -26,7 +26,7 @@ function consoleError(error, ubicacion) {
   );
 }
 
-path.get("/v1/perfilAdministradores", (req, res) => {
+path.get("/perfilAdministradores", (req, res) => {
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador");
 
@@ -54,7 +54,7 @@ path.get("/v1/perfilAdministradores", (req, res) => {
   }
 });
 
-path.get("/v1/perfilAdministradores/:idPerfilUsuarioAdmin", (req, res) => {
+path.get("/perfilAdministradores/:idPerfilUsuarioAdmin", (req, res) => {
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador");
 
@@ -84,7 +84,7 @@ path.get("/v1/perfilAdministradores/:idPerfilUsuarioAdmin", (req, res) => {
   }
 });
 
-path.put("/v1/perfilAdministradores/:idPerfilAdministrador", (req, res) => {
+path.put("/perfilAdministradores/:idPerfilAdministrador", (req, res) => {
   // listo api
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador");

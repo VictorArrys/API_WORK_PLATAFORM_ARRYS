@@ -192,6 +192,7 @@ exports.EmpleadorDAO = class EmpleadorDAO {
         if (error) {
           callback(500, mensajes.errorInterno);
         } else {
+          console.log(comprobacion)
           callback(200, comprobacion[0]["Comprobacion"]);
         }
       }

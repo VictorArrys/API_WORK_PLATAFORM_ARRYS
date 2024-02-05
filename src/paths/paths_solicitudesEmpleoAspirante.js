@@ -6,7 +6,7 @@ const GestionToken = require('../utils/GestionToken');
 const { GestionSolicitudesEmpleo } = require('../componentes/GestionSolcitudesEmpleo/GestionSolicitudesEmpleo');
 
 
-path.post("/v1/ofertasEmpleo-A/:idOfertaEmpleo/solicitarVacante", (req, res)=>{
+path.post("/ofertasEmpleo-A/:idOfertaEmpleo/solicitarVacante", (req, res)=>{
     const token = req.headers['x-access-token'];
     
     var idPerfilAspirante = req.body['idPerfilAspirante'];

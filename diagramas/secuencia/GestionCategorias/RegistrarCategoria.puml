@@ -30,7 +30,7 @@ note right of d
 x-access-token: string
 end note
 
-d -> e: **POST** /v1/categoriasEmpleo
+d -> e: **POST** /categoriasEmpleo
 activate e
 
 e -> f: postCategoriaEmpleo\n(nombre, callback)

@@ -130,7 +130,7 @@ exports.OfertaEmpleoDAO = class OfertaEmpleoDAO {
         pool.query('SELECT * FROM fotografia WHERE id_oferta_empleo_fotografia = ?;', [idOfertaEmpleo], (error, resultadoFotografias)=>{
             
             if(error){ 
-                MostrarError.MostrarError(error, 'GET: /v1/ofertasEmpleo-E:idOfertaEmpleo/fotografias Paso: 1era query mysql')
+                MostrarError.MostrarError(error, 'GET: /ofertasEmpleo-E:idOfertaEmpleo/fotografias Paso: 1era query mysql')
                 
                 callback(500,mensajes.errorInterno)
                 

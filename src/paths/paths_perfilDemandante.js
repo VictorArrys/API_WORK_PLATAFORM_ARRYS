@@ -25,7 +25,7 @@ function consoleError(error, ubicacion) {
   );
 }
 
-path.get("/v1/perfilDemandantes", (req, res) => {
+path.get("/perfilDemandantes", (req, res) => {
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarToken(token);
 
@@ -59,7 +59,7 @@ path.get("/v1/perfilDemandantes", (req, res) => {
   }
 });
 
-path.get("/v1/perfilDemandantes/:idPerfilUsuarioDemandante", (req, res) => {
+path.get("/perfilDemandantes/:idPerfilUsuarioDemandante", (req, res) => {
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarToken(token);
   const { idPerfilUsuarioDemandante } = req.params;
@@ -88,7 +88,7 @@ path.get("/v1/perfilDemandantes/:idPerfilUsuarioDemandante", (req, res) => {
   }
 });
 
-path.post("/v1/perfilDemandantes", (req, res) => {
+path.post("/perfilDemandantes", (req, res) => {
   try {
     var demandante = new Demandante();
 
@@ -122,7 +122,7 @@ path.post("/v1/perfilDemandantes", (req, res) => {
   }
 });
 
-path.put("/v1/perfilDemandantes/:idPerfilDemandante", (req, res) => {
+path.put("/perfilDemandantes/:idPerfilDemandante", (req, res) => {
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Demandante");
 

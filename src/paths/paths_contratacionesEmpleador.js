@@ -10,7 +10,7 @@ const { GestionContratacionesEmpleo } = require('../componentes/GestionContratac
 const GestionToken = require('../utils/GestionToken');
 
 
-path.get('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
+path.get('/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
     
@@ -40,7 +40,7 @@ path.get('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
 
 });
 
-path.patch('/v1/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
+path.patch('/contratacionesEmpleo/:idOfertaEmpleo', (req, res) => {
     
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];

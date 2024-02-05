@@ -30,7 +30,7 @@ note right of d
 x-access-token: string
 end note
 
-d -> e : **GET** /v1/reportesEmpleo
+d -> e : **GET** /reportesEmpleo
 activate e
 
 e -> f : getReportesEmpleo(callback): Administrador
@@ -87,7 +87,7 @@ alt ReporteEmpleo consultada
         x-access-token: string
         end note
 
-        d -> e : **PATCH** /v1/reportesEmpleo/:idReporteEmpleo/aceptado
+        d -> e : **PATCH** /reportesEmpleo/:idReporteEmpleo/aceptado
 
         e -> f : aceptarReporteEmpleo(\nidReporteEmpleo, callback): Administrador
 
@@ -229,7 +229,7 @@ alt ReporteEmpleo consultada
         x-access-token: string
         end note
 
-        d -> e : **PATCH** /v1/reportesEmpleo/:idReporteEmpleo/rechazado
+        d -> e : **PATCH** /reportesEmpleo/:idReporteEmpleo/rechazado
 
         e -> f : rechazarReporteEmpleo(\nidReporteEmpleo, callback): Administrador
 

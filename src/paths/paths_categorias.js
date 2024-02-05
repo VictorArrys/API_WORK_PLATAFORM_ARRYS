@@ -1,12 +1,7 @@
 const { Router } = require("express");
 const path = Router();
-var mysqlConnection = require("../../utils/conexion");
-const keys = require("../../settings/keys");
-const jwt = require("jsonwebtoken");
 const GestionToken = require("../utils/GestionToken");
-const {
-  GestionCategoriasEmpleo,
-} = require("../componentes/GestionCategoriasEmpleo");
+const { GestionCategoriasEmpleo,} = require("../componentes/GestionCategoriasEmpleo");
 
 //Respuestas
 const mensajes = require("../../utils/mensajes");
@@ -25,7 +20,7 @@ function consoleError(error, ubicacion) {
   );
 }
 
-path.get("/v1/categoriasEmpleo", (req, res) => {
+path.get("/categoriasEmpleo", (req, res) => {
   // listo api
   try {
     GestionCategoriasEmpleo.getCategoriasEmpleo(function (
@@ -43,7 +38,7 @@ path.get("/v1/categoriasEmpleo", (req, res) => {
   }
 });
 
-path.post("/v1/categoriasEmpleo", (req, res) => {
+path.post("/categoriasEmpleo", (req, res) => {
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador");
 
@@ -83,7 +78,7 @@ path.post("/v1/categoriasEmpleo", (req, res) => {
   }
 });
 
-path.patch("/v1/categoriasEmpleo/:idCategoriaEmpleo", (req, res) => {
+path.patch("/categoriasEmpleo/:idCategoriaEmpleo", (req, res) => {
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador");
 
@@ -125,7 +120,7 @@ path.patch("/v1/categoriasEmpleo/:idCategoriaEmpleo", (req, res) => {
   }
 });
 
-path.delete("/v1/categoriasEmpleo/:idCategoriaEmpleo", (req, res) => {
+path.delete("/categoriasEmpleo/:idCategoriaEmpleo", (req, res) => {
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Administrador");
   const { idCategoriaEmpleo } = req.params;

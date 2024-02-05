@@ -34,7 +34,7 @@ const multerUpload = multer({
 });
 
 path.patch(
-  "/v1/perfilAspirantes/:idPerfilAspirante/video",
+  "/perfilAspirantes/:idPerfilAspirante/video",
   multerUpload.single("video"),
   (req, res) => {
     const { idPerfilAspirante } = req.params;
@@ -60,7 +60,7 @@ path.patch(
   }
 );
 
-path.get("/v1/perfilAspirantes/:idPerfilAspirante/video", (req, res) => {
+path.get("/perfilAspirantes/:idPerfilAspirante/video", (req, res) => {
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarToken(token);
   const { idPerfilAspirante } = req.params;
@@ -113,7 +113,7 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/video", (req, res) => {
   }
 });
 
-path.get('/v1/perfilAspirantes', (req, res) => {
+path.get('/perfilAspirantes', (req, res) => {
   const token = req.headers['x-access-token']
   var respuesta = GestionToken.ValidarToken(token)
   var idCategoria = req.query.idCategoria;
@@ -142,7 +142,7 @@ path.get('/v1/perfilAspirantes', (req, res) => {
   }
 })
 
-path.get("/v1/perfilAspirantes/:idPerfilUsuarioAspirante", (req, res) => {
+path.get("/perfilAspirantes/:idPerfilUsuarioAspirante", (req, res) => {
   const token = req.headers["x-access-token"];
   const { idPerfilUsuarioAspirante } = req.params;
   var respuesta = GestionToken.ValidarToken(token);
@@ -169,7 +169,7 @@ path.get("/v1/perfilAspirantes/:idPerfilUsuarioAspirante", (req, res) => {
   }
 });
 
-path.post("/v1/perfilAspirantes", (req, res) => {
+path.post("/perfilAspirantes", (req, res) => {
   try {
     var aspirante = new Aspirante();
 
@@ -204,7 +204,7 @@ path.post("/v1/perfilAspirantes", (req, res) => {
   }
 });
 
-path.put("/v1/perfilAspirantes/:idPerfilAspirante", (req, res) => {
+path.put("/perfilAspirantes/:idPerfilAspirante", (req, res) => {
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Aspirante");
   try {

@@ -9,7 +9,7 @@ const GestionToken = require('../utils/GestionToken');
 //Respuestas
 const mensajes = require('../../utils/mensajes')
 
-path.get('/v1/solicitudesEmpleo', (req, res) => {
+path.get('/solicitudesEmpleo', (req, res) => {
     
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
@@ -40,7 +40,7 @@ path.get('/v1/solicitudesEmpleo', (req, res) => {
 
 });
 
-path.get('/v1/solicitudesEmpleo/:idSolicitudEmpleo', (req, res) => {
+path.get('/solicitudesEmpleo/:idSolicitudEmpleo', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
     
@@ -71,7 +71,7 @@ path.get('/v1/solicitudesEmpleo/:idSolicitudEmpleo', (req, res) => {
 
 });
 
-path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/aceptada', (req, res) => {
+path.patch('/solicitudesEmpleo/:idSolicitudEmpleo/aceptada', (req, res) => {
 
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
@@ -103,7 +103,7 @@ path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/aceptada', (req, res) => {
 });
 
 
-path.patch('/v1/solicitudesEmpleo/:idSolicitudEmpleo/rechazada', (req, res) => {
+path.patch('/solicitudesEmpleo/:idSolicitudEmpleo/rechazada', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
     

@@ -49,7 +49,7 @@ idPerfilEmpleador: int
 
 end note
 
-d -> e : **POST** /v1/ofertasEmpleo-E
+d -> e : **POST** /ofertasEmpleo-E
 activate e
 
 e -> f : postOfertaEmpleo(\nidEmpleador: int, \nofertaEmpleoNueva: OfertaEmpleo): Empleador
@@ -84,7 +84,7 @@ alt OfertaEmpleo registrada
     fotografia: byte[]
     end note
 
-    d -> e : **POST** /v1/ofertasEmpleo-E/:idOfertaEmpleo/fotografia
+    d -> e : **POST** /ofertasEmpleo-E/:idOfertaEmpleo/fotografia
 
     e -> f : postFotografiaOfertaEmpleo(\nidOfertaEmpleo: int, \nfotografia: byte[]): Empleador
 

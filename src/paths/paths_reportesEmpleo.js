@@ -32,7 +32,7 @@ function verifyToken(token, tipoUsuario){
         }
 }
 
-path.get('/v1/reportesEmpleo', (req, res) => {
+path.get('/reportesEmpleo', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
     
@@ -61,7 +61,7 @@ path.get('/v1/reportesEmpleo', (req, res) => {
 
 });
 
-path.get('/v1/reportesEmpleo/:idReporteEmpleo', (req, res) => {
+path.get('/reportesEmpleo/:idReporteEmpleo', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
     
@@ -91,7 +91,7 @@ path.get('/v1/reportesEmpleo/:idReporteEmpleo', (req, res) => {
 
 });
 
-path.patch('/v1/reportesEmpleo/:idReporteEmpleo/aceptado', (req, res) => {
+path.patch('/reportesEmpleo/:idReporteEmpleo/aceptado', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
     
@@ -122,7 +122,7 @@ path.patch('/v1/reportesEmpleo/:idReporteEmpleo/aceptado', (req, res) => {
 });
 
 
-path.patch('/v1/reportesEmpleo/:idReporteEmpleo/rechazado', (req, res) => {
+path.patch('/reportesEmpleo/:idReporteEmpleo/rechazado', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
     
@@ -155,7 +155,7 @@ path.patch('/v1/reportesEmpleo/:idReporteEmpleo/rechazado', (req, res) => {
 
 //Aspirante
 
-path.post('/v1/reportesEmpleo', (req, res) => {
+path.post('/reportesEmpleo', (req, res) => {
     const token = req.headers['x-access-token'];
     var idContratacion = req.body['idContratacion'];
     var contenidoReporte = req.body['motivo'];

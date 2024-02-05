@@ -58,7 +58,7 @@ end
 c -> d: PostEmpleador\n(usuario, empleador)
 activate d
 
-d -> e: **POST** /v1/perfilEmpleadores
+d -> e: **POST** /perfilEmpleadores
 activate e
 
 e -> f: postEmpleador(empleadorNuevo, callback)
@@ -115,7 +115,7 @@ e -> d: **CREATED 201**
 
 alt CREATED
 
-    d -> e: **PATCH** /v1/PerfilUsuarios/:idUsuario/fotografia
+    d -> e: **PATCH** /PerfilUsuarios/:idUsuario/fotografia
 
     e -> f: patchFotografiaUsuario\n(idUsuario, fotografia, callback)
 

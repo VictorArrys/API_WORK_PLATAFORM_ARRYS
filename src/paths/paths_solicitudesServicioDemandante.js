@@ -7,7 +7,7 @@ const GestionToken = require("../utils/GestionToken");
 //Estatus de solicitudes:
 //Pendiente: 0, Rechazado -1, Acpetado: 1 
 
-path.get("/v1/perfilDemandantes/:idPerfilDemandante/solicitudesServicios", (req, res) => {
+path.get("/perfilDemandantes/:idPerfilDemandante/solicitudesServicios", (req, res) => {
     const token = req.headers['x-access-token'];
     var idDemandante = req.params['idPerfilDemandante'];
     var validacionToken = GestionToken.ValidarTokenTipoUsuario(token, "Demandante");
@@ -21,7 +21,7 @@ path.get("/v1/perfilDemandantes/:idPerfilDemandante/solicitudesServicios", (req,
     }
 });
 
-path.post("/v1/perfilDemandantes/:idPerfilDemandante/solicitudesServicios", (req, res) => {
+path.post("/perfilDemandantes/:idPerfilDemandante/solicitudesServicios", (req, res) => {
     const token = req.headers['x-access-token'];
     const idDemandante = req.params['idPerfilDemandante'];
     const idAspirante = req.body['idAspirante'];

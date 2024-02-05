@@ -13,7 +13,7 @@ Activa: 0, finalizada: 1
 */
 
 
-path.get("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios", (req, res) => {
+path.get("/perfilAspirantes/:idPerfilAspirante/solicitudesServicios", (req, res) => {
     const token = req.headers['x-access-token'];
     const estatus = req.query['estatus'];
     const idAspirante = req.params['idPerfilAspirante'];
@@ -29,7 +29,7 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios", (req, r
     }
 });
 
-path.get("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSolicitudServicio",(req, res) => {
+path.get("/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSolicitudServicio",(req, res) => {
     const token = req.headers['x-access-token'];
     const idAspirante = req.params['idPerfilAspirante'];
     const idSolicitudServicio = req.params['idSolicitudServicio'];
@@ -44,7 +44,7 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSolici
     }
 });
 
-path.patch("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSolicitudServicio/aceptada",(req, res) => {
+path.patch("/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSolicitudServicio/aceptada",(req, res) => {
     const token = req.headers['x-access-token'];
     const idAspirante = req.params['idPerfilAspirante'];
     const idSolicitudServicio = req.params['idSolicitudServicio'];
@@ -59,7 +59,7 @@ path.patch("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSoli
     }
 });
 
-path.patch("/v1/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSolicitudServicio/rechazada",(req, res) => {
+path.patch("/perfilAspirantes/:idPerfilAspirante/solicitudesServicios/:idSolicitudServicio/rechazada",(req, res) => {
     const token = req.headers['x-access-token'];
     var idAspirante = req.params['idPerfilAspirante'];
     var idSolicitudServicio = req.params['idSolicitudServicio'];

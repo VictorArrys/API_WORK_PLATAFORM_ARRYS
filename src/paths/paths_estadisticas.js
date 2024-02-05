@@ -7,7 +7,7 @@ const { Estadisticas } = require('../componentes/Estadisticas/Estadisticas');
 const GestionToken = require('../utils/GestionToken');
 
 //Ofertas de empleo generadas por fecha y por categoria
-path.get('/v1/estadisticas/estadisticasUsoPlataforma', (req, res) => {
+path.get('/estadisticas/estadisticasUsoPlataforma', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
     
@@ -33,7 +33,7 @@ path.get('/v1/estadisticas/estadisticasUsoPlataforma', (req, res) => {
 });
 
 //Solicitudes de empleos por categoria y por fecha
-path.get('/v1/estadisticas/estadisiticasEmpleos', (req, res) => {
+path.get('/estadisticas/estadisiticasEmpleos', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
     
@@ -63,7 +63,7 @@ path.get('/v1/estadisticas/estadisiticasEmpleos', (req, res) => {
 });
 
 
-path.get('/v1/estadisticas/valoracionesAspirantes', (req, res) => {
+path.get('/estadisticas/valoracionesAspirantes', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
     
@@ -93,7 +93,7 @@ path.get('/v1/estadisticas/valoracionesAspirantes', (req, res) => {
 
 });
 
-path.get('/v1/estadisticas/valoracionesEmpleadores', (req, res) => {
+path.get('/estadisticas/valoracionesEmpleadores', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
     
@@ -122,7 +122,7 @@ path.get('/v1/estadisticas/valoracionesEmpleadores', (req, res) => {
 
 });
 
-path.get('/v1/estadisticas/ofertasEmpleo', (req, res) => {
+path.get('/estadisticas/ofertasEmpleo', (req, res) => {
     //Creamos la constante del token que recibimos
     const token = req.headers['x-access-token'];
     

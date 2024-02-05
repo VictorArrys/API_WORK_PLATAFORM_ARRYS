@@ -30,7 +30,7 @@ note right of d
 x-access-token: string
 end note
 
-d -> e : **GET** /v1/ofertasEmpleo-E/:idOfertaEmpleo
+d -> e : **GET** /ofertasEmpleo-E/:idOfertaEmpleo
 activate e
 
 e -> f : getOfertaEmpleo(\nidOfertaEmpleo: int, \nidUserToken: int, callback): Empleador
@@ -121,7 +121,7 @@ alt Contratacion consultada
         
         c -> d : GetFotografiasOfertaEmpleo(\nidOfertaEmpleo: int): Empleador
 
-        d -> e : **GET** /v1/ofertasEmpleo-E/:idOfertaEmpleo/fotografia
+        d -> e : **GET** /ofertasEmpleo-E/:idOfertaEmpleo/fotografia
 
         e -> f : getFotografiasOfertaEmpleo(\nidOfertaEmpleo: int): Empleador
 

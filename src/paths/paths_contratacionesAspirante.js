@@ -2,12 +2,12 @@ const { Router } = require('express');
 const path = Router();
 var mysqlConnection = require('../../utils/conexion');
 const mensajes = require('../../utils/mensajes');
-const {GestionServicios} = require('../componentes/GestionServicios')
+const {GestionServicios} = require('../componentes/GestionServicios/GestionServicios')
 const GestionToken = require('../utils/GestionToken');
 const { GestionContratacionesEmpleo } = require('../componentes/GestionContratacionesEmpleo/GestionContratacionesEmpleo');
 
 
-path.get("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesServicios", (req, res) => {
+path.get("/perfilAspirantes/:idPerfilAspirante/contratacionesServicios", (req, res) => {
     var idAspirante = req.params['idPerfilAspirante'];
     
     const token = req.headers['x-access-token'];
@@ -22,7 +22,7 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesServicios", (req
     }
 });
 
-path.get("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo", (req, res) => {
+path.get("/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo", (req, res) => {
     var idAspirante = req.params['idPerfilAspirante'];
     const token = req.headers['x-access-token'];
     var validacionToken = GestionToken.ValidarTokenTipoUsuario(token, "Aspirante");
@@ -36,7 +36,7 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo", (req, r
     }
 });
 
-path.get("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo/:idContratacionEmpleoAspirante", (req, res) => {
+path.get("/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo/:idContratacionEmpleoAspirante", (req, res) => {
     var idAspirante = req.params['idPerfilAspirante'];
     var idContratacionEmpleo = req.params['idContratacionEmpleoAspirante'];
     const token = req.headers['x-access-token'];
@@ -53,7 +53,7 @@ path.get("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo/:idContra
 
 
 //Estatus de la contratación {1: En curso, 0: Terminada}
-path.patch("/v1/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo/:idContratacionEmpleoAspirante/evaluarEmpleador", (req, res) => {
+path.patch("/perfilAspirantes/:idPerfilAspirante/contratacionesEmpleo/:idContratacionEmpleoAspirante/evaluarEmpleador", (req, res) => {
     const idAspirante = req.params['idPerfilAspirante'];
     const idContratacionEmpleo = req.params['idContratacionEmpleoAspirante'];
     const puntuacion = req.body['puntuacion'];

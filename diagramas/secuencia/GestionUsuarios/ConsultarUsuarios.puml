@@ -33,7 +33,7 @@ x-access-token: string
 end note
 
 
-d -> e:  **GET** /v1/perfilUsuarios
+d -> e:  **GET** /perfilUsuarios
 activate e
 
 e -> f: getUsuarios(callback)

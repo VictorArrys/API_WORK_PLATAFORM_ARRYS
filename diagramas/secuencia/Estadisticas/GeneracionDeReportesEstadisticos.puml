@@ -29,7 +29,7 @@ note right of d
 x-access-token: string
 end note
 
-d -> e : **GET** /v1/estadisticas/estadisticasUsoPlataforma
+d -> e : **GET** /estadisticas/estadisticasUsoPlataforma
 activate e
 
 e -> f : estadisticaUsoPlataforma(callback): Administrador
@@ -102,7 +102,7 @@ note right of d
 x-access-token: string
 end note
 
-d -> e : **GET** /v1/estadisticas/estadisiticasEmpleos
+d -> e : **GET** /estadisticas/estadisiticasEmpleos
 activate e
 
 e -> f : estadisticaEmpleos(callback): Administrador
@@ -174,7 +174,7 @@ note right of d
 x-access-token: string
 end note
 
-d -> e : **GET** /v1/estadisticas/valoracionesAspirantes
+d -> e : **GET** /estadisticas/valoracionesAspirantes
 activate e
 
 e -> f : valoracionesAspirante(callback): Administrador
@@ -247,7 +247,7 @@ note right of d
 x-access-token: string
 end note
 
-d -> e : **GET** /v1/estadisticas/valoracionesEmpleadores
+d -> e : **GET** /estadisticas/valoracionesEmpleadores
 activate e
 
 e -> f : valoracionesEmpleador(callback): Administrador

@@ -30,7 +30,7 @@ note right of d
 x-access-token: string
 end note
 
-d -> e: **PATCH** /v1/categoriasEmpleo
+d -> e: **PATCH** /categoriasEmpleo
 activate e
 
 
@@ -92,7 +92,7 @@ end
 
 c -> d: GetCategorias()
 
-d -> e: **GET** /v1/categoriasEmpleo
+d -> e: **GET** /categoriasEmpleo
 
 e -> f: getCategoriasEmpleo\n(callback)
 

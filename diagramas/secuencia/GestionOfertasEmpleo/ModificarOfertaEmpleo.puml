@@ -29,7 +29,7 @@ note right of d
 x-access-token: string
 end note
 
-d -> e : **GET** /v1/ofertasEmpleo-E/:idOfertaEmpleo
+d -> e : **GET** /ofertasEmpleo-E/:idOfertaEmpleo
 activate e
 
 e -> f : getOfertaEmpleo(\nidOfertaEmpleo: int, \nidUserToken: int): Empleador
@@ -75,7 +75,7 @@ alt OfertaEmpleo consultada
 
     c -> d : GetFotografiasOfertaEmpleo(\nidOfertaEmpleo: int): Empleador
 
-    d -> e : **GET** /v1/ofertasEmpleo-E/:idOfertaEmpleo/fotografia
+    d -> e : **GET** /ofertasEmpleo-E/:idOfertaEmpleo/fotografia
 
     e -> f : getFotografiasOfertaEmpleo(\nidOfertaEmpleo: int): Empleador
 
@@ -200,7 +200,7 @@ idPerfilEmpleador: int
 
 end note
 
-d -> e : **PUT** /v1/ofertasEmpleo-E/:idOfertaEmpleo
+d -> e : **PUT** /ofertasEmpleo-E/:idOfertaEmpleo
 activate e
 
 e -> f : putOfertaEmpleo(\nofertaEmpleor: OfertaEmpleo, \nidUsuarioToken: int): Empleador
@@ -237,7 +237,7 @@ alt OfertaEmpleo modificada
     fotografia: byte[]
     end note
 
-    d -> e : **PUT** /v1/ofertasEmpleo-E/:idOfertaEmpleo/:idFotografia/fotografia
+    d -> e : **PUT** /ofertasEmpleo-E/:idOfertaEmpleo/:idFotografia/fotografia
 
     e -> f : putFotografiaOfertaEmpleo(\nidOfertaEmpleo: int,\nidFoto: int, \nfotografia: byte[]): Empleador
 

@@ -29,7 +29,7 @@ note right of d
 x-access-token: string
 end note
 
-d -> e : **GET** /v1/solicitudesEmpleo
+d -> e : **GET** /solicitudesEmpleo
 activate e
 
 e -> f : getSolicitudEmpleo(\idOfertaEmpleo: int,callback): Empleador
@@ -82,7 +82,7 @@ alt Solicitudes consultadas
         x-access-token: string
         end note
 
-        d -> e : **PATCH** /v1/solicitudesEmpleo/:idSolicitudEmpleo/aceptada
+        d -> e : **PATCH** /solicitudesEmpleo/:idSolicitudEmpleo/aceptada
 
         e -> f : patchAceptarSolicitud(\nidSolicitudEmpleo, callback): Empleador
 
@@ -153,7 +153,7 @@ alt Solicitudes consultadas
         x-access-token: string
         end note
 
-        d -> e : **PATCH** /v1/solicitudesEmpleo/:idSolicitudEmpleo/rechazada
+        d -> e : **PATCH** /solicitudesEmpleo/:idSolicitudEmpleo/rechazada
 
         e -> f : patchRechazarSolicitud(\nidSolicitudEmpleo, callback): Empleador
 

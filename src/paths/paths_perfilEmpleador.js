@@ -27,7 +27,7 @@ function consoleError(error, ubicacion) {
   );
 }
 
-path.get("/v1/perfilEmpleadores", (req, res) => {
+path.get("/perfilEmpleadores", (req, res) => {
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarToken(token);
 
@@ -54,7 +54,7 @@ path.get("/v1/perfilEmpleadores", (req, res) => {
   }
 });
 
-path.post("/v1/perfilEmpleadores", (req, res) => {
+path.post("/perfilEmpleadores", (req, res) => {
   try {
     var empleador = new Empleador();
 
@@ -90,7 +90,7 @@ path.post("/v1/perfilEmpleadores", (req, res) => {
   }
 });
 
-path.get("/v1/perfilEmpleadores/:idPerfilUsuarioEmpleador", (req, res) => {
+path.get("/perfilEmpleadores/:idPerfilUsuarioEmpleador", (req, res) => {
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarToken(token);
   const { idPerfilUsuarioEmpleador } = req.params;
@@ -119,7 +119,7 @@ path.get("/v1/perfilEmpleadores/:idPerfilUsuarioEmpleador", (req, res) => {
   }
 });
 
-path.put("/v1/perfilEmpleadores/:idPerfilEmpleador", (req, res) => {
+path.put("/perfilEmpleadores/:idPerfilEmpleador", (req, res) => {
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarTokenTipoUsuario(token, "Empleador");
 

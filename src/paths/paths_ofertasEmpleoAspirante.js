@@ -7,7 +7,7 @@ const mensajes = require('../../utils/mensajes');
 const {ValidarCategorias} = require('../../utils/validaciones/ofertaEmpleoAspirante')
 
 
-path.get("/v1/ofertasEmpleo-A", ValidarCategorias, (req, res) => {
+path.get("/ofertasEmpleo-A", ValidarCategorias, (req, res) => {
     const token = req.headers['x-access-token'];
     const categoriasEmpleo = req.query['categoriasEmpleo'];
     var validacionToken = GestionToken.ValidarTokenTipoUsuario(token, "Aspirante");
@@ -21,7 +21,7 @@ path.get("/v1/ofertasEmpleo-A", ValidarCategorias, (req, res) => {
     }
 });
 
-path.get("/v1/ofertasEmpleo-A/:idOfertaEmpleo", (req, res) => {
+path.get("/ofertasEmpleo-A/:idOfertaEmpleo", (req, res) => {
     const token = req.headers['x-access-token'];
     const idOfertaEmpleo = req.params['idOfertaEmpleo'];
 

@@ -85,7 +85,7 @@ const multerUpload = multer({
 });
 
 path.patch(
-  "/v1/PerfilUsuarios/:idPerfilUsuario/fotografia",
+  "/PerfilUsuarios/:idPerfilUsuario/fotografia",
   multerUpload.single("fotografia"),
   (req, res) => {
     const { idPerfilUsuario } = req.params;
@@ -112,7 +112,7 @@ path.patch(
   }
 );
 
-path.get("/v1/iniciarSesion", (req, res) => {
+path.get("/iniciarSesion", (req, res) => {
   // listo en api
   const { nombreUsuario, clave } = req.query;
 
@@ -135,7 +135,7 @@ path.get("/v1/iniciarSesion", (req, res) => {
   );
 });
 
-path.get("/v1/perfilUsuarios", (req, res) => {
+path.get("/perfilUsuarios", (req, res) => {
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarToken(token);
 
@@ -163,7 +163,7 @@ path.get("/v1/perfilUsuarios", (req, res) => {
   }
 });
 
-path.get("/v1/PerfilUsuarios/:idPerfilUsuario", (req, res) => {
+path.get("/PerfilUsuarios/:idPerfilUsuario", (req, res) => {
   const token = req.headers["x-access-token"];
   var respuesta = GestionToken.ValidarToken(token);
   const { idPerfilUsuario } = req.params;
@@ -198,7 +198,7 @@ path.get("/v1/PerfilUsuarios/:idPerfilUsuario", (req, res) => {
   }
 });
 
-path.patch("/v1/perfilUsuarios/:idPerfilUsuario/habilitar", (req, res) => {
+path.patch("/perfilUsuarios/:idPerfilUsuario/habilitar", (req, res) => {
   const token = req.headers["x-access-token"]
   var respuesta = GestionToken.ValidarToken(token);
 
@@ -249,7 +249,7 @@ path.patch("/v1/perfilUsuarios/:idPerfilUsuario/habilitar", (req, res) => {
   
 });
 
-path.patch("/v1/perfilUsuarios/:idPerfilUsuario/deshabilitar", (req, res) => {
+path.patch("/perfilUsuarios/:idPerfilUsuario/deshabilitar", (req, res) => {
   // listo api
   const token = req.headers["x-access-token"]
   var respuesta = GestionToken.ValidarToken(token)

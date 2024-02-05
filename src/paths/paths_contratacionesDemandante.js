@@ -12,7 +12,7 @@ Estatus de contratacion servicio
 Activa: 0, finalizada: 1
 */
 
-path.get("/v1/perfilDemandantes/:idPerfilDemandante/contratacionesServicios", (req, res) => {
+path.get("/perfilDemandantes/:idPerfilDemandante/contratacionesServicios", (req, res) => {
     const idDemandante = req.params['idPerfilDemandante'];
     const token = req.headers['x-access-token'];
     var validacionToken = GestionToken.ValidarTokenTipoUsuario(token, "Demandante");
@@ -26,7 +26,7 @@ path.get("/v1/perfilDemandantes/:idPerfilDemandante/contratacionesServicios", (r
     }
 });
 
-path.patch("/v1/perfilDemandantes/:idPerfilDemandante/contratacionesServicios/:idContratacionServicio/evaluarAspirante", (req, res) => {
+path.patch("/perfilDemandantes/:idPerfilDemandante/contratacionesServicios/:idContratacionServicio/evaluarAspirante", (req, res) => {
     const token = req.headers['x-access-token'];
     const idDemandante = req.params['idPerfilDemandante'];
     const idContratacion = req.params['idContratacionServicio'];
@@ -42,7 +42,7 @@ path.patch("/v1/perfilDemandantes/:idPerfilDemandante/contratacionesServicios/:i
     }
 });
 
-path.patch("/v1/perfilDemandantes/:idPerfilDemandante/contratacionesServicios/:idContratacionServicio/finalizada", (req, res) => {
+path.patch("/perfilDemandantes/:idPerfilDemandante/contratacionesServicios/:idContratacionServicio/finalizada", (req, res) => {
     const token = req.headers['x-access-token'];
     const idDemandante = req.params['idPerfilDemandante'];
     const idContratacion = req.params['idContratacionServicio'];

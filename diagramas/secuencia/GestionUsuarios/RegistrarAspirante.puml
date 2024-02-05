@@ -31,7 +31,7 @@ c ->> c: CargarVentana()
 c -> d: GetCategorias()
 activate d
 
-d -> f: **GET** /v1/categoriasEmpleo
+d -> f: **GET** /categoriasEmpleo
 activate f
 
 f -> h: getCategoriasEmpleo(callback)
@@ -137,7 +137,7 @@ end
 c -> e: PostAspirante\n(user, aspirante)
 activate e
 
-e -> f: **POST** /v1/perfilAspirantes
+e -> f: **POST** /perfilAspirantes
 
 
 f -> g: postAspirante\n(aspiranteNuevo, callback)
@@ -202,7 +202,7 @@ f -> e: **CREATED 201**
 
 alt CREATED
 
-    e -> f: **PATCH** /v1/perfilUsuarios/:idUsuario/fotografia
+    e -> f: **PATCH** /perfilUsuarios/:idUsuario/fotografia
 
     f -> g: patchFotografiaUsuario(idUsuario, fotografia, callback)
 
@@ -226,7 +226,7 @@ alt CREATED
 
     alt CREATED
 
-    e -> f: **PATCH** /v1/perfilAspirantes/:idAspirante/video 
+    e -> f: **PATCH** /perfilAspirantes/:idAspirante/video 
 
     f -> g: patchVideoAspirante(video, idAspirante, callback)
 

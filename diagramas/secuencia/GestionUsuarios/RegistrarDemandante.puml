@@ -58,7 +58,7 @@ end
 c -> d: PostDemandante\n(usuario, demandante)
 activate d
 
-d -> e: **POST** /v1/perfilDemandantes
+d -> e: **POST** /perfilDemandantes
 activate e
 
 e -> f: postDemandante(demandanteNuevo, callback)
@@ -113,7 +113,7 @@ e -> d: **201 CREATED**
 
 alt CREATED
 
-    d -> e: **PATCH** /v1/PerfilUsuarios/:idUsuario/fotografia
+    d -> e: **PATCH** /PerfilUsuarios/:idUsuario/fotografia
 
     e -> f: patchFotografiaUsuario\n(idUsuario, fotografia, callback)
 
