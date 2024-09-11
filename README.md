@@ -652,7 +652,7 @@ Correo Electrónico: vctmanuel.arrys@gmail.com
 En preproducción.
 
 ## Documentación
-Encuentra más detalles en nuestra [documentación](https://arrysservicesgroup.atlassian.net/wiki/spaces/SD/pages/11010057?atlOrigin=eyJpIjoiZjJiZDlkNmRmMTE4NGU0OWI4NGQ0YjM2MzA1ZTdiMWIiLCJwIjoiYyJ9).
+Encuentra más detalles en nuestra [documentación](https://victor-manuel-arredondo-reyes.atlassian.net/l/cp/dNLAXB2h).
 
 ## Commits estructura
 Cada mensaje de commit sigue el siguiente formato estructurado:
