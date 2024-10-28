@@ -1,12 +1,5 @@
 const { Router } = require("express");
 const path = Router();
-var mysqlConnection = require("../../utils/conexion");
-const keys = require("../../settings/keys");
-const jwt = require("jsonwebtoken");
-const { send, status } = require("express/lib/response");
-const req = require("express/lib/request");
-const res = require("express/lib/response");
-const pool = require("../../utils/conexion");
 const mensajes = require("../../utils/mensajes");
 const GestionToken = require("../utils/GestionToken");
 const { GestionUsuarios } = require("../componentes/GestionUsuarios");

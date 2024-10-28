@@ -31,8 +31,8 @@ pool.getConnection((err, connection)=>{
         }
     }
     if(connection){ connection.release();
-        const environment = process.env.DB_ENV === 'production' ? 'Online Service' : 'Local';
-        console.log(`Base de datos conectada a: ${environment}`);
+        const environment = process.env.DB_ENV === 'production' ? 'Pre prod enviroment' : 'Local enviroment';
+        console.log(`Database connected to: ${environment}`);
         return;
     }
 });

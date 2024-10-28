@@ -1,72 +1,12 @@
-const { Router, response } = require("express");
+const { Router } = require("express");
 const path = Router();
-var mysqlConnection = require("../../utils/conexion");
-const keys = require("../../settings/keys");
-const jwt = require("jsonwebtoken");
 const multer = require("multer");
-const {
-  validarParamIdUsuario,
-} = require("../../utils/validaciones/validarParam");
-const { send, status, json } = require("express/lib/response");
-
 const { AccesoSistema } = require("../componentes/AccesoSistema");
 const { GestionUsuarios } = require("../componentes/GestionUsuarios");
 const GestionToken = require("../utils/GestionToken");
 
 //Respuestas
 const mensajes = require("../../utils/mensajes");
-const req = require("express/lib/request");
-const res = require("express/lib/response");
-const pool = require("../../utils/conexion");
-
-//Función para verificar el token
-function verifyToken(token) {
-  var statusCode = 0;
-  try {
-    const tokenData = jwt.verify(token, keys.key);
-    console.log(tokenData);
-
-    if (tokenData["tipo"] == "Administrador") {
-      statusCode = 200;
-      //mensaje agregado: 06/06/2022
-      //saber procedencia del usuario
-      console.log(tokenData);
-      return statusCode;
-    } else {
-      //Caso que un token exista pero no contenga los permisos para la petición
-      statusCode = 401;
-      return statusCode;
-    }
-  } catch (error) {
-    //Caso de un token invalido, es decir que no exista
-    statusCode = 401;
-    return statusCode;
-  }
-}
-
-function verifyTokenUser(token) {
-  var statusCode = 0;
-  try {
-    const tokenData = jwt.verify(token, keys.key);
-
-    if (
-      tokenData["tipo"] == "Empleador" ||
-      tokenData["tipo"] == "Demandante" ||
-      tokenData["tipo"] == "Aspirante" ||
-      tokenData["tipo"] == "Administrador"
-    ) {
-      statusCode = 200;
-      console.log(tokenData);
-      return statusCode;
-    } else {
-      statusCode = 401;
-      return statusCode;
-    }
-  } catch (error) {
-    statusCode = 401;
-    return statusCode;
-  }
-}
 
 function consoleError(error, ubicacion) {
   console.log(

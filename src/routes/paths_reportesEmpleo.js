@@ -1,36 +1,10 @@
 const { Router } = require('express');
 const path = Router();
-var mysqlConnection = require('../../utils/conexion');
-const keys = require('../../settings/keys');
-const jwt = require('jsonwebtoken');
 
 const {ResportesEmpleo} = require('../componentes/GestionReportesEmpleo')
 const GestionToken = require('../utils/GestionToken');
 //Respuestas
 const mensajes = require('../../utils/mensajes')
-
-//Función para verificar el token
-function verifyToken(token, tipoUsuario){
-    var statusCode = 0;
-    try{
-        const tokenData = jwt.verify(token, keys.key); 
-        console.log(tokenData);
-  
-        if (tokenData["tipo"] == tipoUsuario) {
-            statusCode = 200
-            return statusCode
-        }else{
-            //Caso que un token exista pero no contenga los permisos para la petición
-            statusCode = 401
-            return statusCode
-          }
-    
-        } catch (error) { //Caso ..de un token invalido, es decir que no exista
-            statusCode = 401
-            return statusCode
-            
-        }
-}
 
 path.get('/reportesEmpleo', (req, res) => {
     //Creamos la constante del token que recibimos

@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
+require('dotenv').config();
 
 var LlaveToken = {
-  key: "claveSecreta_elCamello",
+  key: process.env.API_KEY || null,
 };
 
 exports.CrearToken = function (payload) {

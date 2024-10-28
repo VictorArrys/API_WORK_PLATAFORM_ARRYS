@@ -1,7 +1,5 @@
 const { Router } = require('express');
 const path = Router();
-const keys = require('../../settings/keys');
-const jwt = require('jsonwebtoken');
 
 const { GestionSolicitudesEmpleo } = require('../componentes/GestionSolcitudesEmpleo/GestionSolicitudesEmpleo');
 const GestionToken = require('../utils/GestionToken');

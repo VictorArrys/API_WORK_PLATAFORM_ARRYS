@@ -1,9 +1,5 @@
 const { Router } = require("express");
 const path = Router();
-var mysqlConnection = require("../../utils/conexion");
-const keys = require("../../settings/keys");
-const jwt = require("jsonwebtoken");
-const ruta = require("path");
 const multer = require("multer");
 const { GestionUsuarios } = require("../componentes/GestionUsuarios/GestionUsuarios");
 const { Aspirante } = require("../componentes/GestionUsuarios/modelo/Aspirante");

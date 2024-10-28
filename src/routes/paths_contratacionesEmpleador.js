@@ -1,8 +1,5 @@
 const { Router } = require('express');
 const path = Router();
-var mysqlConnection = require('../../utils/conexion');
-const keys = require('../../settings/keys');
-const jwt = require('jsonwebtoken');
 
 //Respuestas
 const mensajes = require('../../utils/mensajes');
