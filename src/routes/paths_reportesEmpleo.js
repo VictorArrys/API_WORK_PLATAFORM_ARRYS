@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const path = Router();
 
-const {ResportesEmpleo} = require('../componentes/GestionReportesEmpleo')
+const {ResportesEmpleo} = require('../componentes/GestionReportesEmpleo/GestionReportesEmpleo')
 const GestionToken = require('../utils/GestionToken');
 //Respuestas
 const mensajes = require('../../utils/mensajes')

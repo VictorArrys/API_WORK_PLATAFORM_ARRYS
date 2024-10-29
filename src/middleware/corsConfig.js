@@ -12,8 +12,7 @@ const corsOptions = {
         }
     },
     methods: 'GET,POST,PUT,DELETE',
-    allowedHeaders: 'Content-Type,Authorization',
-    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token'], // Asegúrate de incluir x-access-token    credentials: true,
     maxAge: 3600
 };
 

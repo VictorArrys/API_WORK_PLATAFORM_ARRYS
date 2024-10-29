@@ -68,6 +68,7 @@ path.get("/iniciarSesion", (req, res) => {
           estatus: cuerpoRespuesta.estatus
         };
         var token = GestionToken.CrearToken(payloadToken);
+        cuerpoRespuesta.token = token;
         res.setHeader("x-access-token", token);
       }
       res.status(codigoRespuesta).json(cuerpoRespuesta);
