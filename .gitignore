@@ -106,3 +106,5 @@ dist
 # Visual Studio
 .vs
 .vscode
+# Local Netlify folder
+.netlify

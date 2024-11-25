@@ -4,7 +4,6 @@ const fs = require('fs')
 const path = require('path');
 
 const pathRouter = `${__dirname}`
-// Configuración de rutas según el entorno
 const removeExtension = (fileName) => {
     return fileName.split('.').shift() 
 } 
@@ -15,7 +14,7 @@ fs.readdirSync(pathRouter).forEach((file) => {
         const skip = ['index'].includes(fileWithoutExt)
         if(!skip){
             router.use(require(`./${fileWithoutExt}`))
-            console.log('Ruta cargada:', `./${fileWithoutExt}`);
+            console.log('Rutas cargadas de endpoints:', `./${fileWithoutExt}`);
         }
         
     }
